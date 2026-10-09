@@ -322,19 +322,19 @@
   }
   .bandit {
     position: absolute;
-    top: 14%;
-    width: max-content;
-    max-width: 40%;
+    top: 12px;
+    width: 30%;
     transform: translateX(-50%);
     border: 0;
     background: transparent;
     box-shadow: none;
     padding: 0;
     pointer-events: none;
+    z-index: 1;
   }
-  .bandit[data-lane="0"] { left: 18%; }
+  .bandit[data-lane="0"] { left: 17%; }
   .bandit[data-lane="1"] { left: 50%; }
-  .bandit[data-lane="2"] { left: 82%; }
+  .bandit[data-lane="2"] { left: 83%; }
   .bandit span {
     display: block;
     background: #fffdf8;
@@ -357,7 +357,7 @@
     height: 68px;
     transform: translateX(-50%);
     pointer-events: none;
-    z-index: 2;
+    z-index: 3;
     filter: drop-shadow(0 6px 0 rgba(20, 33, 61, .18));
   }
   .bolt {
@@ -1253,7 +1253,7 @@ function startRaid() {
   if (!sky || !ship || !bolts) return;
   const step = play.step;
   const foes = [...sky.querySelectorAll(".bandit")];
-  const lanes = [18, 50, 82];
+  const lanes = [17, 50, 83];
   play.shipX = 0.5;
   play.armed = false;
   play.steering = false;
@@ -1261,7 +1261,9 @@ function startRaid() {
   play.shotAt = 0;
   foes.forEach((foe, index) => {
     foe._lane = lanes[index] || 50;
-    foe._y = -88 - index * 108;
+    foe._y = 16;
+    foe.style.left = foe._lane + "%";
+    foe.style.top = "16px";
   });
   function aim(event, fromPress) {
     if (!play || play.locked || play.step !== step || play.left) return;
@@ -1293,14 +1295,15 @@ function startRaid() {
     }
     play.shipX = Math.min(0.9, Math.max(0.1, play.shipX || 0.5));
     ship.style.left = (play.shipX * 100) + "%";
-    const fall = rect.height * 0.16 * (dt / 1000);
+    const fall = rect.height * 0.075 * (dt / 1000);
+    const floor = Math.max(24, rect.height - 210);
     let escaped = false;
     foes.forEach((foe) => {
-      foe._y += fall;
-      const bob = Math.sin(now / 380 + foe._lane) * 2.2;
+      foe._y = Math.min(floor, foe._y + fall);
+      const bob = Math.sin(now / 520 + foe._lane) * 1.2;
       foe.style.left = (foe._lane + bob) + "%";
       foe.style.top = foe._y + "px";
-      if (foe.dataset.ok === "1" && foe._y > rect.height - 8) escaped = true;
+      if (foe.dataset.ok === "1" && foe._y >= floor - 0.5) escaped = true;
     });
     if (play.armed && now - play.shotAt > 220) {
       play.shotAt = now;
@@ -1525,7 +1528,10 @@ document.body.addEventListener("click", (event) => {
   }
   if (!document.getElementById("ask").hidden) return;
   if (act === "play") start(el.dataset.gate, "full");
-  else if (act === "soon") setFeedback(el.dataset.need, "tip");
+  else if (act === "soon") {
+    setFeedback(el.dataset.need, "tip");
+    setCaption(el.dataset.need);
+  }
   else if (act === "back" || act === "hub") leave();
   else if (act === "pick") {
     if (play && play.gate === "moles" && !el.classList.contains("up")) return;
