@@ -1,0 +1,1088 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f3eee4">
+<title>Word Island · Unit 1 At school</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #14213d;
+    --paper: #f3eee4;
+    --card: #fffdf8;
+    --navy: #14213d;
+    --gold: #ffe14a;
+    --gold-deep: #c9a414;
+    --leaf: #157a3a;
+    --leaf-soft: #d9f3e4;
+    --sky: #2f6fed;
+    --coral: #9c2f24;
+    --coral-soft: #ffd9d4;
+    --line: #e4d8c4;
+    --focus: #14213d;
+    --shadow: 0 10px 0 rgba(20, 33, 61, .06);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    font-family: Lexend, "Trebuchet MS", sans-serif;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(circle at 8% 12%, #d9f3e4 0, transparent 32%),
+      radial-gradient(circle at 96% 0%, #ffe9a8 0, transparent 26%),
+      radial-gradient(circle at 80% 100%, #d5e6ff 0, transparent 28%);
+  }
+  body[data-screen="maze"] { background-color: #e7f6ef; }
+  body[data-screen="moles"] { background-color: #e5f4ee; }
+  body[data-screen="baskets"] { background-color: #f8f1e4; }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  button:focus-visible, a:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+  .skip {
+    position: absolute;
+    left: 12px;
+    top: -40px;
+    background: #fff;
+    padding: 8px 12px;
+    z-index: 5;
+  }
+  .skip:focus { top: 12px; }
+  .app { min-height: 100dvh; display: flex; flex-direction: column; }
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px 6px;
+    width: min(1040px, 100%);
+    margin: 0 auto;
+  }
+  .brand { margin: 0; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--gold);
+    box-shadow: inset 0 -2px 0 var(--gold-deep);
+  }
+  .tools { display: flex; align-items: center; gap: 8px; }
+  #stars { margin: 0; font-weight: 700; min-width: 3ch; }
+  .ghost, .btn, .choice, .mole, .basket, .gate, .next {
+    border: 3px solid var(--ink);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 4px 0 rgba(20, 33, 61, .18);
+  }
+  .ghost { padding: 6px 12px; font-weight: 700; background: transparent; }
+  .ghost[aria-pressed="true"] { background: var(--gold); }
+  main { flex: 0 0 auto; width: min(1040px, 100%); margin: 0 auto; padding: 8px 18px 12px; }
+  #caption { margin-top: auto; }
+  .hero { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; margin-bottom: 18px; }
+  .pill {
+    display: inline-block;
+    margin: 0 0 8px;
+    background: var(--gold);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-weight: 700;
+    font-size: .92rem;
+  }
+  h1 {
+    font-family: Fraunces, Palatino, Georgia, serif;
+    font-size: clamp(2.4rem, 6vw, 4.4rem);
+    line-height: .95;
+    font-weight: 600;
+    margin: 0 0 8px;
+    letter-spacing: -0.03em;
+  }
+  .lede { margin: 0; font-size: 1.15rem; max-width: 36ch; }
+  .ladder { margin: 10px 0 0; font-weight: 700; color: var(--leaf); }
+  .robo { width: 120px; height: 120px; }
+  .gates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .gate {
+    text-align: left;
+    padding: 14px;
+    background: var(--card);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 230px;
+  }
+  .gate:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(20, 33, 61, .18); }
+  .gate[aria-disabled="true"] { opacity: .72; }
+  .num { font-weight: 700; color: var(--sky); }
+  .gt { font-family: Fraunces, Palatino, Georgia, serif; font-size: 1.7rem; font-weight: 600; }
+  .gl, .gs { display: block; }
+  .gs { margin-top: auto; font-weight: 700; }
+  .scene { height: 64px; border-radius: 12px; border: 2px solid var(--ink); }
+  .scene-maze {
+    background:
+      radial-gradient(circle at 72% 42%, #ffe14a 0 9px, transparent 10px),
+      linear-gradient(#b7e4c7, #7dcea0);
+  }
+  .scene-moles {
+    background:
+      radial-gradient(circle at 20% 70%, #6b3f2a 0 10px, transparent 11px),
+      radial-gradient(circle at 50% 62%, #f3d2b5 0 12px, transparent 13px),
+      radial-gradient(circle at 78% 70%, #6b3f2a 0 10px, transparent 11px),
+      linear-gradient(#c8f0d4, #8fd4b0);
+  }
+  .scene-baskets {
+    background:
+      radial-gradient(ellipse at 30% 62%, #f6c1a0 0 16px, transparent 17px),
+      radial-gradient(ellipse at 70% 62%, #f7e39a 0 16px, transparent 17px),
+      linear-gradient(#fff6ea, #f3d7b0);
+  }
+  .partner { margin: 14px 0 0; }
+  .linkish { background: none; border: 0; box-shadow: none; padding: 0; font-weight: 700; text-decoration: underline; }
+  .playwrap { width: min(760px, 100%); margin: 0 auto; }
+  .playbar { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .playbar .back { padding: 6px 12px; font-weight: 700; }
+  .gatename { margin: 0; font-weight: 700; flex: 1; }
+  .count { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pips { display: flex; gap: 5px; margin: 0 0 12px; }
+  .pips i {
+    flex: 1; height: 8px; border-radius: 99px; background: #fff; border: 2px solid var(--ink);
+    display: block;
+  }
+  .pips i.did { background: var(--leaf); }
+  .pips i.now { background: var(--gold); }
+  .stage {
+    background: var(--card);
+    border: 3px solid var(--ink);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    padding: 16px;
+  }
+  .stage.challenge { box-shadow: inset 0 0 0 4px var(--gold), var(--shadow); }
+  .qrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  #qtitle {
+    font-family: Fraunces, Palatino, Georgia, serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    line-height: 1.15;
+    margin: 0;
+    font-weight: 600;
+  }
+  #qtitle:focus { outline: none; }
+  .chip {
+    display: inline-block;
+    margin-bottom: 6px;
+    background: var(--gold);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-family: Lexend, sans-serif;
+    font-size: .85rem;
+    font-weight: 700;
+    vertical-align: middle;
+  }
+  .door {
+    width: min(280px, 86%);
+    margin: 8px auto 12px;
+    background: linear-gradient(#fff6d8, #ffe9a8);
+    border: 3px solid var(--ink);
+    border-radius: 18px 18px 8px 8px;
+    padding: 28px 10px 16px;
+    position: relative;
+  }
+  .door .star {
+    position: absolute;
+    top: -14px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    border: 3px solid var(--ink);
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    font-weight: 700;
+  }
+  .pic { display: grid; place-items: center; min-height: 150px; }
+  .pic.small { min-height: 96px; }
+  .ico { width: 128px; height: 128px; }
+  .pic.small .ico { width: 88px; height: 88px; }
+  .choices { display: grid; gap: 10px; margin-top: 12px; }
+  .choice, .mole, .basket, .next, .btn {
+    font-weight: 700;
+    padding: 12px 14px;
+  }
+  .choice:active, .mole:active, .basket:active, .next:active, .btn:active, .ghost:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 rgba(20, 33, 61, .18);
+  }
+  .choice.right, .mole.right, .basket.right { background: var(--leaf-soft); border-color: var(--leaf); }
+  .choice.wrong, .mole.wrong, .basket.wrong { background: var(--coral-soft); }
+  .choice.show-right, .mole.show-right, .basket.show-right { background: var(--leaf-soft); }
+  .field {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    background: #c8efd6;
+    border-radius: 18px;
+    padding: 12px;
+    border: 3px solid #1f6b3a;
+  }
+  .pit { display: flex; flex-direction: column; justify-content: flex-end; min-height: 118px; }
+  .hole {
+    height: 22px; border-radius: 50%;
+    background: #5a3a28;
+    border: 3px solid #3a2418;
+    margin-top: -8px;
+  }
+  .mole { border-radius: 18px 18px 10px 10px; background: #f6d7c3; min-height: 72px; }
+  .prompt-line { margin: 8px 0; font-weight: 700; text-align: center; }
+  .card {
+    margin: 10px auto;
+    max-width: 460px;
+    background: #fff;
+    border: 3px dashed var(--ink);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    font-family: Fraunces, Palatino, Georgia, serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 600;
+    touch-action: none;
+    user-select: none;
+    cursor: grab;
+  }
+  .card.dragging { cursor: grabbing; z-index: 3; position: relative; background: #fff6ea; }
+  .draghint { text-align: center; margin: 0 0 8px; font-size: .95rem; }
+  .baskets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .basket { min-height: 110px; background: #fff6ea; display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; }
+  .basket.tell { background: #e7f2ff; }
+  .basket.over { transform: translateY(-3px); outline: 4px solid var(--gold); }
+  .basket .tag { font-family: Fraunces, Georgia, serif; font-size: 1.5rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .btn.gold { background: var(--gold); }
+  .btn.leaf { background: var(--leaf-soft); }
+  .results h2 {
+    font-family: Fraunces, Palatino, Georgia, serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+  .tips { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 8px; }
+  .tips li { background: #fff8e4; border-radius: 12px; padding: 10px 12px; }
+  .tips p { margin: 0; }
+  #feedback {
+    min-height: 2.8em;
+    margin: 0 auto;
+    width: min(1040px, 100%);
+    padding: 4px 18px 8px;
+    text-align: center;
+    font-weight: 700;
+  }
+  #feedback:empty { min-height: 0; padding: 0; }
+  #feedback.ok { color: var(--leaf); }
+  #feedback.tip { color: var(--ink); }
+  h2:focus { outline: none; }
+  #caption {
+    margin: 0;
+    background: var(--navy);
+    color: #f4efe4;
+    text-align: center;
+    padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .ask {
+    position: fixed; inset: 0;
+    background: rgba(20, 33, 61, .45);
+    display: grid; place-items: center;
+    z-index: 10;
+    padding: 18px;
+  }
+  .ask[hidden] { display: none; }
+  .askbox {
+    background: #fff;
+    border: 3px solid var(--ink);
+    border-radius: 18px;
+    padding: 18px;
+    width: min(420px, 100%);
+    box-shadow: var(--shadow);
+  }
+  .askbox p { margin: 0 0 12px; font-weight: 700; }
+  .askbox div { display: flex; gap: 8px; justify-content: flex-end; }
+  #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15; }
+  .shake { animation: shake .4s linear; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  @media (max-width: 800px) {
+    .hero { grid-template-columns: 1fr; }
+    .robo { display: none; }
+    .gates { grid-template-columns: 1fr; }
+    .gate { min-height: 0; }
+    .field { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 700px) {
+    .choices { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (hover: hover) {
+    .choice:hover, .mole:hover, .basket:hover, .gate:hover, .btn:hover {
+      transform: translateY(-2px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+</head>
+<body data-screen="hub">
+<a class="skip" href="#view">Skip to the game</a>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div class="app">
+  <header class="top">
+    <p class="brand"><span class="dot" aria-hidden="true"></span> Word Island</p>
+    <div class="tools">
+      <p id="stars" aria-live="polite">★ 0</p>
+      <button type="button" class="ghost" id="soundBtn" data-act="sound" aria-pressed="true">Sound on</button>
+    </div>
+  </header>
+  <main>
+    <div id="view"></div>
+    <p id="feedback" role="status" aria-live="polite"></p>
+  </main>
+  <p id="caption"></p>
+</div>
+<div id="ask" class="ask" hidden>
+  <div class="askbox" role="dialog" aria-modal="true" aria-labelledby="asktext">
+    <p id="asktext"></p>
+    <div>
+      <button type="button" class="btn" id="askno" data-act="ask-no">Stay</button>
+      <button type="button" class="btn gold" id="askyes" data-act="ask-yes">Leave</button>
+    </div>
+  </div>
+</div>
+<noscript><p>This page needs JavaScript. Turn it on, then open Word Island again.</p></noscript>
+<script>
+const CAPTION = {
+  hub: "Pen or pencil? Come to Word Island. Play, and practise.",
+  maze: "Game 1. Walk the maze. At the star door, choose the word.",
+  moles: "Game 2. Read the question. Hit the right answer. Think first.",
+  baskets: "Game 3. Drag the card into the right basket.",
+  results: "A wrong answer is fine. Read the tip. Try that one again. Collect your badge."
+};
+
+const GATES = [
+  { id: "maze", n: "01", title: "Word maze", line: "See the picture. Choose the word.", need: "This game is open." },
+  { id: "moles", n: "02", title: "Answer moles", line: "Read the question. Hit the right mole.", need: "Finish the maze first." },
+  { id: "baskets", n: "03", title: "Sentence baskets", line: "Is it asking, or telling?", need: "Finish the moles first." }
+];
+
+const GAME = {
+  maze: "Game 1 · Word maze",
+  moles: "Game 2 · Answer moles",
+  baskets: "Game 3 · Sentence baskets"
+};
+
+const BADGE = { maze: "Maze badge", moles: "Mole badge", baskets: "Basket badge" };
+
+const MAZE = [
+  { id: "m1", icon: "pen", choices: ["a pencil", "a pen", "a ruler"], answer: 1, tip: "It's a pen." },
+  { id: "m2", icon: "ruler", choices: ["a rubber", "a ruler", "a book"], answer: 1, tip: "It's a ruler." },
+  { id: "m3", icon: "book", choices: ["a book", "a bag", "a desk"], answer: 0, tip: "It's a book." },
+  { id: "m4", icon: "pencil", choices: ["a pen", "a pencil", "a ruler"], answer: 1, tip: "It's a pencil." },
+  { id: "m5", icon: "bag", choices: ["a bag", "a book", "a notebook"], answer: 0, tip: "It's a bag." },
+  { id: "m6", icon: "notebook", choices: ["a notebook", "a book", "a pencil"], answer: 0, tip: "It's a notebook." },
+  { id: "m7", icon: "desk", choices: ["a desk", "a bag", "a book"], answer: 0, tip: "It's a desk." },
+  { id: "m8", icon: "rubber", choices: ["a rubber", "a ruler", "a pen"], answer: 0, tip: "It's a rubber." },
+  { id: "m9", icon: "pen", choices: ["a pen", "a pencil", "a ruler"], answer: 0, tip: "Look again. This one is a pen, not a pencil.", challenge: true },
+  { id: "m10", icon: "pencil", choices: ["a pen", "a pencil", "a rubber"], answer: 1, tip: "Look again. This one is a pencil, not a pen.", challenge: true }
+];
+
+const MOLES = [
+  { id: "o1", icon: "pen", prompt: "Is it a pen?", choices: ["Yes, it is.", "No, it isn't.", "It's a ruler."], answer: 0, tip: "Look. It's a pen. So we say: Yes, it is." },
+  { id: "o2", icon: "pencil", prompt: "Is it a ruler?", choices: ["No, it isn't.", "Yes, it is.", "It's a book."], answer: 0, tip: "Look. It's a pencil. So we say: No, it isn't." },
+  { id: "o3", icon: "book", prompt: "Is it a book?", choices: ["Yes, it is.", "No, it isn't.", "It's a pen."], answer: 0, tip: "Look. It's a book. So we say: Yes, it is." },
+  { id: "o4", icon: "ruler", prompt: "Is it a pen?", choices: ["No, it isn't.", "Yes, it is.", "It's a book."], answer: 0, tip: "Look. It's a ruler. So we say: No, it isn't." },
+  { id: "o5", icon: "bag", prompt: "Is it a bag?", choices: ["Yes, it is.", "No, it isn't.", "It's a desk."], answer: 0, tip: "Look. It's a bag. So we say: Yes, it is." },
+  { id: "o6", icon: "notebook", prompt: "Is it a book?", choices: ["No, it isn't.", "Yes, it is.", "It's a pen."], answer: 0, tip: "Look. It's a notebook. So we say: No, it isn't." },
+  { id: "o7", icon: "desk", prompt: "Is it a desk?", choices: ["Yes, it is.", "No, it isn't.", "It's a bag."], answer: 0, tip: "Look. It's a desk. So we say: Yes, it is." },
+  { id: "o8", icon: "rubber", prompt: "Is it a ruler?", choices: ["No, it isn't.", "Yes, it is.", "It's a pen."], answer: 0, tip: "Look. It's a rubber. So we say: No, it isn't." },
+  { id: "o9", icon: "pencil", prompt: "Is it a pen?", choices: ["No, it isn't.", "Yes, it is.", "It's a ruler."], answer: 0, tip: "Look. It's a pencil. So we say: No, it isn't.", challenge: true },
+  { id: "o10", icon: "pen", prompt: "Is it a pencil?", choices: ["No, it isn't.", "Yes, it is.", "It's a book."], answer: 0, tip: "Look. It's a pen. So we say: No, it isn't.", challenge: true }
+];
+
+const BASKETS = [
+  { id: "b1", sentence: "What's this?", basket: "ask", tip: "This line asks a question. Look for the question mark. It goes in Asking." },
+  { id: "b2", sentence: "It's a pen.", basket: "tell", tip: "This line tells what it is. It goes in Telling." },
+  { id: "b3", sentence: "Is it a ruler?", basket: "ask", tip: "This line asks a question. It goes in Asking." },
+  { id: "b4", sentence: "Yes, it is.", basket: "tell", tip: "This line answers. It goes in Telling." },
+  { id: "b5", sentence: "No, it isn't.", basket: "tell", tip: "This line answers. There is no question mark. It goes in Telling." },
+  { id: "b6", sentence: "What's your name?", basket: "ask", tip: "This line asks a question. It goes in Asking." },
+  { id: "b7", sentence: "I'm six.", basket: "tell", tip: "This line tells your age. It goes in Telling." },
+  { id: "b8", sentence: "Open your book, please.", basket: "tell", tip: "This line tells someone what to do. It goes in Telling." },
+  { id: "b9", sentence: "Is it a pencil?", basket: "ask", icon: "pencil", tip: "This line asks a question. The picture does not change that. It goes in Asking.", challenge: true },
+  { id: "b10", sentence: "No, it isn't. It's a pencil.", basket: "tell", icon: "pencil", prompt: "Is it a pen?", tip: "Look. It's a pencil. This line tells the answer. It goes in Telling.", challenge: true }
+];
+
+const BANKS = { maze: MAZE, moles: MOLES, baskets: BASKETS };
+const KEY = "word-island-u1";
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const ICONS = {
+  pen: '<rect x="28" y="10" width="24" height="40" rx="6" fill="#2f6fed"/><rect x="28" y="10" width="24" height="10" rx="4" fill="#14213d"/><rect x="46" y="18" width="6" height="22" rx="2" fill="#9db7f5"/><polygon points="28,50 52,50 40,70" fill="#d5deee"/><circle cx="40" cy="66" r="2.5" fill="#14213d"/>',
+  pencil: '<rect x="30" y="4" width="20" height="12" rx="2" fill="#f2a7b8"/><rect x="30" y="16" width="20" height="6" fill="#9aa3ad"/><rect x="30" y="22" width="20" height="30" fill="#ffe14a"/><polygon points="30,52 50,52 40,74" fill="#e7c39a"/><polygon points="35,58 45,58 40,74" fill="#2a2a2a"/>',
+  ruler: '<rect x="8" y="32" width="64" height="16" rx="3" fill="#e7b15a" stroke="#8a5a20" stroke-width="2"/><path d="M16 32 v8 M26 32 v5 M36 32 v8 M46 32 v5 M56 32 v8 M66 32 v5" stroke="#8a5a20" stroke-width="2"/>',
+  book: '<path d="M14 16 h24 v48 h-24 z" fill="#c81e1e"/><path d="M42 16 h24 v48 h-24 z" fill="#157a3a"/><path d="M38 16 h4 v48 h-4 z" fill="#f3eee4"/>',
+  bag: '<rect x="18" y="30" width="44" height="36" rx="10" fill="#157a3a"/><path d="M30 30 v-6 a10 10 0 0 1 20 0 v6" fill="none" stroke="#0e4a24" stroke-width="4"/>',
+  notebook: '<rect x="18" y="12" width="46" height="56" rx="4" fill="#2f6fed"/><rect x="28" y="12" width="36" height="56" fill="#f7fbff"/><circle cx="24" cy="24" r="3" fill="#d5e1f2"/><circle cx="24" cy="36" r="3" fill="#d5e1f2"/><circle cx="24" cy="48" r="3" fill="#d5e1f2"/><circle cx="24" cy="60" r="3" fill="#d5e1f2"/><path d="M34 26 h24 M34 36 h24 M34 46 h24" stroke="#9db4d6" stroke-width="2"/>',
+  desk: '<rect x="8" y="28" width="64" height="12" rx="2" fill="#c4843c"/><rect x="16" y="40" width="8" height="26" fill="#8a5a20"/><rect x="56" y="40" width="8" height="26" fill="#8a5a20"/>',
+  rubber: '<rect x="16" y="30" width="48" height="22" rx="4" fill="#f2a7b8"/><rect x="16" y="30" width="16" height="22" rx="4" fill="#7eb6e6"/>'
+};
+
+let state = load();
+let play = null;
+let timer = 0;
+let pendingYes = null;
+
+const view = document.getElementById("view");
+const feedback = document.getElementById("feedback");
+const caption = document.getElementById("caption");
+
+function fresh() {
+  return {
+    sound: true,
+    best: { maze: 0, moles: 0, baskets: 0 },
+    done: { maze: false, moles: false, baskets: false },
+    missed: { maze: [], moles: [], baskets: [] }
+  };
+}
+
+function load() {
+  const base = fresh();
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (!saved) return base;
+    return {
+      sound: saved.sound !== false,
+      best: { ...base.best, ...(saved.best || {}) },
+      done: { ...base.done, ...(saved.done || {}) },
+      missed: { ...base.missed, ...(saved.missed || {}) }
+    };
+  } catch (err) {
+    return base;
+  }
+}
+
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(state));
+}
+
+function esc(value) {
+  return String(value).replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[ch]));
+}
+
+function icon(name) {
+  return `<svg class="ico" viewBox="0 0 80 80" aria-hidden="true">${ICONS[name] || ""}</svg>`;
+}
+
+function totalStars() {
+  return (state.best.maze || 0) + (state.best.moles || 0) + (state.best.baskets || 0);
+}
+
+function unlocked(id) {
+  if (id === "maze") return true;
+  if (id === "moles") return !!state.done.maze;
+  return !!state.done.moles;
+}
+
+function setFeedback(text, kind) {
+  feedback.textContent = text || "";
+  feedback.className = kind || "";
+}
+
+function setCaption(text) {
+  caption.textContent = text;
+}
+
+function updateChrome() {
+  const soundBtn = document.getElementById("soundBtn");
+  soundBtn.textContent = state.sound ? "Sound on" : "Sound off";
+  soundBtn.setAttribute("aria-pressed", state.sound ? "true" : "false");
+  const stars = document.getElementById("stars");
+  if (play) {
+    stars.textContent = "★ " + play.stars;
+    stars.setAttribute("aria-label", play.stars + " stars this game");
+  } else {
+    const n = totalStars();
+    stars.textContent = "★ " + n;
+    stars.setAttribute("aria-label", n + " stars in all, out of 30");
+  }
+}
+
+function pickVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find((v) => /en-GB/i.test(v.lang))
+    || voices.find((v) => /^en/i.test(v.lang))
+    || null;
+}
+
+function speak(text, fromButton) {
+  if (!text || (!state.sound && !fromButton)) return;
+  if (!("speechSynthesis" in window)) {
+    if (fromButton) setFeedback("Read the words on the screen.", "tip");
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "en-GB";
+  utter.rate = 0.9;
+  utter.pitch = 1.15;
+  const voice = pickVoice();
+  if (voice) utter.voice = voice;
+  window.speechSynthesis.speak(utter);
+}
+
+function spoken(item) {
+  if (!item) return "";
+  if (play.gate === "maze") return "What's this?";
+  if (play.gate === "moles") return item.prompt;
+  if (item.prompt) return item.prompt + " " + item.sentence;
+  return item.sentence;
+}
+
+function answerName(item) {
+  if (play.gate === "baskets") return item.basket === "ask" ? "Asking" : "Telling";
+  return item.choices[item.answer];
+}
+
+function pictureName(item) {
+  const names = {
+    pen: "a pen", pencil: "a pencil", ruler: "a ruler", book: "a book",
+    bag: "a bag", notebook: "a notebook", desk: "a desk", rubber: "a rubber"
+  };
+  return names[item.icon] || "";
+}
+
+function missedRecord(item) {
+  const label = play.gate === "baskets"
+    ? item.sentence
+    : (play.gate === "moles" ? item.prompt : "What's this?");
+  return { id: item.id, label, answer: answerName(item), tip: item.tip };
+}
+
+function current() {
+  return play.items[play.index];
+}
+
+function shuffled(choices, answerIndex) {
+  const row = choices.map((text, i) => ({ text, ok: i === answerIndex }));
+  for (let i = row.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = row[i];
+    row[i] = row[j];
+    row[j] = tmp;
+  }
+  return row;
+}
+
+function moleSlots(pairs) {
+  const slots = [null, null, null, null, null, null];
+  const pick = [0, 1, 2, 3, 4, 5];
+  for (let i = pick.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = pick[i];
+    pick[i] = pick[j];
+    pick[j] = tmp;
+  }
+  pairs.forEach((pair, i) => { slots[pick[i]] = pair; });
+  return slots;
+}
+
+function later(fn, ms) {
+  clearTimeout(timer);
+  const step = play.step;
+  timer = setTimeout(() => {
+    if (!play || play.step !== step || play.left) return;
+    fn();
+  }, reduceMotion ? 180 : ms);
+}
+
+function showHub() {
+  clearTimeout(timer);
+  play = null;
+  document.body.dataset.screen = "hub";
+  updateChrome();
+  setFeedback("");
+  setCaption(CAPTION.hub);
+  const doneCount = ["maze", "moles", "baskets"].filter((id) => state.done[id]).length;
+  const banner = doneCount === 3
+    ? `<p class="ladder">You finished Word Island. ${totalStars()} / 30 stars.</p>`
+    : `<p class="ladder">Word → Answer → Sentence. Three games. Thirty questions.</p>`;
+  view.innerHTML = `
+    <div class="hero">
+      <div>
+        <p class="pill">Unit 1 · At school</p>
+        <h1>Pen or pencil?</h1>
+        <p class="lede">Come to Word Island. Play, and practise.</p>
+        ${banner}
+      </div>
+      <svg class="robo" viewBox="0 0 120 120" aria-hidden="true">
+        <line x1="60" y1="18" x2="60" y2="32" stroke="#14213d" stroke-width="4"/>
+        <circle cx="60" cy="14" r="6" fill="#c81e1e"/>
+        <rect x="28" y="32" width="64" height="48" rx="16" fill="#2f6fed"/>
+        <circle cx="48" cy="54" r="6" fill="#fff"/><circle cx="72" cy="54" r="6" fill="#fff"/>
+        <circle cx="48" cy="54" r="3" fill="#14213d"/><circle cx="72" cy="54" r="3" fill="#14213d"/>
+        <rect x="46" y="66" width="28" height="6" rx="3" fill="#fff"/>
+        <rect x="36" y="84" width="48" height="26" rx="10" fill="#17324d"/>
+      </svg>
+    </div>
+    <div class="gates">
+      ${GATES.map((gate) => gateCard(gate)).join("")}
+    </div>
+    <p class="partner">Play with a partner. One reads. One answers. <button type="button" class="linkish" data-act="reset">Start over</button></p>
+  `;
+  const title = view.querySelector("h1");
+  if (title) title.focus?.();
+}
+
+function gateCard(gate) {
+  const open = unlocked(gate.id);
+  const best = state.best[gate.id] || 0;
+  const missed = (state.missed[gate.id] || []).length;
+  let status = open ? "Play" : "Locked";
+  if (open && state.done[gate.id]) status = `Play again · best ${best}/10`;
+  if (open && missed) status += ` · ${missed} to practise`;
+  const act = open ? "play" : "soon";
+  return `
+    <button type="button" class="gate" data-act="${act}" data-gate="${gate.id}" data-need="${esc(gate.need)}" ${open ? "" : 'aria-disabled="true"'}>
+      <span class="scene scene-${gate.id}" aria-hidden="true"></span>
+      <span class="num">${gate.n}</span>
+      <span class="gt">${esc(gate.title)}</span>
+      <span class="gl">${esc(gate.line)}</span>
+      <span class="gs">${esc(open ? status : gate.need)}</span>
+    </button>
+  `;
+}
+
+function start(gate, mode) {
+  if (!unlocked(gate)) {
+    setFeedback(GATES.find((g) => g.id === gate).need, "tip");
+    return;
+  }
+  let items = BANKS[gate].slice();
+  if (mode === "retry") {
+    const ids = new Set((state.missed[gate] || []).map((row) => row.id));
+    items = BANKS[gate].filter((item) => ids.has(item.id));
+    if (!items.length) {
+      showHub();
+      return;
+    }
+  }
+  play = {
+    gate, mode, items, index: 0, stars: 0, missed: [],
+    tried: false, locked: false, step: 0, left: false, finished: false, moving: false
+  };
+  renderPlay();
+}
+
+function renderPlay() {
+  play.locked = false;
+  play.tried = false;
+  play.moving = false;
+  document.body.dataset.screen = play.gate;
+  updateChrome();
+  const item = current();
+  const n = play.items.length;
+  const label = play.mode === "retry" ? "Tricky ones" : GAME[play.gate];
+  setCaption(CAPTION[play.gate]);
+  setFeedback(play.gate === "baskets" ? "Read it. Then sort it." : "Read it. Then choose.", "tip");
+  const pips = play.items.map((_, i) => {
+    const cls = i < play.index ? "did" : (i === play.index ? "now" : "");
+    return `<i class="${cls}"></i>`;
+  }).join("");
+  view.innerHTML = `
+    <div class="playwrap">
+      <div class="playbar">
+        <button type="button" class="ghost back" data-act="back">Island</button>
+        <p class="gatename">${esc(label)}</p>
+        <p class="count">${play.index + 1} / ${n}</p>
+      </div>
+      <div class="pips" role="progressbar" aria-valuemin="1" aria-valuemax="${n}" aria-valuenow="${play.index + 1}" aria-label="Question ${play.index + 1} of ${n}">${pips}</div>
+      <section class="stage${item.challenge ? " challenge" : ""}" aria-label="${item.challenge ? "Challenge. " : ""}Question ${play.index + 1} of ${n}">
+        ${stageInner(item)}
+        <button type="button" class="next" data-act="next" hidden>Next</button>
+      </section>
+    </div>
+  `;
+  const title = document.getElementById("qtitle");
+  if (title) title.focus({ preventScroll: true });
+  if (play.gate === "baskets") bindDrag();
+  speak(spoken(item), false);
+}
+
+function stageInner(item) {
+  const chip = item.challenge ? `<span class="chip">Challenge</span> ` : "";
+  if (play.gate === "maze") {
+    const pairs = shuffled(item.choices, item.answer);
+    return `
+      <div class="door">
+        <span class="star" aria-hidden="true">★</span>
+        <div class="pic" role="img" aria-label="${esc(pictureName(item))}">${icon(item.icon)}</div>
+      </div>
+      <div class="qrow">
+        <h2 id="qtitle" tabindex="-1">${chip}What's this?</h2>
+        <button type="button" class="ghost" data-act="hear">Hear it</button>
+      </div>
+      <div class="choices">
+        ${pairs.map((pair) => `<button type="button" class="choice" data-act="pick" data-ok="${pair.ok ? "1" : "0"}">${esc(pair.text)}</button>`).join("")}
+      </div>
+    `;
+  }
+  if (play.gate === "moles") {
+    const pairs = shuffled(item.choices, item.answer);
+    const slots = moleSlots(pairs);
+    return `
+      <div class="pic small" role="img" aria-label="${esc(pictureName(item))}">${icon(item.icon)}</div>
+      <div class="qrow">
+        <h2 id="qtitle" tabindex="-1">${chip}${esc(item.prompt)}</h2>
+        <button type="button" class="ghost" data-act="hear">Hear it</button>
+      </div>
+      <div class="field">
+        ${slots.map((slot) => slot
+          ? `<div class="pit"><button type="button" class="mole" data-act="pick" data-ok="${slot.ok ? "1" : "0"}">${esc(slot.text)}</button><div class="hole" aria-hidden="true"></div></div>`
+          : `<div class="pit"><div class="hole" aria-hidden="true"></div></div>`
+        ).join("")}
+      </div>
+    `;
+  }
+  const prompt = item.prompt ? `<p class="prompt-line">${esc(item.prompt)}</p>` : "";
+  const picture = item.icon
+    ? `<div class="pic small" role="img" aria-label="${esc(pictureName(item))}">${icon(item.icon)}</div>`
+    : "";
+  return `
+    ${picture}
+    ${prompt}
+    <div class="qrow">
+      <h2 id="qtitle" tabindex="-1">${chip}Sort this line</h2>
+      <button type="button" class="ghost" data-act="hear">Hear it</button>
+    </div>
+    <div id="card" class="card">${esc(item.sentence)}</div>
+    <p class="draghint">Drag the card into a basket, or tap a basket.</p>
+    <div class="baskets">
+      <button type="button" class="basket" data-act="basket" data-basket="ask" aria-label="Put the sentence in Asking">
+        <span class="tag">Asking</span><span>A question</span>
+      </button>
+      <button type="button" class="basket tell" data-act="basket" data-basket="tell" aria-label="Put the sentence in Telling">
+        <span class="tag">Telling</span><span>An answer</span>
+      </button>
+    </div>
+  `;
+}
+
+function bindDrag() {
+  const card = document.getElementById("card");
+  if (!card) return;
+  let drag = null;
+  function basketUnder(x, y) {
+    const stack = document.elementsFromPoint(x, y);
+    for (const el of stack) {
+      if (el.closest) {
+        const basket = el.closest("[data-act='basket']");
+        if (basket) return basket;
+      }
+    }
+    return null;
+  }
+  function end() {
+    card.classList.remove("dragging");
+    card.style.transform = "";
+    card.style.pointerEvents = "";
+    view.querySelectorAll(".basket").forEach((basket) => basket.classList.remove("over"));
+    drag = null;
+  }
+  card.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || !play || play.locked) return;
+    drag = { id: event.pointerId, x: event.clientX, y: event.clientY, dx: 0, dy: 0 };
+    card.setPointerCapture(event.pointerId);
+    card.classList.add("dragging");
+  });
+  card.addEventListener("pointermove", (event) => {
+    if (!drag || event.pointerId !== drag.id) return;
+    drag.dx = event.clientX - drag.x;
+    drag.dy = event.clientY - drag.y;
+    card.style.pointerEvents = "none";
+    card.style.transform = `translate(${drag.dx}px, ${drag.dy}px)`;
+    const hit = basketUnder(event.clientX, event.clientY);
+    view.querySelectorAll(".basket").forEach((basket) => basket.classList.toggle("over", basket === hit));
+  });
+  card.addEventListener("pointerup", (event) => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const moved = Math.hypot(drag.dx, drag.dy) > 16;
+    const hit = basketUnder(event.clientX, event.clientY);
+    end();
+    if (moved && hit) grade(hit.dataset.basket === current().basket, hit);
+  });
+  card.addEventListener("pointercancel", end);
+}
+
+function grade(ok, el) {
+  if (!play || play.locked || play.left || play.finished) return;
+  const item = current();
+  if (ok) {
+    const first = !play.tried;
+    play.locked = true;
+    play.tried = true;
+    if (first) play.stars += 1;
+    if (el) el.classList.add("right");
+    updateChrome();
+    setFeedback(first ? "Yes! A star." : "That's right.", "ok");
+    later(next, 650);
+    return;
+  }
+  if (el) {
+    el.classList.remove("shake");
+    void el.offsetWidth;
+    el.classList.add("wrong", "shake");
+  }
+  if (!play.tried) {
+    play.tried = true;
+    play.missed.push(missedRecord(item));
+    markCorrect();
+    const nextBtn = view.querySelector("[data-act='next']");
+    if (nextBtn) nextBtn.hidden = false;
+  }
+  setFeedback(item.tip, "tip");
+}
+
+function markCorrect() {
+  const item = current();
+  if (play.gate === "baskets") {
+    const el = view.querySelector(`[data-basket="${item.basket}"]`);
+    if (el) el.classList.add("show-right");
+    return;
+  }
+  const el = view.querySelector("[data-ok='1']");
+  if (el) el.classList.add("show-right");
+}
+
+function next() {
+  if (!play || play.left || play.finished || play.moving) return;
+  play.moving = true;
+  clearTimeout(timer);
+  play.step += 1;
+  play.index += 1;
+  if (play.index >= play.items.length) finish();
+  else renderPlay();
+}
+
+function finish() {
+  if (!play || play.finished) return;
+  play.finished = true;
+  clearTimeout(timer);
+  const firstClear = play.mode === "full" && !state.done[play.gate];
+  if (play.mode === "full") {
+    state.best[play.gate] = Math.max(state.best[play.gate] || 0, play.stars);
+    state.done[play.gate] = true;
+  }
+  state.missed[play.gate] = play.missed;
+  save();
+  renderResults();
+  const perfect = play.stars === play.items.length;
+  if (!reduceMotion && (perfect || firstClear)) burst();
+}
+
+function renderResults() {
+  document.body.dataset.screen = "results";
+  updateChrome();
+  setCaption(CAPTION.results);
+  setFeedback("");
+  const total = play.items.length;
+  const perfect = play.stars === total;
+  const best = state.best[play.gate] || 0;
+  const pct = Math.round((best / 10) * 100);
+  const title = play.mode === "retry" ? "Practice done." : "Game complete!";
+  let scoreLine = `You got ${play.stars} / ${total} stars on the first try.`;
+  if (play.mode === "retry") scoreLine = `You got ${play.stars} / ${total} this time.`;
+  let badgeLine = `${BADGE[play.gate]} collected. This gate ${pct}/100. Best ${best}/10.`;
+  if (play.mode === "retry") badgeLine = `Your ${GAME[play.gate]} score stays ${pct}/100.`;
+  const tips = play.missed.map((row) => `
+    <li>
+      <p><b>${esc(row.label)}</b> → ${esc(row.answer)}</p>
+      <p>${esc(row.tip)}</p>
+    </li>
+  `).join("");
+  const retryBtn = play.missed.length
+    ? `<button type="button" class="btn leaf" data-act="retry">Wrong ones only</button>`
+    : "";
+  view.innerHTML = `
+    <div class="playwrap results">
+      <p class="pill">${esc(GAME[play.gate])}</p>
+      <h2 tabindex="-1">${title}</h2>
+      <p>${esc(scoreLine)}</p>
+      <p>${esc(badgeLine)}</p>
+      ${perfect && play.mode === "full" ? "<p>Every one was right on the first try.</p>" : ""}
+      ${play.missed.length ? `<h3>Read the tip. Try again.</h3><ul class="tips">${tips}</ul>` : ""}
+      <div class="actions">
+        ${retryBtn}
+        <button type="button" class="btn gold" data-act="again">Play this gate again</button>
+        <button type="button" class="btn" data-act="hub">Back to the island</button>
+      </div>
+    </div>
+  `;
+  const heading = view.querySelector("h2");
+  if (heading) heading.focus();
+}
+
+function leave() {
+  if (!play || play.finished) {
+    showHub();
+    return;
+  }
+  const mid = play.index > 0 || play.tried;
+  if (!mid) {
+    play.left = true;
+    clearTimeout(timer);
+    showHub();
+    return;
+  }
+  ask("Leave this game? Stars from this try will not be saved.", "Leave", () => {
+    if (play) play.left = true;
+    clearTimeout(timer);
+    showHub();
+  });
+}
+
+function ask(text, yesLabel, onYes) {
+  pendingYes = onYes;
+  document.getElementById("asktext").textContent = text;
+  document.getElementById("askyes").textContent = yesLabel;
+  document.getElementById("ask").hidden = false;
+  document.getElementById("askno").focus();
+}
+
+function closeAsk() {
+  pendingYes = null;
+  document.getElementById("ask").hidden = true;
+}
+
+function burst() {
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.floor(window.innerWidth * dpr);
+  canvas.height = Math.floor(window.innerHeight * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const colors = ["#ffe14a", "#2f6fed", "#157a3a", "#c81e1e", "#f2a7b8"];
+  const bits = Array.from({ length: 64 }, () => ({
+    x: window.innerWidth / 2 + (Math.random() - 0.5) * 180,
+    y: window.innerHeight * 0.32,
+    vx: (Math.random() - 0.5) * 8,
+    vy: Math.random() * -8 - 2,
+    g: 0.16 + Math.random() * 0.1,
+    w: 6 + Math.random() * 6,
+    h: 8 + Math.random() * 5,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    rot: Math.random() * 6
+  }));
+  let frame = 0;
+  function tick() {
+    frame += 1;
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    bits.forEach((bit) => {
+      bit.vy += bit.g;
+      bit.x += bit.vx;
+      bit.y += bit.vy;
+      bit.rot += 0.12;
+      ctx.save();
+      ctx.translate(bit.x, bit.y);
+      ctx.rotate(bit.rot);
+      ctx.fillStyle = bit.color;
+      ctx.fillRect(-bit.w / 2, -bit.h / 2, bit.w, bit.h);
+      ctx.restore();
+    });
+    if (frame < 70) requestAnimationFrame(tick);
+    else ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  }
+  tick();
+}
+
+document.body.addEventListener("click", (event) => {
+  const el = event.target.closest("[data-act]");
+  if (!el) return;
+  const act = el.dataset.act;
+  if (act === "sound") {
+    state.sound = !state.sound;
+    save();
+    updateChrome();
+    if (state.sound && play && !play.finished) speak(spoken(current()), false);
+    return;
+  }
+  if (act === "ask-no") { closeAsk(); return; }
+  if (act === "ask-yes") {
+    const yes = pendingYes;
+    closeAsk();
+    if (yes) yes();
+    return;
+  }
+  if (!document.getElementById("ask").hidden) return;
+  if (act === "play") start(el.dataset.gate, "full");
+  else if (act === "soon") setFeedback(el.dataset.need, "tip");
+  else if (act === "back" || act === "hub") leave();
+  else if (act === "pick") grade(el.dataset.ok === "1", el);
+  else if (act === "basket") grade(el.dataset.basket === current().basket, el);
+  else if (act === "next") next();
+  else if (act === "hear") speak(spoken(current()), true);
+  else if (act === "retry") start(play.gate, "retry");
+  else if (act === "again") start(play.gate, "full");
+  else if (act === "reset") {
+    ask("Start over? Stars and badges will clear.", "Start over", () => {
+      state = fresh();
+      save();
+      showHub();
+    });
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  const asking = !document.getElementById("ask").hidden;
+  if (asking) {
+    if (event.key === "Escape") closeAsk();
+    return;
+  }
+  if (!play || play.finished || play.left) return;
+  if (event.key === "Escape") {
+    leave();
+    return;
+  }
+  if (play.locked) return;
+  if (event.target && event.target.closest && event.target.closest("button") && event.key === "Enter") return;
+  if (play.gate === "baskets") {
+    if (event.key === "1" || event.key.toLowerCase() === "a") {
+      const basket = view.querySelector("[data-basket='ask']");
+      if (basket) basket.click();
+    } else if (event.key === "2" || event.key.toLowerCase() === "t") {
+      const basket = view.querySelector("[data-basket='tell']");
+      if (basket) basket.click();
+    }
+    return;
+  }
+  if (event.key === "1" || event.key === "2" || event.key === "3") {
+    const buttons = [...view.querySelectorAll("[data-act='pick']")];
+    const button = buttons[Number(event.key) - 1];
+    if (button) button.click();
+  }
+});
+
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.onvoiceschanged = () => {};
+}
+
+showHub();
+</script>
+</body>
+</html>
