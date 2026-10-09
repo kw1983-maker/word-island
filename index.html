@@ -599,6 +599,7 @@ let play = null;
 let timer = 0;
 let molePop = 0;
 let raidFrame = 0;
+let raidHold = null;
 let pendingYes = null;
 
 const view = document.getElementById("view");
@@ -755,6 +756,12 @@ function stopMoles() {
 function stopRaid() {
   if (raidFrame) cancelAnimationFrame(raidFrame);
   raidFrame = 0;
+  if (raidHold) {
+    window.removeEventListener("pointermove", raidHold.move);
+    window.removeEventListener("pointerup", raidHold.up);
+    window.removeEventListener("pointercancel", raidHold.up);
+    raidHold = null;
+  }
 }
 
 function moleButtons() {
@@ -950,6 +957,7 @@ function renderPlay() {
   play.wrong = 0;
   play.tried = false;
   play.moving = false;
+  play.resolving = false;
   stopMoles();
   document.body.dataset.screen = play.gate;
   updateChrome();
@@ -1236,12 +1244,12 @@ function grade(ok, el) {
     if (nextBtn) nextBtn.hidden = false;
   }
   setFeedback(item.tip, "tip");
+  if (play.gate === "planes") later(next, 1100);
 }
 
 function parkAnswer() {
   const el = view.querySelector(".bandit[data-ok='1']");
   if (!el) return;
-  el.style.top = "12%";
   el.classList.add("show-right");
 }
 
@@ -1266,7 +1274,7 @@ function startRaid() {
     foe.style.top = "16px";
   });
   function aim(event, fromPress) {
-    if (!play || play.locked || play.step !== step || play.left) return;
+    if (!play || play.locked || play.resolving || play.step !== step || play.left) return;
     const rect = sky.getBoundingClientRect();
     if (!rect.width) return;
     if (!fromPress && !play.steering) return;
@@ -1274,13 +1282,21 @@ function startRaid() {
     play.armed = true;
     play.shipX = (event.clientX - rect.left) / rect.width;
   }
+  function holdMove(event) {
+    if (!raidHold || !raidHold.holding) return;
+    aim(event, false);
+  }
+  function holdUp() {
+    if (raidHold) raidHold.holding = false;
+  }
+  raidHold = { move: holdMove, up: holdUp, holding: false };
+  window.addEventListener("pointermove", holdMove);
+  window.addEventListener("pointerup", holdUp);
+  window.addEventListener("pointercancel", holdUp);
   sky.addEventListener("pointerdown", (event) => {
     if (event.button !== 0) return;
-    try { sky.setPointerCapture(event.pointerId); } catch (err) { /* pointer already gone */ }
+    raidHold.holding = true;
     aim(event, true);
-  });
-  sky.addEventListener("pointermove", (event) => {
-    if (event.pointerType === "mouse" || sky.hasPointerCapture(event.pointerId)) aim(event, false);
   });
   let last = 0;
   function frame(now) {
@@ -1319,10 +1335,11 @@ function startRaid() {
     let struck = null;
     for (const bolt of play.bullets) {
       for (const foe of foes) {
-        const fr = foe.getBoundingClientRect();
+        const body = foe.querySelector(".miniplane") || foe;
+        const fr = body.getBoundingClientRect();
         const left = fr.left - rect.left;
         const top = fr.top - rect.top;
-        if (top > 4 && bolt.x > left + 4 && bolt.x < left + fr.width - 4 && bolt.y > top && bolt.y < top + fr.height) {
+        if (top > 4 && bolt.x > left - 8 && bolt.x < left + fr.width + 8 && bolt.y > top && bolt.y < top + fr.height) {
           struck = foe;
           break;
         }
@@ -1341,12 +1358,10 @@ function startRaid() {
       mark.style.left = bolt.x + "px";
       mark.style.top = bolt.y + "px";
     });
-    if (struck) {
-      grade(struck.dataset.ok === "1", struck);
-      return;
-    }
-    if (escaped) {
-      grade(false, null);
+    if (play.resolving) return;
+    if (struck || escaped) {
+      play.resolving = true;
+      grade(struck ? struck.dataset.ok === "1" : false, struck);
       return;
     }
     raidFrame = requestAnimationFrame(frame);
