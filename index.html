@@ -351,11 +351,11 @@
   .bandit.wrong span { background: var(--coral-soft); }
   .ship {
     position: absolute;
-    bottom: 28px;
     left: 50%;
+    top: 78%;
     width: 58px;
     height: 68px;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 3;
     filter: drop-shadow(0 6px 0 rgba(20, 33, 61, .18));
@@ -507,7 +507,7 @@ const CAPTION = {
   maze: "Game 1. Walk the maze. At the star door, choose the word.",
   moles: "Game 2. Read the question. Hit the mole when the right answer pops up.",
   hangman: "Game 3. Look at the picture. Guess the letters.",
-  planes: "Game 4. Fly the plane. Shoot the plane with the right word.",
+  planes: "Game 4. Move the plane. Hold to shoot the right word.",
   results: "A wrong answer is fine. Read the tip. Try that one again. Collect your badge."
 };
 
@@ -760,6 +760,8 @@ function stopRaid() {
     window.removeEventListener("pointermove", raidHold.move);
     window.removeEventListener("pointerup", raidHold.up);
     window.removeEventListener("pointercancel", raidHold.up);
+    window.removeEventListener("keydown", raidHold.keyDown);
+    window.removeEventListener("keyup", raidHold.keyUp);
     raidHold = null;
   }
 }
@@ -968,7 +970,7 @@ function renderPlay() {
   const hint = play.gate === "hangman"
     ? "Guess a letter."
     : play.gate === "planes"
-      ? (reduceMotion ? "Tap the plane with the right word." : "Hold and move under the right word. Your plane shoots.")
+      ? (reduceMotion ? "Tap the plane with the right word." : "Move the plane. Hold to shoot.")
       : play.gate === "moles"
         ? "Hit the right mole when it pops up."
         : "Read it. Then choose.";
@@ -1212,45 +1214,71 @@ function guessLetter(letter) {
 function grade(ok, el) {
   if (!play || play.locked || play.left || play.finished) return;
   if (play.gate === "moles" && el && !el.classList.contains("up")) return;
-  stopMoles();
+  const planes = play.gate === "planes";
+  if (!planes) stopMoles();
   const item = current();
   if (ok) {
     const first = !play.tried;
-    play.locked = true;
+    if (!planes) play.locked = true;
     play.tried = true;
     if (first) play.stars += 1;
     if (el) el.classList.add("right");
     updateChrome();
     setFeedback(first ? "Yes! A star." : "That's right.", "ok");
-    later(next, 650);
+    later(next, planes ? 420 : 650);
     return;
   }
   if (el) {
     el.classList.add("wrong");
-    if (play.gate !== "planes") {
+    if (!planes) {
       el.classList.remove("shake");
       void el.offsetWidth;
       el.classList.add("shake");
     }
   }
-  if (play.gate === "planes") play.locked = true;
   if (!play.tried) {
     play.tried = true;
     play.missed.push(missedRecord(item));
     if (play.gate === "moles") holdCorrectMole();
-    else if (play.gate === "planes") parkAnswer();
+    else if (planes) parkAnswer();
     else markCorrect();
-    const nextBtn = view.querySelector("[data-act='next']");
-    if (nextBtn) nextBtn.hidden = false;
+    if (!planes) {
+      const nextBtn = view.querySelector("[data-act='next']");
+      if (nextBtn) nextBtn.hidden = false;
+    }
   }
   setFeedback(item.tip, "tip");
-  if (play.gate === "planes") later(next, 1100);
+  if (planes) later(next, 700);
 }
 
 function parkAnswer() {
   const el = view.querySelector(".bandit[data-ok='1']");
   if (!el) return;
   el.classList.add("show-right");
+}
+
+function clampUnit(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function destroyPlane(foe, ok) {
+  foe._down = true;
+  foe.classList.add(ok ? "right" : "wrong");
+  if (ok) {
+    const first = !play.tried;
+    play.resolving = true;
+    play.tried = true;
+    if (first) play.stars += 1;
+    updateChrome();
+    setFeedback(first ? "Yes! A star." : "That's right.", "ok");
+    later(next, 700);
+    return;
+  }
+  if (!play.tried) {
+    play.tried = true;
+    play.missed.push(missedRecord(current()));
+  }
+  setFeedback("Not this one. Keep flying.", "tip");
 }
 
 function startRaid() {
@@ -1262,45 +1290,64 @@ function startRaid() {
   const step = play.step;
   const foes = [...sky.querySelectorAll(".bandit")];
   const lanes = [17, 50, 83];
+  const drops = [-24, -150, -276].sort(() => Math.random() - 0.5);
+  const keys = new Set();
   play.shipX = 0.5;
-  play.armed = false;
-  play.steering = false;
+  play.shipY = 0.78;
+  play.aimX = 0.5;
+  play.aimY = 0.78;
+  play.firing = false;
   play.bullets = [];
   play.shotAt = 0;
   foes.forEach((foe, index) => {
     foe._lane = lanes[index] || 50;
-    foe._y = 16;
+    foe._y = drops[index];
+    foe._down = false;
     foe.style.left = foe._lane + "%";
-    foe.style.top = "16px";
+    foe.style.top = foe._y + "px";
   });
-  function aim(event, fromPress) {
-    if (!play || play.locked || play.resolving || play.step !== step || play.left) return;
+  function aim(event) {
+    if (!play || play.step !== step || play.left) return;
     const rect = sky.getBoundingClientRect();
-    if (!rect.width) return;
-    if (!fromPress && !play.steering) return;
-    play.steering = true;
-    play.armed = true;
-    play.shipX = (event.clientX - rect.left) / rect.width;
+    if (!rect.width || !rect.height) return;
+    play.aimX = clampUnit((event.clientX - rect.left) / rect.width, 0.08, 0.92);
+    play.aimY = clampUnit((event.clientY - rect.top) / rect.height, 0.46, 0.9);
   }
   function holdMove(event) {
     if (!raidHold || !raidHold.holding) return;
-    aim(event, false);
+    aim(event);
   }
   function holdUp() {
     if (raidHold) raidHold.holding = false;
+    if (play && play.step === step) play.firing = keys.size > 0;
   }
-  raidHold = { move: holdMove, up: holdUp, holding: false };
+  function keyDown(event) {
+    if (!play || play.step !== step || play.left) return;
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+    keys.add(event.key);
+    play.firing = true;
+    event.preventDefault();
+  }
+  function keyUp(event) {
+    keys.delete(event.key);
+    if (play && play.step === step && !raidHold.holding) play.firing = keys.size > 0;
+  }
+  raidHold = { move: holdMove, up: holdUp, holding: false, keyDown, keyUp };
   window.addEventListener("pointermove", holdMove);
   window.addEventListener("pointerup", holdUp);
   window.addEventListener("pointercancel", holdUp);
+  window.addEventListener("keydown", keyDown);
+  window.addEventListener("keyup", keyUp);
+  sky.addEventListener("pointermove", aim);
   sky.addEventListener("pointerdown", (event) => {
     if (event.button !== 0) return;
     raidHold.holding = true;
-    aim(event, true);
+    play.firing = true;
+    aim(event);
   });
   let last = 0;
   function frame(now) {
-    if (!play || play.step !== step || play.locked || play.left || play.finished) return;
+    if (!play || play.step !== step || play.left || play.finished) return;
     if (!last) last = now;
     const dt = Math.min(34, now - last);
     last = now;
@@ -1309,42 +1356,54 @@ function startRaid() {
       raidFrame = requestAnimationFrame(frame);
       return;
     }
-    play.shipX = Math.min(0.9, Math.max(0.1, play.shipX || 0.5));
+    const nudge = 0.7 * (dt / 1000);
+    if (keys.has("ArrowLeft")) play.aimX -= nudge;
+    if (keys.has("ArrowRight")) play.aimX += nudge;
+    if (keys.has("ArrowUp")) play.aimY -= nudge;
+    if (keys.has("ArrowDown")) play.aimY += nudge;
+    play.aimX = clampUnit(play.aimX, 0.08, 0.92);
+    play.aimY = clampUnit(play.aimY, 0.46, 0.9);
+    play.shipX += (play.aimX - play.shipX) * 0.18;
+    play.shipY += (play.aimY - play.shipY) * 0.18;
     ship.style.left = (play.shipX * 100) + "%";
-    const fall = rect.height * 0.075 * (dt / 1000);
-    const floor = Math.max(24, rect.height - 210);
+    ship.style.top = (play.shipY * 100) + "%";
+    const fall = rect.height * 0.2 * (dt / 1000);
     let escaped = false;
     foes.forEach((foe) => {
-      foe._y = Math.min(floor, foe._y + fall);
+      foe._y += foe._down ? fall * 2.4 : fall;
       const bob = Math.sin(now / 520 + foe._lane) * 1.2;
       foe.style.left = (foe._lane + bob) + "%";
       foe.style.top = foe._y + "px";
-      if (foe.dataset.ok === "1" && foe._y >= floor - 0.5) escaped = true;
+      if (!foe._down && foe.dataset.ok === "1" && foe._y > rect.height - 36) escaped = true;
     });
-    if (play.armed && now - play.shotAt > 220) {
+    const shooting = play.firing && !play.resolving;
+    if (shooting && now - play.shotAt > 140) {
       play.shotAt = now;
       const shipRect = ship.getBoundingClientRect();
       play.bullets.push({
         x: shipRect.left - rect.left + shipRect.width / 2,
-        y: shipRect.top - rect.top
+        y: shipRect.top - rect.top + 8
       });
     }
-    const speed = rect.height * 0.95 * (dt / 1000);
+    const speed = rect.height * 1.45 * (dt / 1000);
     play.bullets.forEach((bolt) => { bolt.y -= speed; });
     play.bullets = play.bullets.filter((bolt) => bolt.y > -24);
-    let struck = null;
-    for (const bolt of play.bullets) {
-      for (const foe of foes) {
-        const body = foe.querySelector(".miniplane") || foe;
-        const fr = body.getBoundingClientRect();
-        const left = fr.left - rect.left;
-        const top = fr.top - rect.top;
-        if (top > 4 && bolt.x > left - 8 && bolt.x < left + fr.width + 8 && bolt.y > top && bolt.y < top + fr.height) {
-          struck = foe;
-          break;
+    const struck = [];
+    if (!play.resolving) {
+      play.bullets = play.bullets.filter((bolt) => {
+        for (const foe of foes) {
+          if (foe._down) continue;
+          const body = foe.querySelector(".miniplane") || foe;
+          const fr = body.getBoundingClientRect();
+          const left = fr.left - rect.left;
+          const top = fr.top - rect.top;
+          if (top > -20 && bolt.x > left - 8 && bolt.x < left + fr.width + 8 && bolt.y > top && bolt.y < top + fr.height) {
+            struck.push(foe);
+            return false;
+          }
         }
-      }
-      if (struck) break;
+        return true;
+      });
     }
     while (bolts.children.length < play.bullets.length) {
       const mark = document.createElement("i");
@@ -1358,11 +1417,19 @@ function startRaid() {
       mark.style.left = bolt.x + "px";
       mark.style.top = bolt.y + "px";
     });
-    if (play.resolving) return;
-    if (struck || escaped) {
+    struck.forEach((foe) => {
+      if (foe._down || play.resolving) return;
+      destroyPlane(foe, foe.dataset.ok === "1");
+    });
+    if (!play.resolving && escaped) {
       play.resolving = true;
-      grade(struck ? struck.dataset.ok === "1" : false, struck);
-      return;
+      if (!play.tried) {
+        play.tried = true;
+        play.missed.push(missedRecord(current()));
+      }
+      parkAnswer();
+      setFeedback(current().tip, "tip");
+      later(next, 700);
     }
     raidFrame = requestAnimationFrame(frame);
   }
