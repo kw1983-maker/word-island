@@ -39,6 +39,7 @@
   body[data-screen="maze"] { background-color: #e7f6ef; }
   body[data-screen="moles"] { background-color: #e5f4ee; }
   body[data-screen="hangman"] { background-color: #f8f1e4; }
+  body[data-screen="planes"] { background-color: #d7eefe; }
   button, input { font: inherit; color: inherit; }
   button { cursor: pointer; }
   button:focus-visible, a:focus-visible {
@@ -103,7 +104,7 @@
   .lede { margin: 0; font-size: 1.15rem; max-width: 36ch; }
   .ladder { margin: 10px 0 0; font-weight: 700; color: var(--leaf); }
   .robo { width: 120px; height: 120px; }
-  .gates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .gates { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .gate {
     text-align: left;
     padding: 14px;
@@ -139,6 +140,14 @@
       linear-gradient(#14213d, #14213d) 20% 28% / 42% 3px no-repeat,
       radial-gradient(circle at 62% 48%, #14213d 0 5px, transparent 6px),
       linear-gradient(#fff6ea, #f3d7b0);
+  }
+  .scene-planes {
+    background:
+      linear-gradient(#ffe14a, #ffe14a) 50% 62% / 18px 8px no-repeat,
+      linear-gradient(#14213d, #14213d) 42% 70% / 10px 16px no-repeat,
+      linear-gradient(#14213d, #14213d) 58% 70% / 10px 16px no-repeat,
+      radial-gradient(circle at 22% 28%, #fff 0 7px, transparent 8px),
+      linear-gradient(#7ec8f8, #d4efff);
   }
   .partner { margin: 14px 0 0; }
   .linkish { background: none; border: 0; box-shadow: none; padding: 0; font-weight: 700; text-decoration: underline; }
@@ -283,6 +292,87 @@
   }
   .blank.show { color: var(--coral); }
   .tries { text-align: center; margin: 0 0 8px; font-weight: 700; }
+  .sky {
+    position: relative;
+    height: min(460px, 62dvh);
+    min-height: 320px;
+    margin-top: 8px;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 3px solid var(--ink);
+    background: linear-gradient(#67b7ee, #e7f6ff 72%, #8fd4b0);
+    touch-action: none;
+    user-select: none;
+  }
+  .cloud {
+    position: absolute;
+    height: 22px;
+    border-radius: 20px;
+    background: #fff;
+    opacity: .85;
+    animation: drift 8s linear infinite;
+    pointer-events: none;
+  }
+  .cloud.c1 { width: 74px; left: 12%; top: -30px; animation-duration: 9s; }
+  .cloud.c2 { width: 52px; left: 62%; top: -80px; animation-duration: 7.5s; animation-delay: -3s; }
+  .cloud.c3 { width: 90px; left: 38%; top: -140px; animation-duration: 11s; animation-delay: -6s; }
+  @keyframes drift {
+    from { transform: translateY(0); }
+    to { transform: translateY(560px); }
+  }
+  .bandit {
+    position: absolute;
+    top: 14%;
+    width: max-content;
+    max-width: 40%;
+    transform: translateX(-50%);
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    pointer-events: none;
+  }
+  .bandit[data-lane="0"] { left: 18%; }
+  .bandit[data-lane="1"] { left: 50%; }
+  .bandit[data-lane="2"] { left: 82%; }
+  .bandit span {
+    display: block;
+    background: #fffdf8;
+    border: 3px solid var(--ink);
+    border-radius: 10px;
+    padding: 4px 4px 3px;
+    font-weight: 700;
+    font-size: clamp(.78rem, 2.5vw, 1rem);
+    line-height: 1.15;
+    text-align: center;
+  }
+  .miniplane { width: 54px; height: 42px; display: block; margin: 2px auto 0; }
+  .bandit.right span, .bandit.show-right span { background: var(--leaf-soft); }
+  .bandit.wrong span { background: var(--coral-soft); }
+  .ship {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    width: 58px;
+    height: 68px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 2;
+    filter: drop-shadow(0 6px 0 rgba(20, 33, 61, .18));
+  }
+  .bolt {
+    position: absolute;
+    width: 6px;
+    height: 16px;
+    margin-left: -3px;
+    border-radius: 4px;
+    background: var(--gold);
+    border: 2px solid var(--ink);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .sky.still .ship, .sky.still .cloud, .sky.still #bolts { display: none; }
+  .sky.still .bandit { pointer-events: auto; cursor: pointer; }
   .abc { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
   .key {
     min-height: 42px;
@@ -417,22 +507,25 @@ const CAPTION = {
   maze: "Game 1. Walk the maze. At the star door, choose the word.",
   moles: "Game 2. Read the question. Hit the mole when the right answer pops up.",
   hangman: "Game 3. Look at the picture. Guess the letters.",
+  planes: "Game 4. Fly the plane. Shoot the plane with the right word.",
   results: "A wrong answer is fine. Read the tip. Try that one again. Collect your badge."
 };
 
 const GATES = [
   { id: "maze", n: "01", title: "Word maze", line: "See the picture. Choose the word.", need: "This game is open." },
   { id: "moles", n: "02", title: "Answer moles", line: "Answers pop up. Hit the right one.", need: "Finish the maze first." },
-  { id: "hangman", n: "03", title: "Hangman", line: "Guess the letters. Spell the word.", need: "Finish the moles first." }
+  { id: "hangman", n: "03", title: "Hangman", line: "Guess the letters. Spell the word.", need: "Finish the moles first." },
+  { id: "planes", n: "04", title: "Sky planes", line: "Fly the plane. Shoot the right word.", need: "Finish hangman first." }
 ];
 
 const GAME = {
   maze: "Game 1 · Word maze",
   moles: "Game 2 · Answer moles",
-  hangman: "Game 3 · Hangman"
+  hangman: "Game 3 · Hangman",
+  planes: "Game 4 · Sky planes"
 };
 
-const BADGE = { maze: "Maze badge", moles: "Mole badge", hangman: "Hangman badge" };
+const BADGE = { maze: "Maze badge", moles: "Mole badge", hangman: "Hangman badge", planes: "Plane badge" };
 
 const MAZE = [
   { id: "m1", icon: "pen", choices: ["a pencil", "a pen", "a ruler"], answer: 1, tip: "It's a pen." },
@@ -473,7 +566,20 @@ const HANGMAN = [
   { id: "h10", icon: "notebook", word: "notebook", tip: "notebook. n, o, t, e, b, o, o, k.", challenge: true }
 ];
 
-const BANKS = { maze: MAZE, moles: MOLES, hangman: HANGMAN };
+const PLANES = [
+  { id: "p1", icon: "bag", choices: ["a bag", "a book", "a pen"], answer: 0, tip: "It's a bag." },
+  { id: "p2", icon: "ruler", choices: ["a pen", "a ruler", "a rubber"], answer: 1, tip: "It's a ruler." },
+  { id: "p3", icon: "book", choices: ["a desk", "a bag", "a book"], answer: 2, tip: "It's a book." },
+  { id: "p4", icon: "pencil", choices: ["a pencil", "a pen", "a ruler"], answer: 0, tip: "It's a pencil." },
+  { id: "p5", icon: "desk", choices: ["a bag", "a desk", "a book"], answer: 1, tip: "It's a desk." },
+  { id: "p6", icon: "rubber", choices: ["a ruler", "a pen", "a rubber"], answer: 2, tip: "It's a rubber." },
+  { id: "p7", icon: "notebook", choices: ["a notebook", "a book", "a pencil"], answer: 0, tip: "It's a notebook." },
+  { id: "p8", icon: "pen", choices: ["a pencil", "a pen", "a ruler"], answer: 1, tip: "It's a pen." },
+  { id: "p9", icon: "pen", choices: ["a pen", "a pencil", "a rubber"], answer: 0, tip: "Look again. This one is a pen, not a pencil.", challenge: true },
+  { id: "p10", icon: "pencil", choices: ["a pen", "a pencil", "a ruler"], answer: 1, tip: "Look again. This one is a pencil, not a pen.", challenge: true }
+];
+
+const BANKS = { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES };
 const KEY = "word-island-u1";
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -492,6 +598,7 @@ let state = load();
 let play = null;
 let timer = 0;
 let molePop = 0;
+let raidFrame = 0;
 let pendingYes = null;
 
 const view = document.getElementById("view");
@@ -501,9 +608,9 @@ const caption = document.getElementById("caption");
 function fresh() {
   return {
     sound: true,
-    best: { maze: 0, moles: 0, hangman: 0 },
-    done: { maze: false, moles: false, hangman: false },
-    missed: { maze: [], moles: [], hangman: [] }
+    best: { maze: 0, moles: 0, hangman: 0, planes: 0 },
+    done: { maze: false, moles: false, hangman: false, planes: false },
+    missed: { maze: [], moles: [], hangman: [], planes: [] }
   };
 }
 
@@ -538,13 +645,14 @@ function icon(name) {
 }
 
 function totalStars() {
-  return (state.best.maze || 0) + (state.best.moles || 0) + (state.best.hangman || 0);
+  return (state.best.maze || 0) + (state.best.moles || 0) + (state.best.hangman || 0) + (state.best.planes || 0);
 }
 
 function unlocked(id) {
   if (id === "maze") return true;
   if (id === "moles") return !!state.done.maze;
-  return !!state.done.moles;
+  if (id === "hangman") return !!state.done.moles;
+  return !!state.done.hangman;
 }
 
 function setFeedback(text, kind) {
@@ -567,7 +675,7 @@ function updateChrome() {
   } else {
     const n = totalStars();
     stars.textContent = "★ " + n;
-    stars.setAttribute("aria-label", n + " stars in all, out of 30");
+    stars.setAttribute("aria-label", n + " stars in all, out of 40");
   }
 }
 
@@ -596,7 +704,7 @@ function speak(text, fromButton) {
 
 function spoken(item) {
   if (!item) return "";
-  if (play.gate === "maze" || play.gate === "hangman") return "What's this?";
+  if (play.gate === "maze" || play.gate === "hangman" || play.gate === "planes") return "What's this?";
   if (play.gate === "moles") return item.prompt;
   return "";
 }
@@ -617,7 +725,9 @@ function pictureName(item) {
 function missedRecord(item) {
   const label = play.gate === "hangman"
     ? "Spell it."
-    : (play.gate === "moles" ? item.prompt : "What's this?");
+    : play.gate === "planes"
+      ? "Shoot the right word."
+      : (play.gate === "moles" ? item.prompt : "What's this?");
   return { id: item.id, label, answer: answerName(item), tip: item.tip };
 }
 
@@ -639,6 +749,12 @@ function shuffled(choices, answerIndex) {
 function stopMoles() {
   clearTimeout(molePop);
   molePop = 0;
+  stopRaid();
+}
+
+function stopRaid() {
+  if (raidFrame) cancelAnimationFrame(raidFrame);
+  raidFrame = 0;
 }
 
 function moleButtons() {
@@ -757,10 +873,10 @@ function showHub() {
   updateChrome();
   setFeedback("");
   setCaption(CAPTION.hub);
-  const doneCount = ["maze", "moles", "hangman"].filter((id) => state.done[id]).length;
-  const banner = doneCount === 3
-    ? `<p class="ladder">You finished Word Island. ${totalStars()} / 30 stars.</p>`
-    : `<p class="ladder">Word → Answer → Spelling. Three games. Thirty questions.</p>`;
+  const doneCount = ["maze", "moles", "hangman", "planes"].filter((id) => state.done[id]).length;
+  const banner = doneCount === 4
+    ? `<p class="ladder">You finished Word Island. ${totalStars()} / 40 stars.</p>`
+    : `<p class="ladder">Word, answer, spelling, then the sky. Four games. Forty questions.</p>`;
   view.innerHTML = `
     <div class="hero">
       <div>
@@ -843,9 +959,11 @@ function renderPlay() {
   setCaption(CAPTION[play.gate]);
   const hint = play.gate === "hangman"
     ? "Guess a letter."
-    : play.gate === "moles"
-      ? "Hit the right mole when it pops up."
-      : "Read it. Then choose.";
+    : play.gate === "planes"
+      ? (reduceMotion ? "Tap the plane with the right word." : "Hold and move under the right word. Your plane shoots.")
+      : play.gate === "moles"
+        ? "Hit the right mole when it pops up."
+        : "Read it. Then choose.";
   setFeedback(hint, "tip");
   const pips = play.items.map((_, i) => {
     const cls = i < play.index ? "did" : (i === play.index ? "now" : "");
@@ -868,6 +986,7 @@ function renderPlay() {
   const title = document.getElementById("qtitle");
   if (title) title.focus({ preventScroll: true });
   if (play.gate === "moles") startMoleLoop();
+  if (play.gate === "planes") startRaid();
   speak(spoken(item), false);
 }
 
@@ -900,6 +1019,40 @@ function stageInner(item) {
       <p class="draghint">Hit the right answer when it pops up.</p>
       <div class="field">
         ${[0, 1, 2, 3, 4, 5].map(() => `<div class="pit"><button type="button" class="mole" data-act="pick" data-ok="0" tabindex="-1" aria-hidden="true"></button><div class="hole" aria-hidden="true"></div></div>`).join("")}
+      </div>
+    `;
+  }
+  if (play.gate === "planes") {
+    const pairs = shuffled(item.choices, item.answer);
+    const colors = ["#c81e1e", "#157a3a", "#2f6fed"];
+    return `
+      <div class="pic small" role="img" aria-label="${esc(pictureName(item))}">${icon(item.icon)}</div>
+      <div class="qrow">
+        <h2 id="qtitle" tabindex="-1">${chip}Shoot the right word.</h2>
+        <button type="button" class="ghost" data-act="hear">Hear it</button>
+      </div>
+      <div class="sky${reduceMotion ? " still" : ""}" id="sky">
+        <i class="cloud c1" aria-hidden="true"></i>
+        <i class="cloud c2" aria-hidden="true"></i>
+        <i class="cloud c3" aria-hidden="true"></i>
+        ${pairs.map((pair, index) => `
+          <button type="button" class="bandit" data-act="shoot" data-ok="${pair.ok ? "1" : "0"}" data-lane="${index}">
+            <span>${esc(pair.text)}</span>
+            <svg class="miniplane" viewBox="0 0 80 64" aria-hidden="true">
+              <polygon points="10,22 40,30 70,22 40,26" fill="${colors[index]}" stroke="#14213d" stroke-width="3" stroke-linejoin="round"/>
+              <polygon points="40,58 48,36 46,14 40,6 34,14 32,36" fill="${colors[index]}" stroke="#14213d" stroke-width="3" stroke-linejoin="round"/>
+              <polygon points="24,10 40,16 56,10 40,14" fill="#14213d"/>
+              <ellipse cx="40" cy="30" rx="5" ry="7" fill="#fffdf8" stroke="#14213d" stroke-width="2"/>
+            </svg>
+          </button>
+        `).join("")}
+        <div id="bolts"></div>
+        <svg class="ship" id="ship" viewBox="0 0 80 96" aria-hidden="true">
+          <polygon points="18,74 40,62 62,74 40,68" fill="#14213d"/>
+          <polygon points="4,46 40,36 76,46 40,42" fill="#ffe14a" stroke="#14213d" stroke-width="3" stroke-linejoin="round"/>
+          <polygon points="40,8 50,30 48,82 40,92 32,82 30,30" fill="#ffe14a" stroke="#14213d" stroke-width="3" stroke-linejoin="round"/>
+          <ellipse cx="40" cy="42" rx="6" ry="10" fill="#2f6fed" stroke="#14213d" stroke-width="2"/>
+        </svg>
       </div>
     `;
   }
@@ -1065,19 +1218,137 @@ function grade(ok, el) {
     return;
   }
   if (el) {
-    el.classList.remove("shake");
-    void el.offsetWidth;
-    el.classList.add("wrong", "shake");
+    el.classList.add("wrong");
+    if (play.gate !== "planes") {
+      el.classList.remove("shake");
+      void el.offsetWidth;
+      el.classList.add("shake");
+    }
   }
+  if (play.gate === "planes") play.locked = true;
   if (!play.tried) {
     play.tried = true;
     play.missed.push(missedRecord(item));
     if (play.gate === "moles") holdCorrectMole();
+    else if (play.gate === "planes") parkAnswer();
     else markCorrect();
     const nextBtn = view.querySelector("[data-act='next']");
     if (nextBtn) nextBtn.hidden = false;
   }
   setFeedback(item.tip, "tip");
+}
+
+function parkAnswer() {
+  const el = view.querySelector(".bandit[data-ok='1']");
+  if (!el) return;
+  el.style.top = "12%";
+  el.classList.add("show-right");
+}
+
+function startRaid() {
+  if (!play || play.gate !== "planes" || reduceMotion) return;
+  const sky = document.getElementById("sky");
+  const ship = document.getElementById("ship");
+  const bolts = document.getElementById("bolts");
+  if (!sky || !ship || !bolts) return;
+  const step = play.step;
+  const foes = [...sky.querySelectorAll(".bandit")];
+  const lanes = [18, 50, 82];
+  play.shipX = 0.5;
+  play.armed = false;
+  play.steering = false;
+  play.bullets = [];
+  play.shotAt = 0;
+  foes.forEach((foe, index) => {
+    foe._lane = lanes[index] || 50;
+    foe._y = -88 - index * 108;
+  });
+  function aim(event, fromPress) {
+    if (!play || play.locked || play.step !== step || play.left) return;
+    const rect = sky.getBoundingClientRect();
+    if (!rect.width) return;
+    if (!fromPress && !play.steering) return;
+    play.steering = true;
+    play.armed = true;
+    play.shipX = (event.clientX - rect.left) / rect.width;
+  }
+  sky.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    try { sky.setPointerCapture(event.pointerId); } catch (err) { /* pointer already gone */ }
+    aim(event, true);
+  });
+  sky.addEventListener("pointermove", (event) => {
+    if (event.pointerType === "mouse" || sky.hasPointerCapture(event.pointerId)) aim(event, false);
+  });
+  let last = 0;
+  function frame(now) {
+    if (!play || play.step !== step || play.locked || play.left || play.finished) return;
+    if (!last) last = now;
+    const dt = Math.min(34, now - last);
+    last = now;
+    const rect = sky.getBoundingClientRect();
+    if (rect.width < 10 || rect.height < 10) {
+      raidFrame = requestAnimationFrame(frame);
+      return;
+    }
+    play.shipX = Math.min(0.9, Math.max(0.1, play.shipX || 0.5));
+    ship.style.left = (play.shipX * 100) + "%";
+    const fall = rect.height * 0.16 * (dt / 1000);
+    let escaped = false;
+    foes.forEach((foe) => {
+      foe._y += fall;
+      const bob = Math.sin(now / 380 + foe._lane) * 2.2;
+      foe.style.left = (foe._lane + bob) + "%";
+      foe.style.top = foe._y + "px";
+      if (foe.dataset.ok === "1" && foe._y > rect.height - 8) escaped = true;
+    });
+    if (play.armed && now - play.shotAt > 220) {
+      play.shotAt = now;
+      const shipRect = ship.getBoundingClientRect();
+      play.bullets.push({
+        x: shipRect.left - rect.left + shipRect.width / 2,
+        y: shipRect.top - rect.top
+      });
+    }
+    const speed = rect.height * 0.95 * (dt / 1000);
+    play.bullets.forEach((bolt) => { bolt.y -= speed; });
+    play.bullets = play.bullets.filter((bolt) => bolt.y > -24);
+    let struck = null;
+    for (const bolt of play.bullets) {
+      for (const foe of foes) {
+        const fr = foe.getBoundingClientRect();
+        const left = fr.left - rect.left;
+        const top = fr.top - rect.top;
+        if (top > 4 && bolt.x > left + 4 && bolt.x < left + fr.width - 4 && bolt.y > top && bolt.y < top + fr.height) {
+          struck = foe;
+          break;
+        }
+      }
+      if (struck) break;
+    }
+    while (bolts.children.length < play.bullets.length) {
+      const mark = document.createElement("i");
+      mark.className = "bolt";
+      bolts.appendChild(mark);
+    }
+    [...bolts.children].forEach((mark, index) => {
+      const bolt = play.bullets[index];
+      mark.hidden = !bolt;
+      if (!bolt) return;
+      mark.style.left = bolt.x + "px";
+      mark.style.top = bolt.y + "px";
+    });
+    if (struck) {
+      grade(struck.dataset.ok === "1", struck);
+      return;
+    }
+    if (escaped) {
+      grade(false, null);
+      return;
+    }
+    raidFrame = requestAnimationFrame(frame);
+  }
+  raidFrame = requestAnimationFrame(frame);
 }
 
 function markCorrect() {
@@ -1125,7 +1396,9 @@ function renderResults() {
   const title = play.mode === "retry" ? "Practice done." : "Game complete!";
   let scoreLine = play.gate === "hangman"
     ? `You spelled ${play.stars} / ${total} words.`
-    : `You got ${play.stars} / ${total} stars on the first try.`;
+    : play.gate === "planes"
+      ? `You hit ${play.stars} / ${total} planes.`
+      : `You got ${play.stars} / ${total} stars on the first try.`;
   if (play.mode === "retry") scoreLine = `You got ${play.stars} / ${total} this time.`;
   let badgeLine = `${BADGE[play.gate]} collected. This gate ${pct}/100. Best ${best}/10.`;
   if (play.mode === "retry") badgeLine = `Your ${GAME[play.gate]} score stays ${pct}/100.`;
@@ -1259,6 +1532,10 @@ document.body.addEventListener("click", (event) => {
     grade(el.dataset.ok === "1", el);
   }
   else if (act === "guess") guessLetter(el.dataset.letter);
+  else if (act === "shoot") {
+    if (!reduceMotion && event.detail !== 0) return;
+    grade(el.dataset.ok === "1", el);
+  }
   else if (act === "next") next();
   else if (act === "hear") speak(spoken(current()), true);
   else if (act === "retry") start(play.gate, "retry");
@@ -1285,6 +1562,19 @@ document.addEventListener("keydown", (event) => {
   }
   if (play.locked) return;
   if (event.target && event.target.closest && event.target.closest("button") && event.key === "Enter") return;
+  if (play.gate === "planes") {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      if (!play.locked) {
+        play.armed = true;
+        play.shipX = (play.shipX || 0.5) + (event.key === "ArrowLeft" ? -0.07 : 0.07);
+      }
+    } else if (reduceMotion && (event.key === "1" || event.key === "2" || event.key === "3")) {
+      const button = [...view.querySelectorAll(".bandit")][Number(event.key) - 1];
+      if (button) button.click();
+    }
+    return;
+  }
   if (play.gate === "hangman") {
     if (/^[a-z]$/i.test(event.key)) guessLetter(event.key.toLowerCase());
     return;
