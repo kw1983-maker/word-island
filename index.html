@@ -38,7 +38,7 @@
   }
   body[data-screen="maze"] { background-color: #e7f6ef; }
   body[data-screen="moles"] { background-color: #e5f4ee; }
-  body[data-screen="baskets"] { background-color: #f8f1e4; }
+  body[data-screen="hangman"] { background-color: #f8f1e4; }
   button, input { font: inherit; color: inherit; }
   button { cursor: pointer; }
   button:focus-visible, a:focus-visible {
@@ -132,10 +132,12 @@
       radial-gradient(circle at 78% 70%, #6b3f2a 0 10px, transparent 11px),
       linear-gradient(#c8f0d4, #8fd4b0);
   }
-  .scene-baskets {
+  .scene-hangman {
     background:
-      radial-gradient(ellipse at 30% 62%, #f6c1a0 0 16px, transparent 17px),
-      radial-gradient(ellipse at 70% 62%, #f7e39a 0 16px, transparent 17px),
+      linear-gradient(#14213d, #14213d) 18% 80% / 50% 3px no-repeat,
+      linear-gradient(#14213d, #14213d) 20% 28% / 3px 55% no-repeat,
+      linear-gradient(#14213d, #14213d) 20% 28% / 42% 3px no-repeat,
+      radial-gradient(circle at 62% 48%, #14213d 0 5px, transparent 6px),
       linear-gradient(#fff6ea, #f3d7b0);
   }
   .partner { margin: 14px 0 0; }
@@ -209,7 +211,7 @@
     font-weight: 700;
     padding: 12px 14px;
   }
-  .choice:active, .mole:active, .basket:active, .next:active, .btn:active, .ghost:active {
+  .choice:active, .basket:active, .next:active, .btn:active, .ghost:active {
     transform: translateY(3px);
     box-shadow: 0 1px 0 rgba(20, 33, 61, .18);
   }
@@ -226,14 +228,29 @@
     padding: 12px;
     border: 3px solid #1f6b3a;
   }
-  .pit { display: flex; flex-direction: column; justify-content: flex-end; min-height: 118px; }
+  .pit { position: relative; height: 132px; overflow: hidden; }
   .hole {
-    height: 22px; border-radius: 50%;
+    position: absolute;
+    left: 8px; right: 8px; bottom: 8px;
+    height: 28px; border-radius: 50%;
     background: #5a3a28;
     border: 3px solid #3a2418;
-    margin-top: -8px;
+    z-index: 2;
+    pointer-events: none;
   }
-  .mole { border-radius: 18px 18px 10px 10px; background: #f6d7c3; min-height: 72px; }
+  .mole {
+    position: absolute;
+    left: 6px; right: 6px; bottom: 18px;
+    z-index: 1;
+    min-height: 74px;
+    border-radius: 18px 18px 12px 12px;
+    background: #f6d7c3;
+    transform: translateY(140%);
+    transition: transform .22s ease;
+    pointer-events: none;
+  }
+  .mole.up { transform: translateY(0); pointer-events: auto; }
+  .mole.up:active { transform: translateY(5px); }
   .prompt-line { margin: 8px 0; font-weight: 700; text-align: center; }
   .card {
     margin: 10px auto;
@@ -252,11 +269,33 @@
   }
   .card.dragging { cursor: grabbing; z-index: 3; position: relative; background: #fff6ea; }
   .draghint { text-align: center; margin: 0 0 8px; font-size: .95rem; }
-  .baskets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .basket { min-height: 110px; background: #fff6ea; display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; }
-  .basket.tell { background: #e7f2ff; }
-  .basket.over { transform: translateY(-3px); outline: 4px solid var(--gold); }
-  .basket .tag { font-family: Fraunces, Georgia, serif; font-size: 1.5rem; }
+  .hangrow { display: grid; grid-template-columns: 1fr 150px; gap: 8px; align-items: center; }
+  .gallows { width: 150px; height: 176px; display: block; margin: 0 auto; }
+  .part { opacity: 0; }
+  .part.on { opacity: 1; }
+  .blanks { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 12px 0; }
+  .blank {
+    width: 42px; height: 50px;
+    border-bottom: 4px solid var(--ink);
+    display: grid; place-items: center;
+    font-family: Fraunces, Palatino, Georgia, serif;
+    font-size: 2rem; font-weight: 600;
+  }
+  .blank.show { color: var(--coral); }
+  .tries { text-align: center; margin: 0 0 8px; font-weight: 700; }
+  .abc { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .key {
+    min-height: 42px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    border: 3px solid var(--ink);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 3px 0 rgba(20, 33, 61, .18);
+  }
+  .key:disabled { box-shadow: none; }
+  .key.right:disabled { background: var(--leaf-soft); }
+  .key.wrong:disabled { background: var(--coral-soft); }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .btn.gold { background: var(--gold); }
   .btn.leaf { background: var(--leaf-soft); }
@@ -310,6 +349,11 @@
   .askbox div { display: flex; gap: 8px; justify-content: flex-end; }
   #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15; }
   .shake { animation: shake .4s linear; }
+  .mole.shake { animation: mole-shake .4s linear; }
+  @keyframes mole-shake {
+    25% { margin-left: -6px; }
+    75% { margin-left: 6px; }
+  }
   @keyframes shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-6px); }
@@ -321,12 +365,14 @@
     .gates { grid-template-columns: 1fr; }
     .gate { min-height: 0; }
     .field { grid-template-columns: repeat(2, 1fr); }
+    .hangrow { grid-template-columns: 1fr; }
+    .abc { grid-template-columns: repeat(6, 1fr); }
   }
   @media (min-width: 700px) {
     .choices { grid-template-columns: repeat(3, 1fr); }
   }
   @media (hover: hover) {
-    .choice:hover, .mole:hover, .basket:hover, .gate:hover, .btn:hover {
+    .choice:hover, .basket:hover, .gate:hover, .btn:hover {
       transform: translateY(-2px);
     }
   }
@@ -369,24 +415,24 @@
 const CAPTION = {
   hub: "Pen or pencil? Come to Word Island. Play, and practise.",
   maze: "Game 1. Walk the maze. At the star door, choose the word.",
-  moles: "Game 2. Read the question. Hit the right answer. Think first.",
-  baskets: "Game 3. Drag the card into the right basket.",
+  moles: "Game 2. Read the question. Hit the mole when the right answer pops up.",
+  hangman: "Game 3. Look at the picture. Guess the letters.",
   results: "A wrong answer is fine. Read the tip. Try that one again. Collect your badge."
 };
 
 const GATES = [
   { id: "maze", n: "01", title: "Word maze", line: "See the picture. Choose the word.", need: "This game is open." },
-  { id: "moles", n: "02", title: "Answer moles", line: "Read the question. Hit the right mole.", need: "Finish the maze first." },
-  { id: "baskets", n: "03", title: "Sentence baskets", line: "Is it asking, or telling?", need: "Finish the moles first." }
+  { id: "moles", n: "02", title: "Answer moles", line: "Answers pop up. Hit the right one.", need: "Finish the maze first." },
+  { id: "hangman", n: "03", title: "Hangman", line: "Guess the letters. Spell the word.", need: "Finish the moles first." }
 ];
 
 const GAME = {
   maze: "Game 1 · Word maze",
   moles: "Game 2 · Answer moles",
-  baskets: "Game 3 · Sentence baskets"
+  hangman: "Game 3 · Hangman"
 };
 
-const BADGE = { maze: "Maze badge", moles: "Mole badge", baskets: "Basket badge" };
+const BADGE = { maze: "Maze badge", moles: "Mole badge", hangman: "Hangman badge" };
 
 const MAZE = [
   { id: "m1", icon: "pen", choices: ["a pencil", "a pen", "a ruler"], answer: 1, tip: "It's a pen." },
@@ -414,20 +460,20 @@ const MOLES = [
   { id: "o10", icon: "pen", prompt: "Is it a pencil?", choices: ["No, it isn't.", "Yes, it is.", "It's a book."], answer: 0, tip: "Look. It's a pen. So we say: No, it isn't.", challenge: true }
 ];
 
-const BASKETS = [
-  { id: "b1", sentence: "What's this?", basket: "ask", tip: "This line asks a question. Look for the question mark. It goes in Asking." },
-  { id: "b2", sentence: "It's a pen.", basket: "tell", tip: "This line tells what it is. It goes in Telling." },
-  { id: "b3", sentence: "Is it a ruler?", basket: "ask", tip: "This line asks a question. It goes in Asking." },
-  { id: "b4", sentence: "Yes, it is.", basket: "tell", tip: "This line answers. It goes in Telling." },
-  { id: "b5", sentence: "No, it isn't.", basket: "tell", tip: "This line answers. There is no question mark. It goes in Telling." },
-  { id: "b6", sentence: "What's your name?", basket: "ask", tip: "This line asks a question. It goes in Asking." },
-  { id: "b7", sentence: "I'm six.", basket: "tell", tip: "This line tells your age. It goes in Telling." },
-  { id: "b8", sentence: "Open your book, please.", basket: "tell", tip: "This line tells someone what to do. It goes in Telling." },
-  { id: "b9", sentence: "Is it a pencil?", basket: "ask", icon: "pencil", tip: "This line asks a question. The picture does not change that. It goes in Asking.", challenge: true },
-  { id: "b10", sentence: "No, it isn't. It's a pencil.", basket: "tell", icon: "pencil", prompt: "Is it a pen?", tip: "Look. It's a pencil. This line tells the answer. It goes in Telling.", challenge: true }
+const HANGMAN = [
+  { id: "h1", icon: "pen", word: "pen", tip: "pen. p, e, n." },
+  { id: "h2", icon: "bag", word: "bag", tip: "bag. b, a, g." },
+  { id: "h3", icon: "book", word: "book", tip: "book. b, o, o, k." },
+  { id: "h4", icon: "desk", word: "desk", tip: "desk. d, e, s, k." },
+  { id: "h5", icon: "ruler", word: "ruler", tip: "ruler. r, u, l, e, r." },
+  { id: "h6", icon: "rubber", word: "rubber", tip: "rubber. r, u, b, b, e, r." },
+  { id: "h7", icon: "pencil", word: "pencil", tip: "pencil. p, e, n, c, i, l." },
+  { id: "h8", icon: "notebook", word: "notebook", tip: "notebook. n, o, t, e, b, o, o, k." },
+  { id: "h9", icon: "pencil", word: "pencil", tip: "pencil. p, e, n, c, i, l.", challenge: true },
+  { id: "h10", icon: "notebook", word: "notebook", tip: "notebook. n, o, t, e, b, o, o, k.", challenge: true }
 ];
 
-const BANKS = { maze: MAZE, moles: MOLES, baskets: BASKETS };
+const BANKS = { maze: MAZE, moles: MOLES, hangman: HANGMAN };
 const KEY = "word-island-u1";
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -445,6 +491,7 @@ const ICONS = {
 let state = load();
 let play = null;
 let timer = 0;
+let molePop = 0;
 let pendingYes = null;
 
 const view = document.getElementById("view");
@@ -454,9 +501,9 @@ const caption = document.getElementById("caption");
 function fresh() {
   return {
     sound: true,
-    best: { maze: 0, moles: 0, baskets: 0 },
-    done: { maze: false, moles: false, baskets: false },
-    missed: { maze: [], moles: [], baskets: [] }
+    best: { maze: 0, moles: 0, hangman: 0 },
+    done: { maze: false, moles: false, hangman: false },
+    missed: { maze: [], moles: [], hangman: [] }
   };
 }
 
@@ -491,7 +538,7 @@ function icon(name) {
 }
 
 function totalStars() {
-  return (state.best.maze || 0) + (state.best.moles || 0) + (state.best.baskets || 0);
+  return (state.best.maze || 0) + (state.best.moles || 0) + (state.best.hangman || 0);
 }
 
 function unlocked(id) {
@@ -549,14 +596,13 @@ function speak(text, fromButton) {
 
 function spoken(item) {
   if (!item) return "";
-  if (play.gate === "maze") return "What's this?";
+  if (play.gate === "maze" || play.gate === "hangman") return "What's this?";
   if (play.gate === "moles") return item.prompt;
-  if (item.prompt) return item.prompt + " " + item.sentence;
-  return item.sentence;
+  return "";
 }
 
 function answerName(item) {
-  if (play.gate === "baskets") return item.basket === "ask" ? "Asking" : "Telling";
+  if (item.word) return item.word;
   return item.choices[item.answer];
 }
 
@@ -569,8 +615,8 @@ function pictureName(item) {
 }
 
 function missedRecord(item) {
-  const label = play.gate === "baskets"
-    ? item.sentence
+  const label = play.gate === "hangman"
+    ? "Spell it."
     : (play.gate === "moles" ? item.prompt : "What's this?");
   return { id: item.id, label, answer: answerName(item), tip: item.tip };
 }
@@ -590,17 +636,108 @@ function shuffled(choices, answerIndex) {
   return row;
 }
 
-function moleSlots(pairs) {
-  const slots = [null, null, null, null, null, null];
-  const pick = [0, 1, 2, 3, 4, 5];
-  for (let i = pick.length - 1; i > 0; i -= 1) {
+function stopMoles() {
+  clearTimeout(molePop);
+  molePop = 0;
+}
+
+function moleButtons() {
+  return [...view.querySelectorAll(".mole")];
+}
+
+function fillMole(mole, pair) {
+  mole.textContent = pair.text;
+  mole.dataset.ok = pair.ok ? "1" : "0";
+  mole.setAttribute("aria-hidden", "false");
+  mole.tabIndex = 0;
+  mole.classList.add("up");
+}
+
+function showRandomMoles() {
+  const moles = moleButtons();
+  moles.forEach((mole) => {
+    mole.classList.remove("up", "wrong", "show-right");
+    mole.textContent = "";
+    mole.dataset.ok = "0";
+    mole.setAttribute("aria-hidden", "true");
+    mole.tabIndex = -1;
+  });
+  const pool = play.molePairs.slice();
+  for (let i = pool.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
-    const tmp = pick[i];
-    pick[i] = pick[j];
-    pick[j] = tmp;
+    const tmp = pool[i];
+    pool[i] = pool[j];
+    pool[j] = tmp;
   }
-  pairs.forEach((pair, i) => { slots[pick[i]] = pair; });
-  return slots;
+  const show = [pool[0], pool[1]];
+  if ((play.moleWait || 0) >= 1 && !show.some((pair) => pair.ok)) {
+    show[0] = play.molePairs.find((pair) => pair.ok);
+  }
+  const holes = [0, 1, 2, 3, 4, 5];
+  for (let i = holes.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = holes[i];
+    holes[i] = holes[j];
+    holes[j] = tmp;
+  }
+  const chosen = [];
+  show.forEach((pair, index) => {
+    const mole = moles[holes[index]];
+    mole.textContent = pair.text;
+    mole.dataset.ok = pair.ok ? "1" : "0";
+    chosen.push(mole);
+  });
+  play.moleWait = show.some((pair) => pair.ok) ? 0 : (play.moleWait || 0) + 1;
+  requestAnimationFrame(() => {
+    chosen.forEach((mole) => {
+      if (!play || play.tried || play.locked) return;
+      mole.classList.add("up");
+      mole.setAttribute("aria-hidden", "false");
+      mole.tabIndex = 0;
+    });
+  });
+}
+
+function holdCorrectMole() {
+  stopMoles();
+  const moles = moleButtons();
+  const answer = current().choices[current().answer];
+  moles.forEach((mole, index) => {
+    mole.classList.remove("up", "wrong", "show-right");
+    mole.textContent = "";
+    mole.dataset.ok = "0";
+    mole.setAttribute("aria-hidden", "true");
+    mole.tabIndex = -1;
+    if (index === 2) {
+      fillMole(mole, { text: answer, ok: true });
+      mole.classList.add("show-right");
+    }
+  });
+}
+
+function startMoleLoop() {
+  stopMoles();
+  const step = play.step;
+  play.moleWait = 0;
+  if (reduceMotion) {
+    const moles = moleButtons();
+    play.molePairs.forEach((pair, index) => fillMole(moles[index], pair));
+    return;
+  }
+  function live() {
+    return play && play.step === step && !play.locked && !play.tried && !play.finished && !play.left;
+  }
+  function rise() {
+    if (!live()) return;
+    showRandomMoles();
+    molePop = setTimeout(drop, 1400);
+  }
+  function drop() {
+    if (!live()) return;
+    moleButtons().forEach((mole) => mole.classList.remove("up"));
+    molePop = setTimeout(rise, 420);
+  }
+  rise();
 }
 
 function later(fn, ms) {
@@ -614,15 +751,16 @@ function later(fn, ms) {
 
 function showHub() {
   clearTimeout(timer);
+  stopMoles();
   play = null;
   document.body.dataset.screen = "hub";
   updateChrome();
   setFeedback("");
   setCaption(CAPTION.hub);
-  const doneCount = ["maze", "moles", "baskets"].filter((id) => state.done[id]).length;
+  const doneCount = ["maze", "moles", "hangman"].filter((id) => state.done[id]).length;
   const banner = doneCount === 3
     ? `<p class="ladder">You finished Word Island. ${totalStars()} / 30 stars.</p>`
-    : `<p class="ladder">Word → Answer → Sentence. Three games. Thirty questions.</p>`;
+    : `<p class="ladder">Word → Answer → Spelling. Three games. Thirty questions.</p>`;
   view.innerHTML = `
     <div class="hero">
       <div>
@@ -692,15 +830,23 @@ function start(gate, mode) {
 
 function renderPlay() {
   play.locked = false;
+  play.guessed = [];
+  play.wrong = 0;
   play.tried = false;
   play.moving = false;
+  stopMoles();
   document.body.dataset.screen = play.gate;
   updateChrome();
   const item = current();
   const n = play.items.length;
   const label = play.mode === "retry" ? "Tricky ones" : GAME[play.gate];
   setCaption(CAPTION[play.gate]);
-  setFeedback(play.gate === "baskets" ? "Read it. Then sort it." : "Read it. Then choose.", "tip");
+  const hint = play.gate === "hangman"
+    ? "Guess a letter."
+    : play.gate === "moles"
+      ? "Hit the right mole when it pops up."
+      : "Read it. Then choose.";
+  setFeedback(hint, "tip");
   const pips = play.items.map((_, i) => {
     const cls = i < play.index ? "did" : (i === play.index ? "now" : "");
     return `<i class="${cls}"></i>`;
@@ -721,7 +867,7 @@ function renderPlay() {
   `;
   const title = document.getElementById("qtitle");
   if (title) title.focus({ preventScroll: true });
-  if (play.gate === "baskets") bindDrag();
+  if (play.gate === "moles") startMoleLoop();
   speak(spoken(item), false);
 }
 
@@ -744,42 +890,55 @@ function stageInner(item) {
     `;
   }
   if (play.gate === "moles") {
-    const pairs = shuffled(item.choices, item.answer);
-    const slots = moleSlots(pairs);
+    play.molePairs = shuffled(item.choices, item.answer);
     return `
       <div class="pic small" role="img" aria-label="${esc(pictureName(item))}">${icon(item.icon)}</div>
       <div class="qrow">
         <h2 id="qtitle" tabindex="-1">${chip}${esc(item.prompt)}</h2>
         <button type="button" class="ghost" data-act="hear">Hear it</button>
       </div>
+      <p class="draghint">Hit the right answer when it pops up.</p>
       <div class="field">
-        ${slots.map((slot) => slot
-          ? `<div class="pit"><button type="button" class="mole" data-act="pick" data-ok="${slot.ok ? "1" : "0"}">${esc(slot.text)}</button><div class="hole" aria-hidden="true"></div></div>`
-          : `<div class="pit"><div class="hole" aria-hidden="true"></div></div>`
-        ).join("")}
+        ${[0, 1, 2, 3, 4, 5].map(() => `<div class="pit"><button type="button" class="mole" data-act="pick" data-ok="0" tabindex="-1" aria-hidden="true"></button><div class="hole" aria-hidden="true"></div></div>`).join("")}
       </div>
     `;
   }
-  const prompt = item.prompt ? `<p class="prompt-line">${esc(item.prompt)}</p>` : "";
-  const picture = item.icon
-    ? `<div class="pic small" role="img" aria-label="${esc(pictureName(item))}">${icon(item.icon)}</div>`
-    : "";
+  const letters = "abcdefghijklmnopqrstuvwxyz".split("");
   return `
-    ${picture}
-    ${prompt}
+    <div class="hangrow">
+      <div class="pic small" role="img" aria-label="${esc(pictureName(item))}">${icon(item.icon)}</div>
+      <svg class="gallows" viewBox="0 0 160 190" aria-hidden="true">
+        <g fill="none" stroke="#14213d" stroke-width="4" stroke-linecap="round">
+          <path d="M16 176 H104"/>
+          <path d="M36 176 V16"/>
+          <path d="M36 16 H114"/>
+          <path d="M114 16 V40" stroke="#c4843c"/>
+        </g>
+        <g fill="none" stroke="#14213d" stroke-width="4" stroke-linecap="round">
+          <g class="part" data-part="1">
+            <circle cx="114" cy="56" r="15" fill="#fffdf8"/>
+            <circle cx="108" cy="53" r="1.6" fill="#14213d" stroke="none"/>
+            <circle cx="120" cy="53" r="1.6" fill="#14213d" stroke="none"/>
+            <path d="M108 61 Q114 65 120 61"/>
+          </g>
+          <g class="part" data-part="2"><path d="M114 72 V112"/></g>
+          <g class="part" data-part="3"><path d="M114 84 L94 100"/></g>
+          <g class="part" data-part="4"><path d="M114 84 L134 100"/></g>
+          <g class="part" data-part="5"><path d="M114 112 L96 142"/></g>
+          <g class="part" data-part="6"><path d="M114 112 L132 142"/></g>
+        </g>
+      </svg>
+    </div>
     <div class="qrow">
-      <h2 id="qtitle" tabindex="-1">${chip}Sort this line</h2>
+      <h2 id="qtitle" tabindex="-1">${chip}Spell it.</h2>
       <button type="button" class="ghost" data-act="hear">Hear it</button>
     </div>
-    <div id="card" class="card">${esc(item.sentence)}</div>
-    <p class="draghint">Drag the card into a basket, or tap a basket.</p>
-    <div class="baskets">
-      <button type="button" class="basket" data-act="basket" data-basket="ask" aria-label="Put the sentence in Asking">
-        <span class="tag">Asking</span><span>A question</span>
-      </button>
-      <button type="button" class="basket tell" data-act="basket" data-basket="tell" aria-label="Put the sentence in Telling">
-        <span class="tag">Telling</span><span>An answer</span>
-      </button>
+    <div class="blanks" aria-label="Word to spell">
+      ${item.word.split("").map(() => `<span class="blank"></span>`).join("")}
+    </div>
+    <p class="tries" id="tries">6 tries left</p>
+    <div class="abc">
+      ${letters.map((letter) => `<button type="button" class="key" data-act="guess" data-letter="${letter}">${letter}</button>`).join("")}
     </div>
   `;
 }
@@ -830,8 +989,69 @@ function bindDrag() {
   card.addEventListener("pointercancel", end);
 }
 
+function paintBlanks(reveal) {
+  const word = current().word;
+  view.querySelectorAll(".blank").forEach((blank, index) => {
+    const letter = word[index];
+    if (reveal || play.guessed.includes(letter)) {
+      blank.textContent = letter;
+      blank.classList.toggle("show", Boolean(reveal) && !play.guessed.includes(letter));
+    }
+  });
+}
+
+function guessLetter(letter) {
+  if (!play || play.locked || play.left || play.finished || play.gate !== "hangman") return;
+  if (!letter || play.guessed.includes(letter)) return;
+  play.guessed.push(letter);
+  const item = current();
+  const key = view.querySelector(`[data-letter="${letter}"]`);
+  if (item.word.includes(letter)) {
+    if (key) {
+      key.disabled = true;
+      key.classList.add("right");
+    }
+    paintBlanks(false);
+    const solved = item.word.split("").every((char) => play.guessed.includes(char));
+    if (!solved) setFeedback("In the word.", "ok");
+    if (solved) {
+      play.locked = true;
+      play.stars += 1;
+      updateChrome();
+      view.querySelectorAll(".key").forEach((btn) => { btn.disabled = true; });
+      setFeedback("Yes! A star.", "ok");
+      later(next, 700);
+    }
+    return;
+  }
+  if (key) {
+    key.disabled = true;
+    key.classList.add("wrong");
+  }
+  play.wrong += 1;
+  const part = view.querySelector(`[data-part="${play.wrong}"]`);
+  if (part) part.classList.add("on");
+  const left = 6 - play.wrong;
+  const tries = document.getElementById("tries");
+  if (tries) tries.textContent = left === 1 ? "1 try left" : left + " tries left";
+  if (play.wrong < 6) {
+    setFeedback("Not in the word.", "tip");
+    return;
+  }
+  play.locked = true;
+  play.missed.push(missedRecord(item));
+  paintBlanks(true);
+  if (tries) tries.textContent = "The word is " + item.word + ".";
+  view.querySelectorAll(".key").forEach((btn) => { btn.disabled = true; });
+  const nextBtn = view.querySelector("[data-act='next']");
+  if (nextBtn) nextBtn.hidden = false;
+  setFeedback(item.tip, "tip");
+}
+
 function grade(ok, el) {
   if (!play || play.locked || play.left || play.finished) return;
+  if (play.gate === "moles" && el && !el.classList.contains("up")) return;
+  stopMoles();
   const item = current();
   if (ok) {
     const first = !play.tried;
@@ -852,7 +1072,8 @@ function grade(ok, el) {
   if (!play.tried) {
     play.tried = true;
     play.missed.push(missedRecord(item));
-    markCorrect();
+    if (play.gate === "moles") holdCorrectMole();
+    else markCorrect();
     const nextBtn = view.querySelector("[data-act='next']");
     if (nextBtn) nextBtn.hidden = false;
   }
@@ -860,12 +1081,6 @@ function grade(ok, el) {
 }
 
 function markCorrect() {
-  const item = current();
-  if (play.gate === "baskets") {
-    const el = view.querySelector(`[data-basket="${item.basket}"]`);
-    if (el) el.classList.add("show-right");
-    return;
-  }
   const el = view.querySelector("[data-ok='1']");
   if (el) el.classList.add("show-right");
 }
@@ -874,6 +1089,7 @@ function next() {
   if (!play || play.left || play.finished || play.moving) return;
   play.moving = true;
   clearTimeout(timer);
+  stopMoles();
   play.step += 1;
   play.index += 1;
   if (play.index >= play.items.length) finish();
@@ -884,6 +1100,7 @@ function finish() {
   if (!play || play.finished) return;
   play.finished = true;
   clearTimeout(timer);
+  stopMoles();
   const firstClear = play.mode === "full" && !state.done[play.gate];
   if (play.mode === "full") {
     state.best[play.gate] = Math.max(state.best[play.gate] || 0, play.stars);
@@ -906,7 +1123,9 @@ function renderResults() {
   const best = state.best[play.gate] || 0;
   const pct = Math.round((best / 10) * 100);
   const title = play.mode === "retry" ? "Practice done." : "Game complete!";
-  let scoreLine = `You got ${play.stars} / ${total} stars on the first try.`;
+  let scoreLine = play.gate === "hangman"
+    ? `You spelled ${play.stars} / ${total} words.`
+    : `You got ${play.stars} / ${total} stars on the first try.`;
   if (play.mode === "retry") scoreLine = `You got ${play.stars} / ${total} this time.`;
   let badgeLine = `${BADGE[play.gate]} collected. This gate ${pct}/100. Best ${best}/10.`;
   if (play.mode === "retry") badgeLine = `Your ${GAME[play.gate]} score stays ${pct}/100.`;
@@ -947,12 +1166,14 @@ function leave() {
   if (!mid) {
     play.left = true;
     clearTimeout(timer);
+    stopMoles();
     showHub();
     return;
   }
   ask("Leave this game? Stars from this try will not be saved.", "Leave", () => {
     if (play) play.left = true;
     clearTimeout(timer);
+    stopMoles();
     showHub();
   });
 }
@@ -1033,8 +1254,11 @@ document.body.addEventListener("click", (event) => {
   if (act === "play") start(el.dataset.gate, "full");
   else if (act === "soon") setFeedback(el.dataset.need, "tip");
   else if (act === "back" || act === "hub") leave();
-  else if (act === "pick") grade(el.dataset.ok === "1", el);
-  else if (act === "basket") grade(el.dataset.basket === current().basket, el);
+  else if (act === "pick") {
+    if (play && play.gate === "moles" && !el.classList.contains("up")) return;
+    grade(el.dataset.ok === "1", el);
+  }
+  else if (act === "guess") guessLetter(el.dataset.letter);
   else if (act === "next") next();
   else if (act === "hear") speak(spoken(current()), true);
   else if (act === "retry") start(play.gate, "retry");
@@ -1061,13 +1285,15 @@ document.addEventListener("keydown", (event) => {
   }
   if (play.locked) return;
   if (event.target && event.target.closest && event.target.closest("button") && event.key === "Enter") return;
-  if (play.gate === "baskets") {
-    if (event.key === "1" || event.key.toLowerCase() === "a") {
-      const basket = view.querySelector("[data-basket='ask']");
-      if (basket) basket.click();
-    } else if (event.key === "2" || event.key.toLowerCase() === "t") {
-      const basket = view.querySelector("[data-basket='tell']");
-      if (basket) basket.click();
+  if (play.gate === "hangman") {
+    if (/^[a-z]$/i.test(event.key)) guessLetter(event.key.toLowerCase());
+    return;
+  }
+  if (play.gate === "moles") {
+    if (event.key === "1" || event.key === "2" || event.key === "3") {
+      const buttons = [...view.querySelectorAll(".mole.up")];
+      const button = buttons[Number(event.key) - 1];
+      if (button) button.click();
     }
     return;
   }
