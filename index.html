@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%227%22 fill=%22%23ffe14a%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Lexend:wght@400;600;700&family=Black+Ops+One&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #14213d;
@@ -419,6 +419,59 @@
   }
   .sky.still .ship, .sky.still .cloud, .sky.still #bolts { display: none; }
   .sky.still .bandit { pointer-events: auto; cursor: pointer; }
+  /* Listen and shoot: a night sky, like Class Rules Defender. */
+  body[data-screen="planes"] { background: #050814; color: #e8f4ff; }
+  body[data-screen="planes"] .ghost { color: #e8f4ff; border-color: #00b4d8; box-shadow: 0 4px 0 rgba(0, 180, 216, .25); }
+  body[data-screen="planes"] .ghost[aria-pressed="true"], body[data-screen="planes"] .btn { color: var(--ink); }
+  body[data-screen="planes"] .stage { background: #070b1a; border-color: #00b4d8; box-shadow: 0 0 30px rgba(0, 150, 255, .2); }
+  body[data-screen="planes"] .pips i { background: #0d1a2b; border-color: #00b4d8; }
+  body[data-screen="planes"] .pips i.did { background: #00c389; }
+  body[data-screen="planes"] .pips i.now { background: var(--gold); }
+  body[data-screen="planes"] #feedback.ok { color: #4cffb0; }
+  body[data-screen="planes"] #feedback.tip { color: #e8f4ff; }
+  body[data-screen="planes"] .sky.still { background: linear-gradient(#070b1a, #10203a); border-color: #00b4d8; }
+  body[data-screen="planes"] .bandit span { color: var(--ink); }
+  body[data-screen="planes"] .ear rect, body[data-screen="planes"] .ear polygon { fill: #e8f4ff; }
+  .skywrap {
+    position: relative; height: min(560px, 68dvh); min-height: 340px; margin-top: 8px;
+    border-radius: 16px; overflow: hidden; border: 2px solid #00b4d8; background: #02030a;
+  }
+  .skycanvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+  .skyover {
+    position: absolute; inset: 0; display: grid; place-content: center; gap: 6px; padding: 16px;
+    text-align: center; background: rgba(5, 10, 25, .84); color: #e8f4ff; overflow-y: auto;
+  }
+  .skyover p { margin: 0; }
+  .skytitle {
+    font-family: "Black Ops One", Lexend, sans-serif; font-size: clamp(2rem, 7vw, 3.2rem); line-height: 1.05;
+    background: linear-gradient(#fff, #00eaff); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .skyhow { color: #9fb3c8; font-size: .92rem; }
+  .boardtitle { margin: 10px 0 4px; font-weight: 700; color: #ffcc00; }
+  .results .boardtitle { color: var(--ink); }
+  .board {
+    list-style: none; margin: 0 auto; padding: 6px 12px; width: min(320px, 100%); text-align: left;
+    background: rgba(0, 0, 0, .45); border: 1px solid #0088aa; border-radius: 10px;
+  }
+  .board li { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px dashed #2a3f55; }
+  .board li:last-child { border-bottom: 0; }
+  .board li span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .board li i { font-style: normal; min-width: 1.6em; opacity: .8; }
+  .board li.me { color: #ffcc00; }
+  .board.light { margin: 0 0 8px; background: var(--card); border: 3px solid var(--ink); color: var(--ink); }
+  .board.light li { border-bottom-color: var(--line); }
+  .board.light li.me { color: var(--ink); background: var(--gold); border-radius: 6px; padding: 4px 6px; }
+  .engage { justify-self: center; margin-top: 8px; font-size: 1.2rem; padding: 12px 28px; }
+  .skyscore { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 6px 0; }
+  .skyscore p { margin: 0; }
+  .skyscore b { font-family: "Black Ops One", Lexend, sans-serif; font-size: 1.8rem; font-weight: 400; }
+  /* Keyboard and screen-reader pupils can pick a plane directly; the row shows when it has focus. */
+  .pickrow { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .pickrow:focus-within {
+    position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal;
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+  }
+  .pickbtn { border: 2px solid #00b4d8; background: #0d1a2b; color: #e8f4ff; border-radius: 10px; padding: 6px 10px; font-weight: 700; }
   .abc { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
   .key {
     min-height: 42px;
@@ -671,6 +724,7 @@ const WORD_ISLAND_UNITS = {};
 </script>
 <script src="units/u1.js"></script>
 <script src="units/u5.js"></script>
+<script src="sky.js"></script>
 <script>
 const GAME_IDS = ["maze", "moles", "hangman", "planes"];
 const ROUND = 10;
@@ -707,8 +761,6 @@ let state = load();
 let play = null;
 let timer = 0;
 let molePop = 0;
-let raidFrame = 0;
-let raidHold = null;
 let pendingYes = null;
 
 const view = document.getElementById("view");
@@ -972,20 +1024,12 @@ function choicePairs(item) {
 function stopMoles() {
   clearTimeout(molePop);
   molePop = 0;
-  stopRaid();
 }
 
-function stopRaid() {
-  if (raidFrame) cancelAnimationFrame(raidFrame);
-  raidFrame = 0;
-  if (raidHold) {
-    window.removeEventListener("pointermove", raidHold.move);
-    window.removeEventListener("pointerup", raidHold.up);
-    window.removeEventListener("pointercancel", raidHold.up);
-    window.removeEventListener("keydown", raidHold.keyDown);
-    window.removeEventListener("keyup", raidHold.keyUp);
-    raidHold = null;
-  }
+// The sky keeps flying from question to question, and stops when the round ends or the pupil leaves.
+function stopSky() {
+  window.SkyGame.stop();
+  if (play) play.skyHost = null;
 }
 
 function moleButtons() {
@@ -1102,6 +1146,7 @@ function resumeGame() {
 function resetScreen(screen) {
   clearTimeout(timer);
   stopMoles();
+  stopSky();
   play = null;
   document.body.dataset.screen = screen || "hub";
   updateChrome();
@@ -1273,10 +1318,17 @@ function start(gate, mode) {
       return;
     }
   }
+  stopSky();
   play = {
     gate, mode, items, index: 0, stars: 0, missed: [], log: [],
     tried: false, locked: false, step: 0, left: false, finished: false, moving: false
   };
+  // Listen and shoot keeps a score, combo and power-ups across the round; a full round starts on the Engage screen.
+  if (gate === "planes" && !reduceMotion) {
+    play.sky = window.SkyGame.newRound();
+    play.engage = mode === "full";
+    if (!play.engage) window.SkyGame.unlockSound();
+  }
   renderPlay();
 }
 
@@ -1323,8 +1375,8 @@ function renderPlay() {
   const title = document.getElementById("qtitle");
   if (title) title.focus({ preventScroll: true });
   if (play.gate === "moles") startMoleLoop();
-  if (play.gate === "planes") startRaid();
-  speak(spoken(item), false);
+  if (play.gate === "planes" && !reduceMotion) placeSky();
+  if (!play.engage) speak(spoken(item), false);
 }
 
 // Without sound, "Listen and shoot" shows the word to shoot instead.
@@ -1361,6 +1413,19 @@ function stageInner(item) {
       <p class="draghint">Hit the right answer when it pops up.</p>
       <div class="field">
         ${[0, 1, 2, 3, 4, 5].map(() => `<div class="pit"><button type="button" class="mole" data-act="pick" data-ok="0" tabindex="-1" aria-hidden="true"></button><div class="hole" aria-hidden="true"></div></div>`).join("")}
+      </div>
+    `;
+  }
+  if (play.gate === "planes" && !reduceMotion) {
+    play.pairs = choicePairs(item);
+    return `
+      <div class="qrow">
+        <h2 id="qtitle" tabindex="-1">${chip}<span id="planetitle">${planeTitle(item)}</span></h2>
+        <button type="button" class="ghost" data-act="hear">Hear it</button>
+      </div>
+      <div id="skyslot"></div>
+      <div class="pickrow" role="group" aria-label="Or pick a plane">
+        ${play.pairs.map((pair, index) => `<button type="button" class="pickbtn" data-act="shoot" data-lane="${index}" data-ok="${pair.ok ? "1" : "0"}">${index + 1}. ${esc(choiceText(item, pair.text))}</button>`).join("")}
       </div>
     `;
   }
@@ -1489,9 +1554,9 @@ function grade(ok, el) {
   if (!play || play.locked || play.left || play.finished) return;
   if (play.gate === "moles" && el && !el.classList.contains("up")) return;
   const planes = play.gate === "planes";
-  // With planes flying, a keyboard pick counts like a shot: a wrong plane falls and the pupil keeps flying.
-  if (planes && !reduceMotion && el) {
-    if (!el._down && !play.resolving) destroyPlane(el, ok);
+  // With planes flying, a keyboard pick counts like shooting that plane down.
+  if (planes && !reduceMotion) {
+    if (el && !play.resolving && !play.engage && !play.paused) window.SkyGame.pick(Number(el.dataset.lane));
     return;
   }
   if (!planes) stopMoles();
@@ -1538,14 +1603,13 @@ function parkAnswer() {
   el.classList.add("show-right");
 }
 
-function clampUnit(value, min, max) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function destroyPlane(foe, ok) {
-  foe._down = true;
-  foe.classList.add(ok ? "right" : "wrong");
-  if (ok) {
+// "Listen and shoot": the canvas game in sky.js flies the planes and calls these when something happens.
+const skyHooks = {
+  isPaused: () => !play || play.gate !== "planes" || play.paused || play.engage || play.finished || play.left,
+  soundOn: () => state.sound,
+  // Without sound, the word to shoot is shown at the top of the sky.
+  target: () => (play && play.gate === "planes" && (!state.sound || !canSpeak()) ? listenText(current()) : null),
+  onRight() {
     const first = !play.tried;
     play.resolving = true;
     play.tried = true;
@@ -1553,175 +1617,123 @@ function destroyPlane(foe, ok) {
     updateChrome();
     setFeedback(first ? "Yes! A star." : "That's right.", "ok");
     speak(current().say, false);
-    later(next, 1500);
-    return;
+    later(next, 1100);
+  },
+  onWrong() {
+    if (!play.tried) {
+      play.tried = true;
+      play.missed.push(missedRecord(current()));
+    }
+    setFeedback("Not this one. Keep flying.", "tip");
+  },
+  onEscape() {
+    play.resolving = true;
+    if (!play.tried) {
+      play.tried = true;
+      play.missed.push(missedRecord(current()));
+    }
+    setFeedback(tipFor(current()), "tip");
+    speak(current().say, false);
+    later(next, 1800);
   }
-  if (!play.tried) {
-    play.tried = true;
-    play.missed.push(missedRecord(current()));
-  }
-  setFeedback("Not this one. Keep flying.", "tip");
+};
+
+function iconUrl(name) {
+  return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">${ICONS[name] || ""}</svg>`);
 }
 
-function startRaid() {
-  if (!play || play.gate !== "planes" || reduceMotion) return;
-  const sky = document.getElementById("sky");
-  const ship = document.getElementById("ship");
-  const bolts = document.getElementById("bolts");
-  if (!sky || !ship || !bolts) return;
-  const step = play.step;
-  const foes = [...sky.querySelectorAll(".bandit")];
-  const lanes = [17, 50, 83];
-  const drops = shuffle([-24, -150, -276]);
-  const keys = new Set();
-  play.shipX = 0.5;
-  play.shipY = 0.78;
-  play.aimX = 0.5;
-  play.aimY = 0.78;
-  play.firing = false;
-  play.bullets = [];
-  play.shotAt = 0;
-  foes.forEach((foe, index) => {
-    foe._lane = lanes[index] || 50;
-    foe._y = drops[index];
-    foe._down = false;
-    foe.style.left = foe._lane + "%";
-    foe.style.top = foe._y + "px";
+// Send this question's planes into the sky, in lane order.
+function askPlanes() {
+  const item = current();
+  window.SkyGame.ask(play.pairs.map((pair) => ({
+    ok: pair.ok,
+    big: Boolean(item.big),
+    text: item.pics || item.icons ? "" : pair.text,
+    img: item.pics ? `img/${item.unit}/${pair.text}.webp` : item.icons ? iconUrl(pair.text) : null
+  })), play.index);
+}
+
+// The sky is made once per round and moved into each new question's stage, so it never restarts.
+function placeSky() {
+  const slot = document.getElementById("skyslot");
+  if (!slot) return;
+  if (!play.skyHost) {
+    const host = document.createElement("div");
+    host.className = "skywrap";
+    slot.replaceWith(host);
+    play.skyHost = host;
+    window.SkyGame.mount(host, play.sky, skyHooks);
+    if (play.engage) showEngage(host);
+  } else {
+    slot.replaceWith(play.skyHost);
+  }
+  if (!play.engage) askPlanes();
+}
+
+// Before the first question of a full round: how to play, the class's best scores, and a button
+// that also lets phones play sound.
+function showEngage(host) {
+  const box = document.createElement("div");
+  box.className = "skyover";
+  box.innerHTML = `
+    <p class="skytitle">Listen &amp; Shoot</p>
+    <p>Listen to the word. Shoot the plane that matches.</p>
+    <p class="skyhow">Move: mouse, finger or arrow keys · Shoot: hold down, or Space</p>
+    <p class="boardtitle">Top pilots · ${esc(state.cls || "your class")} · Unit ${U.number}</p>
+    <ol class="board" id="engageboard"><li>Loading scores…</li></ol>
+    <button type="button" class="btn gold engage" data-act="engage">Engage!</button>
+  `;
+  host.appendChild(box);
+  fillBoard(box.querySelector("#engageboard"), null);
+  box.querySelector(".engage").focus({ preventScroll: true });
+}
+
+function engage() {
+  if (!play || !play.engage) return;
+  play.engage = false;
+  const box = play.skyHost && play.skyHost.querySelector(".skyover");
+  if (box) box.remove();
+  window.SkyGame.unlockSound();
+  askPlanes();
+  speak(spoken(current()), false);
+  const title = document.getElementById("qtitle");
+  if (title) title.focus({ preventScroll: true });
+}
+
+function firebaseReady() {
+  return new Promise((resolve) => {
+    if (typeof window.wiLeaderboard === "function") resolve();
+    else window.addEventListener("wi-send-ready", resolve, { once: true });
   });
-  function aim(event) {
-    if (!play || play.step !== step || play.left) return;
-    const rect = sky.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-    play.aimX = clampUnit((event.clientX - rect.left) / rect.width, 0.08, 0.92);
-    play.aimY = clampUnit((event.clientY - rect.top) / rect.height, 0.46, 0.9);
-  }
-  function holdMove(event) {
-    if (!raidHold || !raidHold.holding) return;
-    aim(event);
-  }
-  function holdUp() {
-    if (raidHold) raidHold.holding = false;
-    if (play && play.step === step) play.firing = keys.size > 0;
-  }
-  function keyDown(event) {
-    if (!play || play.step !== step || play.left || play.paused) return;
-    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
-    keys.add(event.key);
-    play.firing = true;
-    event.preventDefault();
-  }
-  function keyUp(event) {
-    keys.delete(event.key);
-    if (play && play.step === step && !raidHold.holding) play.firing = keys.size > 0;
-  }
-  raidHold = { move: holdMove, up: holdUp, holding: false, keyDown, keyUp };
-  window.addEventListener("pointermove", holdMove);
-  window.addEventListener("pointerup", holdUp);
-  window.addEventListener("pointercancel", holdUp);
-  window.addEventListener("keydown", keyDown);
-  window.addEventListener("keyup", keyUp);
-  sky.addEventListener("pointermove", aim);
-  sky.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0) return;
-    raidHold.holding = true;
-    play.firing = true;
-    aim(event);
-  });
-  let last = 0;
-  function frame(now) {
-    if (!play || play.step !== step || play.left || play.finished) return;
-    if (play.paused) {
-      last = 0;
-      raidFrame = requestAnimationFrame(frame);
-      return;
-    }
-    if (!last) last = now;
-    const dt = Math.min(34, now - last);
-    last = now;
-    const rect = sky.getBoundingClientRect();
-    if (rect.width < 10 || rect.height < 10) {
-      raidFrame = requestAnimationFrame(frame);
-      return;
-    }
-    const nudge = 0.7 * (dt / 1000);
-    if (keys.has("ArrowLeft")) play.aimX -= nudge;
-    if (keys.has("ArrowRight")) play.aimX += nudge;
-    if (keys.has("ArrowUp")) play.aimY -= nudge;
-    if (keys.has("ArrowDown")) play.aimY += nudge;
-    play.aimX = clampUnit(play.aimX, 0.08, 0.92);
-    play.aimY = clampUnit(play.aimY, 0.46, 0.9);
-    play.shipX += (play.aimX - play.shipX) * 0.18;
-    play.shipY += (play.aimY - play.shipY) * 0.18;
-    ship.style.left = (play.shipX * 100) + "%";
-    ship.style.top = (play.shipY * 100) + "%";
-    const fall = rect.height * 0.2 * (dt / 1000);
-    let escaped = false;
-    foes.forEach((foe) => {
-      foe._y += foe._down ? fall * 2.4 : fall;
-      const bob = Math.sin(now / 520 + foe._lane) * 1.2;
-      foe.style.left = (foe._lane + bob) + "%";
-      foe.style.top = foe._y + "px";
-      if (!foe._down && foe.dataset.ok === "1" && foe._y > rect.height - 36) escaped = true;
-    });
-    const shooting = play.firing && !play.resolving;
-    if (shooting && now - play.shotAt > 140) {
-      play.shotAt = now;
-      const shipRect = ship.getBoundingClientRect();
-      play.bullets.push({
-        x: shipRect.left - rect.left + shipRect.width / 2,
-        y: shipRect.top - rect.top + 8
-      });
-    }
-    const speed = rect.height * 1.45 * (dt / 1000);
-    play.bullets.forEach((bolt) => { bolt.y -= speed; });
-    play.bullets = play.bullets.filter((bolt) => bolt.y > -24);
-    const struck = [];
-    if (!play.resolving) {
-      play.bullets = play.bullets.filter((bolt) => {
-        for (const foe of foes) {
-          if (foe._down) continue;
-          const body = foe.querySelector(".miniplane") || foe;
-          const fr = body.getBoundingClientRect();
-          const left = fr.left - rect.left;
-          const top = fr.top - rect.top;
-          if (top > -20 && bolt.x > left - 8 && bolt.x < left + fr.width + 8 && bolt.y > top && bolt.y < top + fr.height) {
-            struck.push(foe);
-            return false;
-          }
-        }
+}
+
+// The class's best scores for this unit: one line per pupil, best first.
+function fillBoard(list, mine) {
+  if (!list) return;
+  const unitId = U.id;
+  firebaseReady()
+    .then(() => window.wiLeaderboard(unitId, state.cls))
+    .then((rows) => {
+      const seen = new Set();
+      const best = rows.filter((row) => {
+        const key = row.name.trim().toLowerCase();
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
         return true;
-      });
-    }
-    while (bolts.children.length < play.bullets.length) {
-      const mark = document.createElement("i");
-      mark.className = "bolt";
-      bolts.appendChild(mark);
-    }
-    [...bolts.children].forEach((mark, index) => {
-      const bolt = play.bullets[index];
-      mark.hidden = !bolt;
-      if (!bolt) return;
-      mark.style.left = bolt.x + "px";
-      mark.style.top = bolt.y + "px";
-    });
-    struck.forEach((foe) => {
-      if (foe._down || play.resolving) return;
-      destroyPlane(foe, foe.dataset.ok === "1");
-    });
-    if (!play.resolving && escaped) {
-      play.resolving = true;
-      if (!play.tried) {
-        play.tried = true;
-        play.missed.push(missedRecord(current()));
+      }).slice(0, 5);
+      if (!best.length) {
+        list.innerHTML = "<li>No scores yet. Be the first!</li>";
+        return;
       }
-      parkAnswer();
-      setFeedback(tipFor(current()), "tip");
-      speak(current().say, false);
-      later(next, 1800);
-    }
-    raidFrame = requestAnimationFrame(frame);
-  }
-  raidFrame = requestAnimationFrame(frame);
+      list.innerHTML = best.map((row, rank) => {
+        const me = mine && row.name.trim().toLowerCase() === mine.name.trim().toLowerCase();
+        return `<li${me ? ' class="me"' : ""}><i>${rank + 1}.</i><span>${esc(row.name)}</span><b>${row.score}</b></li>`;
+      }).join("");
+    })
+    .catch((err) => {
+      console.warn("Word Island: scores not loaded.", err);
+      list.innerHTML = "<li>Scores are not available right now.</li>";
+    });
 }
 
 function markCorrect() {
@@ -1753,6 +1765,7 @@ function finish() {
   play.finished = true;
   clearTimeout(timer);
   stopMoles();
+  stopSky();
   const firstClear = play.mode === "full" && !state.done[play.gate];
   if (play.mode === "full") {
     state.best[play.gate] = Math.max(state.best[play.gate] || 0, play.stars);
@@ -1764,6 +1777,8 @@ function finish() {
   const perfect = play.stars === play.items.length;
   if (!reduceMotion && (perfect || firstClear)) burst();
   setSendNote("Sending your stars to your teacher…", "");
+  // A full round of Listen and shoot also puts the pupil's score on the class leaderboard.
+  const score = play.sky && play.mode === "full" ? play.sky.score : null;
   sendRun({
     unit: U.id,
     name: state.name,
@@ -1772,8 +1787,12 @@ function finish() {
     mode: play.mode,
     stars: play.stars,
     total: play.items.length,
-    answers: play.log
-  }).then(showSendResult);
+    answers: play.log,
+    ...(score === null ? {} : { score })
+  }).then((ok) => {
+    showSendResult(ok);
+    if (score !== null) fillBoard(document.getElementById("resultboard"), { name: state.name });
+  });
 }
 
 function renderResults() {
@@ -1801,11 +1820,20 @@ function renderResults() {
     ? `<button type="button" class="btn leaf" data-act="retry">Wrong ones only</button>`
     : "";
   const bests = GATES.map((gate) => `<li>${esc(gate.title)}: ★ ${state.best[gate.id] || 0}/10</li>`).join("");
+  const sky = play.sky
+    ? `<div class="skyscore">
+        <p><span>Score</span> <b>${play.sky.score}</b></p>
+        <p><span>Best combo</span> <b>x${play.sky.bestCombo}</b></p>
+      </div>
+      ${play.mode === "full" ? `<p class="boardtitle">Top pilots · ${esc(state.cls || "your class")} · Unit ${U.number}</p>
+      <ol class="board light" id="resultboard"><li>Saving your score…</li></ol>` : ""}`
+    : "";
   view.innerHTML = `
     <div class="playwrap results">
       <p class="pill">Unit ${U.number} · ${esc(GAME[play.gate])}</p>
       <h2 tabindex="-1">${title}</h2>
       <p>${esc(scoreLine)}</p>
+      ${sky}
       ${badgeLine}
       ${perfect && play.mode === "full" ? "<p>Every one was right on the first try.</p>" : ""}
       <div class="report">
@@ -2362,10 +2390,8 @@ document.body.addEventListener("click", (event) => {
     grade(el.dataset.ok === "1", el);
   }
   else if (act === "guess") guessLetter(el.dataset.letter);
-  else if (act === "shoot") {
-    if (!reduceMotion && event.detail !== 0) return;
-    grade(el.dataset.ok === "1", el);
-  }
+  else if (act === "shoot") grade(el.dataset.ok === "1", el);
+  else if (act === "engage") engage();
   else if (act === "next") next();
   else if (act === "hear") speak(spoken(current()), true);
   else if (act === "retry") start(play.gate, "retry");
@@ -2421,8 +2447,8 @@ document.addEventListener("keydown", (event) => {
   if (play.gate === "planes") {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
       event.preventDefault();
-    } else if (reduceMotion && (event.key === "1" || event.key === "2" || event.key === "3")) {
-      const button = [...view.querySelectorAll(".bandit")][Number(event.key) - 1];
+    } else if (event.key === "1" || event.key === "2" || event.key === "3") {
+      const button = [...view.querySelectorAll("[data-act='shoot']")][Number(event.key) - 1];
       if (button) button.click();
     }
     return;
@@ -2539,6 +2565,38 @@ window.wiSend = async (run) => {
     const saved = await storeSdk.getDoc(ref).catch(() => null);
     if (!saved || !saved.exists()) throw err;
   }
+  // A full round of Listen and shoot also goes on the class leaderboard, under the same id.
+  // The leaderboard is a bonus, so a failed score never holds back the result above.
+  if (typeof run.score === "number") {
+    try {
+      await storeSdk.setDoc(storeSdk.doc(db, "wordIslandScores", run.key), {
+        uid: user.uid,
+        unit: run.unit,
+        cls: run.cls,
+        name: run.name,
+        score: run.score,
+        createdAt: storeSdk.serverTimestamp()
+      });
+    } catch (err) {
+      // "permission-denied" here means a slow first try already saved it.
+      if (!err || err.code !== "permission-denied") console.warn("Word Island: score not saved.", err);
+    }
+  }
+};
+
+// The class's best Listen and shoot scores for a unit, best first.
+window.wiLeaderboard = async (unit, cls) => {
+  const { authSdk, storeSdk, auth, db } = await loadSdk();
+  await auth.authStateReady();
+  if (!auth.currentUser) await authSdk.signInAnonymously(auth);
+  const snap = await storeSdk.getDocs(storeSdk.query(
+    storeSdk.collection(db, "wordIslandScores"),
+    storeSdk.where("cls", "==", cls),
+    storeSdk.where("unit", "==", unit),
+    storeSdk.orderBy("score", "desc"),
+    storeSdk.limit(20)
+  ));
+  return snap.docs.map((row) => ({ name: String(row.get("name") || ""), score: Number(row.get("score")) || 0 }));
 };
 
 // Teacher explain page: Google sign-in, and the saved results (the rules let only the teacher read them).
