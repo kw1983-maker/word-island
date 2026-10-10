@@ -1,0 +1,191 @@
+// Word Island · Unit 8 (Super Minds pp. 94-105: The robot).
+// Pictures live in img/u8/. The first choice of every question is the right one.
+WORD_ISLAND_UNITS.u8 = (() => {
+  const TOPICS = {
+    body: "The body",
+    chant: "Let's make a robot!",
+    can: "I can / I can't …",
+    song: "Who am I?",
+    canyou: "Can you …?",
+    story: "The problem",
+    phonics: "Phonics: g",
+    funny: "Funny animals",
+    skeleton: "The skeleton"
+  };
+
+  const MAZE = [
+    look("u8m-head", "body", { img: "b-head" }, "a skull", "Find it in your body. Which part?", ["head", "foot", "knee"], "It's the head."),
+    look("u8m-knee", "body", { img: "b-knee" }, "a knee bone", "Find it in your body. Which part?", ["knee", "arm", "head"], "It's the knee."),
+    look("u8m-foot", "body", { img: "b-foot" }, "foot bones", "Find it in your body. Which part?", ["foot", "hand", "head"], "It's the foot.", { challenge: true }),
+    look("u8m-arm", "body", { img: "b-arm" }, "an arm bone", "Find it in your body. Which part?", ["arm", "leg", "foot"], "It's the arm.", { challenge: true }),
+    look("u8m-toes", "can", { img: "toes" }, "Thunder bends down to his toes", "What does Thunder say?", ["I can't touch my toes.", "I can't skip.", "I can stand on one leg."], "I can't touch my toes."),
+    look("u8m-skip", "can", { img: "skip" }, "Whisper with a skipping rope", "What does Whisper say?", ["I can't skip.", "I can't touch my toes.", "I can swim."], "I can't skip."),
+    look("u8m-oneleg", "can", { img: "oneleg" }, "Flash wobbles on one leg", "What does Flash say?", ["I can't stand on one leg.", "I can't skip.", "I can't touch my toes."], "I can't stand on one leg.", { challenge: true }),
+    look("u8m-anna", "can", { img: "anna" }, "Anna jumps over a skipping rope", "What can Anna do?", ["Anna can skip.", "Anna can't skip.", "Anna can swim."], "Anna can skip."),
+    look("u8m-bird", "song", { img: "s-bird" }, "Bella Bird", "What can Bella Bird do?", ["She can sing.", "She can swim.", "She can run."], "It's Bella Bird. She can sing."),
+    look("u8m-dolphin", "song", { img: "s-dolphin" }, "Dan Dolphin", "What can Dan Dolphin do?", ["He can swim.", "He can fly.", "He can run."], "Dan Dolphin can swim."),
+    look("u8m-kangaroo", "song", { img: "s-kangaroo" }, "Kate Kangaroo", "What can Kate Kangaroo do?", ["She can jump up high.", "She can swim.", "She can sing."], "Kate Kangaroo can jump up high."),
+    look("u8m-cheetah", "song", { img: "s-cheetah" }, "Charlie Cheetah", "What can Charlie Cheetah do?", ["He can run.", "He can fly.", "He can swim."], "Charlie Cheetah can run."),
+    look("u8m-lizard", "song", { img: "s-lizard" }, "Larry Lizard", "What can Larry Lizard do?", ["He can dance.", "He can swim.", "He can fly."], "Larry Lizard can dance.", { challenge: true }),
+    look("u8m-ladybird", "song", { img: "s-ladybird" }, "Lucy Ladybird", "What can Lucy Ladybird do?", ["She can crawl and fly.", "She can swim.", "She can sing."], "Lucy Ladybird can crawl and fly.", { challenge: true }),
+    look("u8m-tennis", "canyou", { img: "a-tennis" }, "a tennis racket", "Can you …?", ["play tennis", "play the piano", "ride a bike"], "Can you play tennis?"),
+    look("u8m-piano", "canyou", { img: "a-piano" }, "a piano", "Can you …?", ["play the piano", "play tennis", "dance"], "Can you play the piano?"),
+    look("u8m-horse", "canyou", { img: "a-horse" }, "a horse", "Can you …?", ["ride a horse", "ride a bike", "swim"], "Can you ride a horse?"),
+    look("u8m-bike", "canyou", { img: "a-bike" }, "a bike", "Can you …?", ["ride a bike", "ride a horse", "play tennis"], "Can you ride a bike?"),
+    look("u8m-swim", "canyou", { img: "a-swim" }, "goggles and a towel", "Can you …?", ["swim", "dance", "play tennis"], "Can you swim?", { challenge: true }),
+    look("u8m-dance", "canyou", { img: "a-dance" }, "ballet shoes", "Can you …?", ["dance", "swim", "ride a horse"], "Can you dance?", { challenge: true }),
+    look("u8m-guitar", "canyou", { img: "c-guitar" }, "hands on a guitar", "Can you …?", ["play the guitar", "play the piano", "speak Spanish"], "Can you play the guitar?"),
+    look("u8m-spanish", "canyou", { img: "c-spanish" }, "a mouth saying Hola", "Can you …?", ["speak Spanish", "play the guitar", "ride a horse"], "Can you speak Spanish?"),
+    look("u8m-give", "story", { img: "st-give" }, "the friends build the robot", "What does Thunder say?", ["Give me the right leg and the left arm.", "Robot, can you speak?", "Well done, Misty."], "Give me the right leg and the left arm."),
+    look("u8m-st-head", "story", { img: "st-head" }, "Whisper gives Thunder the robot's head", "What does Whisper say?", ["Here's the head.", "Here's the left arm.", "Thank you, Misty."], "And now the head, please. Here's the head."),
+    look("u8m-st-thanks", "story", { img: "st-thanks" }, "Misty gives Thunder the batteries", "What does Misty say?", ["Here you are.", "We've got a problem.", "Robot, can you speak?"], "Here you are. Thank you."),
+    look("u8m-batteries", "story", { img: "st-batteries" }, "Thunder holds his head", "What does Thunder say?", ["Batteries! We haven't got batteries.", "Here you are.", "Yes, I can."], "Batteries! We haven't got batteries."),
+    look("u8m-speak", "story", { img: "st-speak" }, "the robot says something silly", "What does the robot say?", ["Nac I sey.", "Yes, I can.", "Thank you."], "Nac I sey. That's Yes, I can backwards!"),
+    look("u8m-problem", "story", { img: "st-problem" }, "the friends look at the robot", "What do the friends say?", ["We've got a problem. It can't speak.", "Thank you, Misty.", "Here's the head."], "We've got a problem. It can't speak."),
+    look("u8m-can", "story", { img: "st-can" }, "the robot answers", "Robot, can you speak now? What does the robot say?", ["Yes, I can.", "Nac I sey.", "No, I can't."], "Yes, I can.", { challenge: true }),
+    look("u8m-welldone", "story", { img: "st-welldone" }, "the friends thank Misty", "What do the friends say?", ["Well done, Misty.", "We've got a problem.", "Batteries!"], "Thank you, Misty. Well done, Misty."),
+    look("u8m-greg", "phonics", { img: "greg" }, "Greg in a go-kart", "Greg's got a big bag and a green …", ["go-kart", "bike", "kite"], "Greg's got a big bag and a green go-kart."),
+    look("u8m-octo", "funny", { img: "octo" }, "a purple animal with eight arms", "Who is it?", ["Octo", "Klump", "Zak"], "I'm an Octo. I've got one head, two legs and eight arms. I can dance."),
+    look("u8m-klump", "funny", { img: "klump" }, "a red animal with two heads", "Who is it?", ["Klump", "Octo", "Dook"], "I'm a Klump. I've got two heads and six legs."),
+    look("u8m-dook", "funny", { img: "dook" }, "a long red animal jumping a fence", "Who is it?", ["Dook", "Zak", "Klump"], "I'm a Dook. I've got two heads and ten feet. I can jump!", { challenge: true }),
+    look("u8m-zak", "funny", { img: "zak" }, "a green animal with wings", "Who is it?", ["Zak", "Dook", "Octo"], "I'm a Zak. I've got four wings. I can fly but I can't jump."),
+    look("u8m-crocodile", "skeleton", { img: "crocodile" }, "a crocodile", "What animal is it?", ["a crocodile", "a frog", "a rat"], "It's a crocodile. It has got a skeleton."),
+    look("u8m-monkey", "skeleton", { img: "monkey" }, "a monkey", "What animal is it?", ["a monkey", "a rat", "a giraffe"], "It's a monkey."),
+    look("u8m-giraffe", "skeleton", { img: "giraffe" }, "a giraffe", "What animal is it?", ["a giraffe", "a monkey", "a crocodile"], "It's a giraffe."),
+    look("u8m-frog", "skeleton", { img: "frog" }, "a frog", "What animal is it?", ["a frog", "a crocodile", "a rat"], "It's a frog."),
+    look("u8m-rat", "skeleton", { img: "rat" }, "a rat", "What animal is it?", ["a rat", "a monkey", "a frog"], "It's a rat.")
+  ];
+
+  const MOLES = [
+    ask("u8o-chant-head", "chant", { quote: "Let's make a robot! Here's the …" }, "The chant: Let's make a robot! Here's the …", "Finish the chant.", ["head.", "toes.", "fingers."], { speakQ: "Let's make a robot! Here's the … Finish the chant." }),
+    ask("u8o-chant-hand", "chant", { quote: "Here's an arm. Here's a …" }, "The chant: Here's an arm. Here's a …", "Finish the chant.", ["hand.", "head.", "toes."], { speakQ: "Here's an arm. Here's a … Finish the chant." }),
+    ask("u8o-chant-fingers", "chant", { quote: "Here are the …" }, "The chant: Here's a hand. Here are the …", "Finish the chant.", ["fingers.", "head.", "knee."], { speakQ: "Here's a hand. Here are the … Finish the chant." }),
+    ask("u8o-chant-toes", "chant", { quote: "Here's a foot. Here are the …" }, "The chant: Here's a foot. Here are the …", "Finish the chant.", ["toes.", "arms.", "head."], { speakQ: "Here's a foot. Here are the … Finish the chant." }),
+    ask("u8o-chant-end", "chant", { quote: "Here are the toes." }, "The chant: Here are the toes.", "What comes next?", ["Thank you! Off it goes.", "Let's make a robot!", "Here's the head."], { speakQ: "Here are the toes. What comes next?", challenge: true }),
+    ask("u8o-thunder", "can", { img: "toes" }, "Thunder", "Can Thunder touch his toes?", ["No, he can't.", "Yes, he can.", "No, she can't."]),
+    ask("u8o-whisper", "can", { img: "skip" }, "Whisper", "Can Whisper skip?", ["No, he can't.", "Yes, he can.", "Yes, she can."]),
+    ask("u8o-flash", "can", { img: "oneleg" }, "Flash", "Can Flash stand on one leg?", ["No, she can't.", "Yes, she can.", "No, he can't."], { challenge: true }),
+    ask("u8o-anna", "can", { img: "anna" }, "Anna", "Can Anna skip?", ["Yes, she can.", "No, she can't.", "Yes, he can."]),
+    ask("u8o-misty", "can", { quote: "I can touch my toes. I can skip. I can stand on one leg." }, "Someone says: I can touch my toes. I can skip. I can stand on one leg.", "Who says it?", ["Misty.", "Thunder.", "Whisper."], { speakQ: "I can touch my toes. I can skip. I can stand on one leg. Who says it?", challenge: true }),
+    ask("u8o-swim-yes", "canyou", { img: "a-swim" }, "goggles and a towel", "Can you swim? (You can.)", ["Yes, I can.", "No, I can't.", "Yes, I do."]),
+    ask("u8o-dance-no", "canyou", { img: "a-dance" }, "ballet shoes", "Can you dance? (You can't.)", ["No, I can't.", "Yes, I can.", "No, I don't."]),
+    ask("u8o-horse", "canyou", { img: "c-horse" }, "a girl riding a horse", "What can she do?", ["She can ride a horse.", "She can ride a bike.", "She can play tennis."]),
+    ask("u8o-bird-song", "song", { img: "s-bird" }, "Bella Bird", "Who am I? I can sing.", ["Bella Bird.", "Dan Dolphin.", "Charlie Cheetah."]),
+    ask("u8o-dolphin-song", "song", { quote: "Who am I? I can swim." }, "Who am I? I can swim.", "Who is it?", ["Dan Dolphin.", "Kate Kangaroo.", "Lucy Ladybird."], { speakQ: "Who am I? I can swim." }),
+    ask("u8o-kangaroo-song", "song", { quote: "Who am I? I can jump up high." }, "Who am I? I can jump up high.", "Who is it?", ["Kate Kangaroo.", "Dan Dolphin.", "Larry Lizard."], { speakQ: "Who am I? I can jump up high." }),
+    ask("u8o-ladybird-song", "song", { quote: "Who am I? I can crawl and fly." }, "Who am I? I can crawl and fly.", "Who is it?", ["Lucy Ladybird.", "Bella Bird.", "Charlie Cheetah."], { speakQ: "Who am I? I can crawl and fly.", challenge: true }),
+    ask("u8o-thanks", "story", { quote: "Here you are." }, "Misty says: Here you are.", "What does Thunder say?", ["Thank you.", "No problem.", "Nac I sey."], { speakQ: "Here you are. What does Thunder say?" }),
+    ask("u8o-noproblem", "story", { quote: "Batteries! We haven't got batteries." }, "Thunder says: Batteries! We haven't got batteries.", "What does Misty say?", ["No problem.", "Well done.", "Yes, I can."], { speakQ: "Batteries! We haven't got batteries. What does Misty say?" }),
+    ask("u8o-try", "story", { quote: "We've got a problem. It can't speak." }, "The friends say: We've got a problem. It can't speak.", "What does Misty say?", ["Let me try something.", "Here's the head.", "Thank you, Misty."], { speakQ: "We've got a problem. It can't speak. What does Misty say?" }),
+    ask("u8o-give", "story", { quote: "Give me the right leg." }, "Someone says: Give me the right leg.", "Who says it?", ["Thunder.", "Misty.", "The robot."], { speakQ: "Give me the right leg. Who says it?", challenge: true }),
+    ask("u8o-teamwork", "story", { img: "st-welldone" }, "the friends and the robot", "The friends make the robot together. This is …", ["teamwork.", "a problem.", "a skeleton."], { challenge: true }),
+    ask("u8o-greg", "phonics", { img: "greg" }, "Greg in a go-kart", "What has Greg got?", ["A big bag and a green go-kart.", "A big dog and a red go-kart.", "A green bag and a big bike."]),
+    ask("u8o-octo", "funny", { img: "octo" }, "Octo", "How many arms has Octo got?", ["Eight.", "Two.", "Four."]),
+    ask("u8o-zak", "funny", { img: "zak" }, "Zak", "Can Zak jump?", ["No, he can't. He can fly.", "Yes, he can.", "Yes, he can dance."], { challenge: true }),
+    ask("u8o-klump", "funny", { img: "klump" }, "Klump", "What can Klump do?", ["He can run very fast.", "He can jump.", "He can fly."]),
+    ask("u8o-skeleton", "skeleton", { img: "b-head" }, "a skull", "The skeleton helps us to …", ["swim, walk, run, sit and stand.", "eat and drink.", "see and hear."]),
+    ask("u8o-bones", "skeleton", { img: "b-arm" }, "an arm bone", "Bones are …", ["strong.", "soft.", "hot."])
+  ];
+
+  const HANGMAN = [
+    spell("u8h-head", "body", { img: "b-head" }, "a head", "head"),
+    spell("u8h-arm", "body", { img: "b-arm" }, "an arm", "arm"),
+    spell("u8h-knee", "body", { img: "b-knee" }, "a knee", "knee"),
+    spell("u8h-foot", "body", { img: "b-foot" }, "a foot", "foot"),
+    spell("u8h-toes", "body", { img: "toes" }, "toes", "toes"),
+    spell("u8h-hand", "body", { img: "c-guitar" }, "hands on a guitar", "hand"),
+    spell("u8h-leg", "body", { img: "oneleg" }, "a leg", "leg"),
+    spell("u8h-fingers", "body", { img: "c-guitar" }, "fingers", "fingers", { challenge: true }),
+    spell("u8h-skip", "can", { img: "anna" }, "skip", "skip"),
+    spell("u8h-swim", "canyou", { img: "a-swim" }, "swim", "swim"),
+    spell("u8h-dance", "canyou", { img: "a-dance" }, "dance", "dance"),
+    spell("u8h-horse", "canyou", { img: "a-horse" }, "a horse", "horse"),
+    spell("u8h-tennis", "canyou", { img: "a-tennis" }, "tennis", "tennis"),
+    spell("u8h-piano", "canyou", { img: "a-piano" }, "a piano", "piano"),
+    spell("u8h-robot", "story", { img: "robot" }, "a robot", "robot"),
+    spell("u8h-bag", "phonics", { img: "greg" }, "a bag", "bag"),
+    spell("u8h-green", "phonics", { img: "greg" }, "green", "green"),
+    spell("u8h-bird", "song", { img: "s-bird" }, "a bird", "bird"),
+    spell("u8h-dolphin", "song", { img: "s-dolphin" }, "a dolphin", "dolphin", { challenge: true }),
+    spell("u8h-cheetah", "song", { img: "s-cheetah" }, "a cheetah", "cheetah", { challenge: true }),
+    spell("u8h-monkey", "skeleton", { img: "monkey" }, "a monkey", "monkey"),
+    spell("u8h-frog", "skeleton", { img: "frog" }, "a frog", "frog")
+  ];
+
+  const PLANES = [
+    hear("u8p-head", "body", "the head", ["b-head", "b-foot", "b-knee"], { pics: true, alts: ["head", "foot", "knee"] }),
+    hear("u8p-knee", "body", "a knee", ["b-knee", "b-arm", "b-head"], { pics: true, alts: ["knee", "arm", "head"] }),
+    hear("u8p-foot", "body", "a foot", ["b-foot", "b-head", "b-arm"], { pics: true, alts: ["foot", "head", "arm"], challenge: true }),
+    hear("u8p-cant", "can", "I can't touch my toes.", ["toes", "skip", "oneleg"], { pics: true, alts: ["can't touch his toes", "can't skip", "can't stand on one leg"] }),
+    hear("u8p-oneleg", "can", "I can't stand on one leg.", ["oneleg", "toes", "skip"], { pics: true, alts: ["can't stand on one leg", "can't touch his toes", "can't skip"], challenge: true }),
+    hear("u8p-can", "can", "She can skip.", ["She can skip.", "She can't skip.", "He can skip."]),
+    hear("u8p-cheetah", "song", "Who am I? I can run.", ["s-cheetah", "s-dolphin", "s-ladybird"], { pics: true, alts: ["Charlie Cheetah", "Dan Dolphin", "Lucy Ladybird"] }),
+    hear("u8p-dolphin", "song", "Who am I? I can swim.", ["s-dolphin", "s-kangaroo", "s-bird"], { pics: true, alts: ["Dan Dolphin", "Kate Kangaroo", "Bella Bird"] }),
+    hear("u8p-lizard", "song", "Who am I? I can dance.", ["s-lizard", "s-bird", "s-cheetah"], { pics: true, alts: ["Larry Lizard", "Bella Bird", "Charlie Cheetah"], challenge: true }),
+    hear("u8p-tennis", "canyou", "Can you play tennis?", ["a-tennis", "a-piano", "a-bike"], { pics: true, alts: ["play tennis", "play the piano", "ride a bike"] }),
+    hear("u8p-horse", "canyou", "Can you ride a horse?", ["a-horse", "a-bike", "a-dance"], { pics: true, alts: ["ride a horse", "ride a bike", "dance"] }),
+    hear("u8p-piano", "canyou", "Can you play the piano?", ["a-piano", "c-guitar", "a-tennis"], { pics: true, alts: ["play the piano", "play the guitar", "play tennis"] }),
+    hear("u8p-yes", "canyou", "Can you swim? Yes, I can.", ["Yes, I can.", "No, I can't.", "Yes, I do."]),
+    hear("u8p-no", "canyou", "Can you dance? No, I can't.", ["No, I can't.", "Yes, I can.", "No, I don't."], { challenge: true }),
+    hear("u8p-problem", "story", "We've got a problem. It can't speak.", ["We've got a problem.", "We haven't got batteries.", "Well done, Misty."]),
+    hear("u8p-welldone", "story", "Well done, Misty.", ["Well done, Misty.", "Thank you, Misty.", "Here you are, Misty."]),
+    hear("u8p-leg", "story", "Here's the right leg.", ["Here's the right leg.", "Here's the left arm.", "Here's the head."], { challenge: true }),
+    hear("u8p-greg", "phonics", "Greg's got a big bag and a green go-kart.", ["Greg's got a big bag and a green go-kart.", "Greg's got a big bag and a red go-kart.", "Greg's got a big dog and a green go-kart."], { challenge: true }),
+    hear("u8p-zak", "funny", "I've got four wings. I can fly.", ["zak", "klump", "octo"], { pics: true, alts: ["Zak", "Klump", "Octo"] }),
+    hear("u8p-octo", "funny", "I've got eight arms. I can dance.", ["octo", "dook", "zak"], { pics: true, alts: ["Octo", "Dook", "Zak"] }),
+    hear("u8p-monkey", "skeleton", "a monkey", ["monkey", "rat", "frog"], { pics: true, alts: ["a monkey", "a rat", "a frog"] }),
+    hear("u8p-crocodile", "skeleton", "a crocodile", ["crocodile", "giraffe", "frog"], { pics: true, alts: ["a crocodile", "a giraffe", "a frog"] })
+  ];
+
+  // Teacher explain page: a hint per topic to give before the answer.
+  const HINTS = {
+    body: "Touch and say: head, arm, hand, fingers, leg, knee, foot, toes.",
+    chant: "Say the chant: Let's make a robot! Here's the head. Here's an arm …",
+    can: "Can do it: I can … Can't do it: I can't …",
+    song: "Sing Who am I? Each animal does one thing: sing, swim, jump, run, dance, crawl and fly.",
+    canyou: "Look at the picture. What do you do with it? Can you …? Yes, I can. / No, I can't.",
+    story: "Remember The problem. The friends build a robot together, but it can't speak.",
+    phonics: "Listen for the g sound: G-reg, big, bag, g-reen, g-o-kart.",
+    funny: "Count the heads, legs, arms and wings.",
+    skeleton: "The skeleton is our bones. Bones are strong. They help us move."
+  };
+
+  // Notes for single questions: a better hint, and why the answer is right.
+  const NOTES = {
+    "u8m-foot": { hint: "Look at the small bones at the end. Toes!", why: "These are the bones of the foot." },
+    "u8m-arm": { hint: "Is it long and thin?", why: "A long bone with a hand at the end: the arm." },
+    "u8m-oneleg": { hint: "Is she standing well, or wobbling?", why: "Flash wobbles: I can't stand on one leg." },
+    "u8m-lizard": { hint: "Look at Larry's arms and legs. Is he moving to music?", why: "Larry Lizard is dancing: he can dance." },
+    "u8m-ladybird": { why: "Ladybirds can walk on leaves and fly: crawl and fly." },
+    "u8m-swim": { hint: "What do you wear in the pool?", why: "Goggles and a towel: Can you swim?" },
+    "u8m-dance": { hint: "Ballet shoes are for …", why: "Ballet shoes: Can you dance?" },
+    "u8m-speak": { hint: "Read it backwards.", why: "Nac I sey is Yes, I can backwards. The robot speaks backwards!" },
+    "u8m-can": { why: "Misty fixes the robot: Yes, I can." },
+    "u8m-dook": { hint: "Two heads and lots of feet. Can it jump?", why: "The Dook has two heads and ten feet, and it can jump over the fence." },
+    "u8o-chant-end": { why: "The chant ends: Here are the toes. Thank you! Off it goes." },
+    "u8o-flash": { why: "Flash says: I can't stand on one leg. Flash is a girl: No, she can't." },
+    "u8o-misty": { hint: "Who can't the friends see?", why: "Misty can touch her toes, skip and stand on one leg." },
+    "u8o-ladybird-song": { why: "Lucy Ladybird can crawl and fly." },
+    "u8o-give": { why: "Thunder builds the robot: Give me the right leg and the left arm." },
+    "u8o-teamwork": { why: "The story is about teamwork: they all help." },
+    "u8o-zak": { hint: "Read: I can fly but I can't jump.", why: "Zak can fly but he can't jump." },
+    "u8p-oneleg": { hint: "Listen for one leg.", why: "Flash: I can't stand on one leg." },
+    "u8p-lizard": { why: "Larry Lizard can dance." },
+    "u8p-no": { why: "Can you dance? No, I can't." },
+    "u8p-leg": { hint: "Leg or arm? Right or left?", why: "Whisper says: Here's the right leg." },
+    "u8p-greg": { hint: "Listen: bag or dog? green or red?", why: "Greg's got a big bag and a green go-kart." },
+    "u8p-foot": { hint: "Toes at the end?", why: "The foot bones have toes at the end." }
+  };
+
+  return {
+    id: "u8",
+    number: 8,
+    title: "The robot",
+    h1: "Can you swim?",
+    lede: "The body, I can / I can't, Can you …?, the story The problem, funny animals and the skeleton. Come to Word Island. Play, and practise.",
+    topics: TOPICS,
+    hints: HINTS,
+    notes: NOTES,
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+  };
+})();
