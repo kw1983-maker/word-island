@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f3eee4">
-<title>Word Island · Unit 1 At school</title>
+<title>Word Island · Unit 1</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%227%22 fill=%22%23ffe14a%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
@@ -42,7 +43,7 @@
   body[data-screen="planes"] { background-color: #d7eefe; }
   button, input { font: inherit; color: inherit; }
   button { cursor: pointer; }
-  button:focus-visible, a:focus-visible {
+  button:focus-visible, a:focus-visible, input:focus-visible {
     outline: 3px solid var(--focus);
     outline-offset: 3px;
   }
@@ -72,8 +73,9 @@
     box-shadow: inset 0 -2px 0 var(--gold-deep);
   }
   .tools { display: flex; align-items: center; gap: 8px; }
+  #who { margin: 0; font-weight: 600; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #stars { margin: 0; font-weight: 700; min-width: 3ch; }
-  .ghost, .btn, .choice, .mole, .basket, .gate, .next {
+  .ghost, .btn, .choice, .mole, .gate, .next {
     border: 3px solid var(--ink);
     border-radius: 14px;
     background: #fff;
@@ -101,7 +103,7 @@
     margin: 0 0 8px;
     letter-spacing: -0.03em;
   }
-  .lede { margin: 0; font-size: 1.15rem; max-width: 36ch; }
+  .lede { margin: 0; font-size: 1.15rem; max-width: 40ch; }
   .ladder { margin: 10px 0 0; font-weight: 700; color: var(--leaf); }
   .robo { width: 120px; height: 120px; }
   .gates { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -135,10 +137,10 @@
   }
   .scene-hangman {
     background:
-      linear-gradient(#14213d, #14213d) 18% 80% / 50% 3px no-repeat,
-      linear-gradient(#14213d, #14213d) 20% 28% / 3px 55% no-repeat,
-      linear-gradient(#14213d, #14213d) 20% 28% / 42% 3px no-repeat,
-      radial-gradient(circle at 62% 48%, #14213d 0 5px, transparent 6px),
+      radial-gradient(ellipse 9px 12px at 22% 42%, #d62828 98%, transparent),
+      radial-gradient(ellipse 9px 12px at 40% 36%, #ffd60a 98%, transparent),
+      radial-gradient(ellipse 9px 12px at 58% 42%, #2a9d3a 98%, transparent),
+      radial-gradient(ellipse 9px 12px at 76% 36%, #1d6fe0 98%, transparent),
       linear-gradient(#fff6ea, #f3d7b0);
   }
   .scene-planes {
@@ -172,9 +174,10 @@
   }
   .stage.challenge { box-shadow: inset 0 0 0 4px var(--gold), var(--shadow); }
   .qrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .qrow .ghost { flex: none; white-space: nowrap; }
   #qtitle {
     font-family: Fraunces, Palatino, Georgia, serif;
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
     line-height: 1.15;
     margin: 0;
     font-weight: 600;
@@ -192,7 +195,7 @@
     vertical-align: middle;
   }
   .door {
-    width: min(280px, 86%);
+    width: min(300px, 90%);
     margin: 8px auto 12px;
     background: linear-gradient(#fff6d8, #ffe9a8);
     border: 3px solid var(--ink);
@@ -215,18 +218,52 @@
   .pic.small { min-height: 96px; }
   .ico { width: 128px; height: 128px; }
   .pic.small .ico { width: 88px; height: 88px; }
+  .photo { display: block; max-width: 100%; max-height: 170px; border-radius: 12px; }
+  .pic.small .photo { max-height: 120px; }
+  .tally { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; max-width: 280px; }
+  .tally .ico { width: 44px; height: 44px; }
+  .pic.small .tally .ico { width: 40px; height: 40px; }
+  .balloon { width: 96px; height: 128px; }
+  .pic.small .balloon { width: 70px; height: 94px; }
+  .mix { display: flex; align-items: center; gap: 8px; font-size: 2rem; font-weight: 700; }
+  .blob { width: 64px; height: 64px; border-radius: 50% 46% 52% 44%; border: 3px solid var(--ink); display: inline-block; }
+  .mix .q, .tile.q { background: #fff; border: 3px dashed var(--ink); }
+  .mix .q { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; }
+  .letters { display: flex; gap: 8px; }
+  .tile {
+    width: 56px; height: 64px; display: grid; place-items: center;
+    border: 3px solid var(--ink); border-radius: 12px; background: #fff;
+    font-family: Fraunces, Palatino, Georgia, serif; font-size: 2.2rem; font-weight: 700;
+  }
+  .numbadge {
+    width: 110px; height: 110px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--gold); border: 4px solid var(--ink);
+    font-family: Fraunces, Palatino, Georgia, serif; font-size: 3.6rem; font-weight: 700;
+  }
+  .pic.small .numbadge { width: 84px; height: 84px; font-size: 2.8rem; }
+  .quote {
+    position: relative; background: #fff; border: 3px solid var(--ink); border-radius: 22px;
+    padding: 14px 22px; font-family: Fraunces, Palatino, Georgia, serif; font-size: clamp(1.4rem, 3.4vw, 2rem); font-weight: 600;
+  }
+  .pic .quote { margin-bottom: 18px; }
+  .quote::after {
+    content: ""; position: absolute; left: 28px; bottom: -14px; width: 20px; height: 20px;
+    background: #fff; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
+    transform: rotate(45deg) skew(10deg, 10deg);
+  }
+  .ear { width: 110px; height: 110px; }
   .choices { display: grid; gap: 10px; margin-top: 12px; }
-  .choice, .mole, .basket, .next, .btn {
+  .choice, .mole, .next, .btn {
     font-weight: 700;
     padding: 12px 14px;
   }
-  .choice:active, .basket:active, .next:active, .btn:active, .ghost:active {
+  .choice:active, .next:active, .btn:active, .ghost:active {
     transform: translateY(3px);
     box-shadow: 0 1px 0 rgba(20, 33, 61, .18);
   }
-  .choice.right, .mole.right, .basket.right { background: var(--leaf-soft); border-color: var(--leaf); }
-  .choice.wrong, .mole.wrong, .basket.wrong { background: var(--coral-soft); }
-  .choice.show-right, .mole.show-right, .basket.show-right { background: var(--leaf-soft); }
+  .choice.right, .mole.right { background: var(--leaf-soft); border-color: var(--leaf); }
+  .choice.wrong, .mole.wrong { background: var(--coral-soft); }
+  .choice.show-right, .mole.show-right { background: var(--leaf-soft); }
   .field {
     margin-top: 12px;
     display: grid;
@@ -237,7 +274,7 @@
     padding: 12px;
     border: 3px solid #1f6b3a;
   }
-  .pit { position: relative; height: 132px; overflow: hidden; }
+  .pit { position: relative; height: 140px; overflow: hidden; }
   .hole {
     position: absolute;
     left: 8px; right: 8px; bottom: 8px;
@@ -251,7 +288,10 @@
     position: absolute;
     left: 6px; right: 6px; bottom: 18px;
     z-index: 1;
-    min-height: 74px;
+    min-height: 84px;
+    padding: 8px 6px 14px;
+    font-size: .95rem;
+    line-height: 1.2;
     border-radius: 18px 18px 12px 12px;
     background: #f6d7c3;
     transform: translateY(140%);
@@ -260,28 +300,11 @@
   }
   .mole.up { transform: translateY(0); pointer-events: auto; }
   .mole.up:active { transform: translateY(5px); }
-  .prompt-line { margin: 8px 0; font-weight: 700; text-align: center; }
-  .card {
-    margin: 10px auto;
-    max-width: 460px;
-    background: #fff;
-    border: 3px dashed var(--ink);
-    border-radius: 16px;
-    padding: 16px;
-    text-align: center;
-    font-family: Fraunces, Palatino, Georgia, serif;
-    font-size: clamp(1.4rem, 3vw, 2rem);
-    font-weight: 600;
-    touch-action: none;
-    user-select: none;
-    cursor: grab;
-  }
-  .card.dragging { cursor: grabbing; z-index: 3; position: relative; background: #fff6ea; }
   .draghint { text-align: center; margin: 0 0 8px; font-size: .95rem; }
-  .hangrow { display: grid; grid-template-columns: 1fr 150px; gap: 8px; align-items: center; }
-  .gallows { width: 150px; height: 176px; display: block; margin: 0 auto; }
-  .part { opacity: 0; }
-  .part.on { opacity: 1; }
+  .hangrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+  .balloons { display: flex; gap: 4px; justify-content: center; }
+  .balloons svg { width: 30px; height: 44px; transition: transform .25s ease, opacity .25s ease; }
+  .balloons svg.popped { opacity: .14; transform: scale(.55) translateY(20px); }
   .blanks { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 12px 0; }
   .blank {
     width: 42px; height: 50px;
@@ -290,6 +313,7 @@
     font-family: Fraunces, Palatino, Georgia, serif;
     font-size: 2rem; font-weight: 600;
   }
+  .blank.gap { border-bottom: 0; width: 18px; }
   .blank.show { color: var(--coral); }
   .tries { text-align: center; margin: 0 0 8px; font-weight: 700; }
   .sky {
@@ -346,6 +370,8 @@
     line-height: 1.15;
     text-align: center;
   }
+  .bandit span.big { font-size: clamp(1.3rem, 4vw, 1.8rem); }
+  .bandit span .ico { width: 46px; height: 46px; display: block; margin: 0 auto; }
   .miniplane { width: 54px; height: 42px; display: block; margin: 2px auto 0; }
   .bandit.right span, .bandit.show-right span { background: var(--leaf-soft); }
   .bandit.wrong span { background: var(--coral-soft); }
@@ -395,9 +421,45 @@
     margin: 0 0 8px;
     font-weight: 600;
   }
+  .report {
+    background: var(--card); border: 3px solid var(--ink); border-radius: 18px; padding: 12px 14px; margin: 12px 0;
+  }
+  .report p { margin: 0 0 6px; }
+  .bests { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 12px; }
+  .sendnote { font-weight: 700; margin-top: 8px !important; }
+  .sendnote.ok { color: var(--leaf); }
   .tips { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 8px; }
   .tips li { background: #fff8e4; border-radius: 12px; padding: 10px 12px; }
   .tips p { margin: 0; }
+  .namebox {
+    width: min(520px, 100%); margin: 20px auto; background: var(--card); border: 3px solid var(--ink);
+    border-radius: 24px; padding: 20px; box-shadow: var(--shadow); display: grid; gap: 14px;
+  }
+  .namebox h1 { font-size: clamp(2rem, 6vw, 3rem); }
+  .namebox label { display: grid; gap: 6px; font-weight: 700; }
+  .namebox input {
+    border: 3px solid var(--ink); border-radius: 12px; padding: 10px 12px; font-size: 1.2rem; background: #fff;
+  }
+  .teach { width: min(1040px, 100%); margin: 0 auto; }
+  .teach h1 { font-size: clamp(2rem, 5vw, 3rem); }
+  .tfilter { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .links { background: #fff8e4; border-radius: 14px; padding: 10px 14px; margin: 10px 0; }
+  .links p { margin: 0 0 4px; }
+  .links code { font-size: .9rem; word-break: break-all; }
+  .tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .tcard {
+    background: var(--card); border: 3px solid var(--ink); border-radius: 18px; padding: 12px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .tcard[hidden] { display: none; }
+  .tcard h3 { margin: 0; font-family: Fraunces, Palatino, Georgia, serif; font-size: 1.4rem; }
+  .tcard ul { margin: 0; padding-left: 20px; }
+  .tcard li.ans { font-weight: 400; }
+  .tcard.shown li.ans { font-weight: 700; color: var(--leaf); }
+  .tcard .say { display: none; margin: 0; font-weight: 700; color: var(--leaf); }
+  .tcard.shown .say { display: block; }
+  .tcard .row { display: flex; gap: 6px; margin-top: auto; }
+  .tcard .meta { margin: 0; font-size: .85rem; font-weight: 700; color: var(--sky); }
   #feedback {
     min-height: 2.8em;
     margin: 0 auto;
@@ -457,12 +519,13 @@
     .field { grid-template-columns: repeat(2, 1fr); }
     .hangrow { grid-template-columns: 1fr; }
     .abc { grid-template-columns: repeat(6, 1fr); }
+    #who { display: none; }
   }
   @media (min-width: 700px) {
     .choices { grid-template-columns: repeat(3, 1fr); }
   }
   @media (hover: hover) {
-    .choice:hover, .basket:hover, .gate:hover, .btn:hover {
+    .choice:hover, .gate:hover, .btn:hover {
       transform: translateY(-2px);
     }
   }
@@ -481,6 +544,7 @@
   <header class="top">
     <p class="brand"><span class="dot" aria-hidden="true"></span> Word Island</p>
     <div class="tools">
+      <p id="who"></p>
       <p id="stars" aria-live="polite">★ 0</p>
       <button type="button" class="ghost" id="soundBtn" data-act="sound" aria-pressed="true">Sound on</button>
     </div>
@@ -503,85 +567,212 @@
 <noscript><p>This page needs JavaScript. Turn it on, then open Word Island again.</p></noscript>
 <script>
 const CAPTION = {
-  hub: "Pen or pencil? Come to Word Island. Play, and practise.",
-  maze: "Game 1. Walk the maze. At the star door, choose the word.",
+  name: "Write your name. Your teacher will see your stars.",
+  hub: "Names, numbers, colours and school things. Come to Word Island. Play, and practise.",
+  maze: "Game 1. Look at the picture. At the star door, choose the answer.",
   moles: "Game 2. Read the question. Hit the mole when the right answer pops up.",
-  hangman: "Game 3. Look at the picture. Guess the letters.",
-  planes: "Game 4. Move the plane. Hold to shoot the right word.",
-  results: "A wrong answer is fine. Read the tip. Try that one again. Collect your badge."
+  hangman: "Game 3. Look and listen. Spell the word. Save the balloons.",
+  planes: "Game 4. Listen. Move the plane. Hold to shoot the right one.",
+  results: "A wrong answer is fine. Read the tip. Try that one again.",
+  teacher: "Teacher view. Ask the class first. Then show the answer."
 };
 
 const GATES = [
-  { id: "maze", n: "01", title: "Word maze", line: "See the picture. Choose the word.", need: "This game is open." },
-  { id: "moles", n: "02", title: "Answer moles", line: "Answers pop up. Hit the right one.", need: "Finish the maze first." },
-  { id: "hangman", n: "03", title: "Hangman", line: "Guess the letters. Spell the word.", need: "Finish the moles first." },
-  { id: "planes", n: "04", title: "Sky planes", line: "Fly the plane. Shoot the right word.", need: "Finish hangman first." }
+  { id: "maze", n: "01", title: "Word maze", line: "Look at the picture. Choose the answer.", need: "This game is open." },
+  { id: "moles", n: "02", title: "Answer moles", line: "Read the question. Hit the right answer.", need: "Finish the maze first." },
+  { id: "hangman", n: "03", title: "Spelling balloons", line: "Spell the word. Save the balloons.", need: "Finish the moles first." },
+  { id: "planes", n: "04", title: "Listen and shoot", line: "Listen. Shoot the right plane.", need: "Finish the spelling first." }
 ];
 
 const GAME = {
   maze: "Game 1 · Word maze",
   moles: "Game 2 · Answer moles",
-  hangman: "Game 3 · Hangman",
-  planes: "Game 4 · Sky planes"
+  hangman: "Game 3 · Spelling balloons",
+  planes: "Game 4 · Listen and shoot"
 };
 
-const BADGE = { maze: "Maze badge", moles: "Mole badge", hangman: "Hangman badge", planes: "Plane badge" };
+const BADGE = { maze: "Maze badge", moles: "Mole badge", hangman: "Balloon badge", planes: "Plane badge" };
+
+const TOPICS = {
+  friends: "Friends",
+  numbers: "Numbers",
+  alphabet: "The alphabet",
+  colours: "Colours",
+  things: "School things",
+  questions: "Is it a …?",
+  classroom: "Classroom language",
+  story: "The stories",
+  phonics: "Phonics: short a"
+};
+
+const HEX = {
+  red: "#d62828", yellow: "#ffd60a", orange: "#f77f00", purple: "#7b2cbf",
+  blue: "#1d6fe0", green: "#2a9d3a", black: "#1b1b1b", white: "#ffffff"
+};
+const COLOURS = ["red", "yellow", "orange", "purple", "blue", "green", "black", "white"];
+const NUM = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const THING = {
+  pen: "a pen", pencil: "a pencil", ruler: "a ruler", rubber: "a rubber", book: "a book",
+  notebook: "a notebook", bag: "a bag", desk: "a desk", pencilcase: "a pencil case"
+};
+
+function cap(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+// Game 1: look at the picture, choose the answer. The first choice is always the right one.
+function look(id, topic, pic, alt, q, choices, say, extra) {
+  return { id, topic, pic, alt, q, choices, say, ...extra };
+}
 
 const MAZE = [
-  { id: "m1", icon: "pen", choices: ["a pencil", "a pen", "a ruler"], answer: 1, tip: "It's a pen." },
-  { id: "m2", icon: "ruler", choices: ["a rubber", "a ruler", "a book"], answer: 1, tip: "It's a ruler." },
-  { id: "m3", icon: "book", choices: ["a book", "a bag", "a desk"], answer: 0, tip: "It's a book." },
-  { id: "m4", icon: "pencil", choices: ["a pen", "a pencil", "a ruler"], answer: 1, tip: "It's a pencil." },
-  { id: "m5", icon: "bag", choices: ["a bag", "a book", "a notebook"], answer: 0, tip: "It's a bag." },
-  { id: "m6", icon: "notebook", choices: ["a notebook", "a book", "a pencil"], answer: 0, tip: "It's a notebook." },
-  { id: "m7", icon: "desk", choices: ["a desk", "a bag", "a book"], answer: 0, tip: "It's a desk." },
-  { id: "m8", icon: "rubber", choices: ["a rubber", "a ruler", "a pen"], answer: 0, tip: "It's a rubber." },
-  { id: "m9", icon: "pen", choices: ["a pen", "a pencil", "a ruler"], answer: 0, tip: "Look again. This one is a pen, not a pencil.", challenge: true },
-  { id: "m10", icon: "pencil", choices: ["a pen", "a pencil", "a rubber"], answer: 1, tip: "Look again. This one is a pencil, not a pen.", challenge: true }
+  look("m-pen", "things", { i: "pen" }, "a pen", "What's this?", ["a pen", "a pencil", "a ruler"], "It's a pen."),
+  look("m-pencil", "things", { i: "pencil" }, "a pencil", "What's this?", ["a pencil", "a pen", "a pencil case"], "It's a pencil."),
+  look("m-ruler", "things", { i: "ruler" }, "a ruler", "What's this?", ["a ruler", "a rubber", "a desk"], "It's a ruler."),
+  look("m-rubber", "things", { img: "photo-rubber" }, "a rubber", "What's this?", ["a rubber", "a ruler", "a pen"], "It's a rubber."),
+  look("m-book", "things", { i: "book" }, "a book", "What's this?", ["a book", "a bag", "a desk"], "It's a book."),
+  look("m-notebook", "things", { i: "notebook" }, "a notebook", "What's this?", ["a notebook", "a book", "a pencil"], "It's a notebook."),
+  look("m-bag", "things", { img: "photo-bag" }, "a bag", "What's this?", ["a bag", "a book", "a desk"], "It's a bag."),
+  look("m-desk", "things", { i: "desk" }, "a desk", "What's this?", ["a desk", "a bag", "a book"], "It's a desk."),
+  look("m-pencilcase", "things", { img: "photo-pencilcase" }, "a pencil case", "What's this?", ["a pencil case", "a pencil", "a bag"], "It's a pencil case."),
+  look("m-pen2", "things", { img: "photo-pen" }, "a pen", "What's this?", ["a pen", "a pencil", "a pencil case"], "It's a pen, not a pencil.", { challenge: true }),
+  look("m-pencilcase2", "things", { i: "pencilcase" }, "a pencil case", "What's this?", ["a pencil case", "a pencil", "a notebook"], "It's a pencil case, not a pencil.", { challenge: true }),
+  ...COLOURS.map((c, k) => look(`m-${c}`, "colours", { balloon: c }, `a ${c} balloon`, "What colour is it?",
+    [c, COLOURS[(k + 1) % 8], COLOURS[(k + 3) % 8]], `It's ${c}.`)),
+  look("m-mix1", "colours", { mix: ["red", "blue"] }, "red and blue paint", "Mix the colours. What colour?", ["purple", "green", "orange"], "Red and blue make purple.", { challenge: true }),
+  look("m-mix2", "colours", { mix: ["blue", "yellow"] }, "blue and yellow paint", "Mix the colours. What colour?", ["green", "purple", "orange"], "Blue and yellow make green.", { challenge: true }),
+  look("m-mix3", "colours", { mix: ["red", "yellow"] }, "red and yellow paint", "Mix the colours. What colour?", ["orange", "purple", "green"], "Red and yellow make orange.", { challenge: true }),
+  ...[3, 5, 6, 7, 8, 10].map((n) => look(`m-n${n}`, "numbers", { count: n }, `${n} pencils`, "How many?",
+    [NUM[n], NUM[n - 1], NUM[n === 10 ? 8 : n + 1]], `${cap(NUM[n])} pencils.`)),
+  look("m-n9", "numbers", { count: 9 }, "9 pencils", "How many?", ["nine", "ten", "eight"], "Nine pencils.", { challenge: true }),
+  look("m-misty", "friends", { img: "misty" }, "Misty", "Who is it?", ["Misty", "Flash", "Whisper"], "It's Misty."),
+  look("m-whisper", "friends", { img: "whisper" }, "Whisper", "Who is it?", ["Whisper", "Thunder", "Flash"], "It's Whisper."),
+  look("m-flash", "friends", { img: "flash" }, "Flash", "Who is it?", ["Flash", "Misty", "Thunder"], "It's Flash."),
+  look("m-thunder", "friends", { img: "thunder" }, "Thunder", "Who is it?", ["Thunder", "Whisper", "Misty"], "It's Thunder."),
+  look("m-tabby", "friends", { img: "tabby" }, "Tabby the cat", "Who is it?", ["Tabby", "Flash", "Whisper"], "It's Tabby. Tabby is a cat."),
+  look("m-sit", "classroom", { img: "sit" }, "The teacher and a boy", "What does the teacher say?", ["Sit at your desk, please.", "Open your book, please.", "Close your bag, please."], "Sit at your desk, please."),
+  look("m-open", "classroom", { img: "open" }, "The teacher and a girl", "What does the teacher say?", ["Open your book, please.", "Close your book, please.", "Sit at your desk, please."], "Open your book, please."),
+  look("m-close", "classroom", { img: "close" }, "The teacher and a girl", "What does the teacher say?", ["Close your bag, please.", "Open your bag, please.", "Pass me a pen, please."], "Close your bag, please."),
+  look("m-pass", "classroom", { img: "pass" }, "The teacher and a boy", "What does the teacher say?", ["Pass me a pen, please.", "Open your book, please.", "Close your bag, please."], "Pass me a pen, please."),
+  look("m-standup", "classroom", { img: "act-standup" }, "A boy", "What does the teacher say?", ["Stand up.", "Turn around.", "Stretch."], "Stand up."),
+  look("m-turn", "classroom", { img: "act-turn" }, "A boy", "What does the teacher say?", ["Turn around.", "Stand up.", "Stretch."], "Turn around."),
+  look("m-stretch", "classroom", { img: "act-stretch" }, "A boy", "What does the teacher say?", ["Stretch.", "Stand up.", "Turn around."], "Stretch."),
+  look("m-takeout", "classroom", { img: "act-takeout" }, "A boy and a box", "What does the teacher say?", ["Take out your pencil case.", "Put the pencil case on your head.", "Stand up."], "Take out your pencil case."),
+  look("m-head", "classroom", { img: "act-head" }, "A boy with a pencil case", "What does the teacher say?", ["Put the pencil case on your head.", "Take out your pencil case.", "Look down and catch it."], "Put the pencil case on your head.", { challenge: true }),
+  look("m-catch", "classroom", { img: "act-catch" }, "A boy with a pencil case", "What does the teacher say?", ["Look down and catch it.", "Put the pencil case on your head.", "Turn around."], "Look down and catch it.", { challenge: true }),
+  look("m-abc1", "alphabet", { abc: "A B C" }, "A, B, C, and then", "What comes next?", ["D", "E", "G"], "A, B, C, D."),
+  look("m-abc2", "alphabet", { abc: "H I J" }, "H, I, J, and then", "What comes next?", ["K", "L", "M"], "H, I, J, K."),
+  look("m-abc3", "alphabet", { abc: "P Q R" }, "P, Q, R, and then", "What comes next?", ["S", "T", "O"], "P, Q, R, S."),
+  look("m-abc4", "alphabet", { abc: "W X Y" }, "W, X, Y, and then", "What comes next?", ["Z", "V", "U"], "W, X, Y, Z."),
+  look("m-abc5", "alphabet", { abc: "L M N" }, "L, M, N, and then", "What comes next?", ["O", "P", "Q"], "L, M, N, O.", { challenge: true }),
+  look("m-rat", "phonics", { img: "rat" }, "a rat in a bag", "What's this?", ["a rat", "a cat", "a bag"], "A fat rat in a black bag."),
+  look("m-cat", "phonics", { img: "tabby" }, "a cat", "What's this?", ["a cat", "a rat", "a bag"], "It's a cat.")
 ];
+
+// Game 2: question and answer. The first choice is always the right one.
+function ask(id, topic, pic, alt, q, choices, extra) {
+  return { id, topic, pic, alt, q, choices, say: choices[0], ...extra };
+}
 
 const MOLES = [
-  { id: "o1", icon: "pen", prompt: "Is it a pen?", choices: ["Yes, it is.", "No, it isn't.", "It's a ruler."], answer: 0, tip: "Look. It's a pen. So we say: Yes, it is." },
-  { id: "o2", icon: "pencil", prompt: "Is it a ruler?", choices: ["No, it isn't.", "Yes, it is.", "It's a book."], answer: 0, tip: "Look. It's a pencil. So we say: No, it isn't." },
-  { id: "o3", icon: "book", prompt: "Is it a book?", choices: ["Yes, it is.", "No, it isn't.", "It's a pen."], answer: 0, tip: "Look. It's a book. So we say: Yes, it is." },
-  { id: "o4", icon: "ruler", prompt: "Is it a pen?", choices: ["No, it isn't.", "Yes, it is.", "It's a book."], answer: 0, tip: "Look. It's a ruler. So we say: No, it isn't." },
-  { id: "o5", icon: "bag", prompt: "Is it a bag?", choices: ["Yes, it is.", "No, it isn't.", "It's a desk."], answer: 0, tip: "Look. It's a bag. So we say: Yes, it is." },
-  { id: "o6", icon: "notebook", prompt: "Is it a book?", choices: ["No, it isn't.", "Yes, it is.", "It's a pen."], answer: 0, tip: "Look. It's a notebook. So we say: No, it isn't." },
-  { id: "o7", icon: "desk", prompt: "Is it a desk?", choices: ["Yes, it is.", "No, it isn't.", "It's a bag."], answer: 0, tip: "Look. It's a desk. So we say: Yes, it is." },
-  { id: "o8", icon: "rubber", prompt: "Is it a ruler?", choices: ["No, it isn't.", "Yes, it is.", "It's a pen."], answer: 0, tip: "Look. It's a rubber. So we say: No, it isn't." },
-  { id: "o9", icon: "pencil", prompt: "Is it a pen?", choices: ["No, it isn't.", "Yes, it is.", "It's a ruler."], answer: 0, tip: "Look. It's a pencil. So we say: No, it isn't.", challenge: true },
-  { id: "o10", icon: "pen", prompt: "Is it a pencil?", choices: ["No, it isn't.", "Yes, it is.", "It's a book."], answer: 0, tip: "Look. It's a pen. So we say: No, it isn't.", challenge: true }
+  ask("o-misty", "friends", { img: "misty" }, "Misty", "What's your name?", ["I'm Misty.", "I'm Flash.", "I'm six."]),
+  ask("o-thunder", "friends", { img: "thunder" }, "Thunder", "What's your name?", ["I'm Thunder.", "I'm Whisper.", "I'm four."]),
+  ask("o-age6", "friends", { num: 6 }, "six", "How old are you?", ["I'm six.", "I'm Carlos.", "Yes, it is."]),
+  ask("o-age7", "friends", { num: 7 }, "seven", "How old are you?", ["I'm seven.", "I'm six.", "It's seven."]),
+  ask("o-pen", "questions", { i: "pen" }, "a pen", "Is it a pen?", ["Yes, it is.", "No, it isn't.", "It's a ruler."]),
+  ask("o-book", "questions", { i: "book" }, "a book", "Is it a book?", ["Yes, it is.", "No, it isn't.", "It's a pen."]),
+  ask("o-bag", "questions", { img: "photo-bag" }, "a bag", "Is it a bag?", ["Yes, it is.", "No, it isn't.", "It's a desk."]),
+  ask("o-pencil", "questions", { i: "pencil" }, "a pencil", "Is it a pen?", ["No, it isn't. It's a pencil.", "Yes, it is.", "No, it isn't. It's a ruler."]),
+  ask("o-rubber", "questions", { img: "photo-rubber" }, "a rubber", "Is it a ruler?", ["No, it isn't. It's a rubber.", "Yes, it is.", "No, it isn't. It's a pencil."]),
+  ask("o-pencilcase", "questions", { img: "photo-pencilcase" }, "a pencil case", "What's this?", ["It's a pencil case.", "It's a pencil.", "Yes, it is."]),
+  ask("o-notebook", "questions", { i: "notebook" }, "a notebook", "Is it a book?", ["No, it isn't. It's a notebook.", "Yes, it is.", "No, it isn't. It's a bag."], { challenge: true }),
+  ask("o-ruler", "questions", { i: "ruler" }, "a ruler", "Is it a rubber?", ["No, it isn't. It's a ruler.", "Yes, it is.", "No, it isn't. It's a desk."], { challenge: true }),
+  ask("o-green", "colours", { balloon: "green" }, "a green balloon", "What colour is it?", ["It's green.", "It's blue.", "Yes, it is."]),
+  ask("o-orange", "colours", { balloon: "orange" }, "an orange balloon", "Is it red?", ["No, it isn't. It's orange.", "Yes, it is.", "No, it isn't. It's yellow."]),
+  ask("o-purple", "colours", { balloon: "purple" }, "a purple balloon", "Is it purple?", ["Yes, it is.", "No, it isn't. It's blue.", "It's red."]),
+  ask("o-mix", "colours", { mix: ["blue", "yellow"] }, "blue and yellow paint", "Mix blue and yellow. What colour is it?", ["It's green.", "It's purple.", "It's orange."], { challenge: true }),
+  ask("o-pass", "classroom", { img: "pass" }, "The teacher and a boy", "Pass me a pen, please.", ["Here you are.", "I'm sorry.", "Thank you."]),
+  ask("o-pass2", "classroom", { i: "ruler" }, "a ruler", "Pass me a ruler, please.", ["Here you are.", "It's OK.", "I'm six."]),
+  ask("o-sorry", "classroom", { img: "sorry" }, "Flash and a man in the street", "I'm sorry.", ["It's OK.", "Here you are.", "Thank you."]),
+  ask("o-thanks", "classroom", { img: "pencilcase-story" }, "The Super Friends with Flash's things", "Here's your pencil case.", ["Thank you.", "It's OK.", "I'm sorry."]),
+  ask("o-tabbyname", "story", { img: "tabby" }, "Tabby the cat", "What's your name, cat?", ["I'm Tabby.", "I'm four.", "I'm Flash."]),
+  ask("o-tabbyage", "story", { img: "tabby" }, "Tabby the cat", "How old are you, Tabby?", ["I'm four.", "I'm six.", "I'm Tabby."]),
+  ask("o-lookatme", "story", { quote: "Look at me!" }, "Someone says: Look at me!", "Who says it?", ["Flash.", "Misty.", "Tabby."], { speakQ: "Look at me! Who says it?" }),
+  ask("o-myturn", "story", { quote: "My turn. Look!" }, "Someone says: My turn. Look!", "Who says it?", ["Misty.", "Thunder.", "Flash."], { speakQ: "My turn. Look! Who says it?" }),
+  ask("o-mybag", "story", { img: "mybag" }, "Flash runs with a bag", "Who says \"My bag!\"?", ["Flash.", "Misty.", "Whisper."], { speakQ: "My bag! Who says it?" }),
+  ask("o-animals", "story", { img: "tabby" }, "Tabby the cat", "Who speaks to animals?", ["Whisper.", "Thunder.", "Flash."]),
+  ask("o-notebookstory", "story", { quote: "Mum. My notebook!" }, "Someone says: Mum. My notebook!", "Who says it?", ["Flash.", "Thunder.", "Tabby."], { speakQ: "Mum. My notebook! Who says it?", challenge: true }),
+  ask("o-rat", "phonics", { img: "rat" }, "a rat in a black bag", "What's in the black bag?", ["A fat rat.", "A fat cat.", "A red pen."])
 ];
+
+// Game 3: spelling.
+function spell(id, topic, pic, alt, word, extra) {
+  return { id, topic, pic, alt, word, say: word, ...extra };
+}
 
 const HANGMAN = [
-  { id: "h1", icon: "pen", word: "pen", tip: "pen. p, e, n." },
-  { id: "h2", icon: "bag", word: "bag", tip: "bag. b, a, g." },
-  { id: "h3", icon: "book", word: "book", tip: "book. b, o, o, k." },
-  { id: "h4", icon: "desk", word: "desk", tip: "desk. d, e, s, k." },
-  { id: "h5", icon: "ruler", word: "ruler", tip: "ruler. r, u, l, e, r." },
-  { id: "h6", icon: "rubber", word: "rubber", tip: "rubber. r, u, b, b, e, r." },
-  { id: "h7", icon: "pencil", word: "pencil", tip: "pencil. p, e, n, c, i, l." },
-  { id: "h8", icon: "notebook", word: "notebook", tip: "notebook. n, o, t, e, b, o, o, k." },
-  { id: "h9", icon: "pencil", word: "pencil", tip: "pencil. p, e, n, c, i, l.", challenge: true },
-  { id: "h10", icon: "notebook", word: "notebook", tip: "notebook. n, o, t, e, b, o, o, k.", challenge: true }
+  spell("h-pen", "things", { i: "pen" }, "a pen", "pen"),
+  spell("h-bag", "things", { img: "photo-bag" }, "a bag", "bag"),
+  spell("h-book", "things", { i: "book" }, "a book", "book"),
+  spell("h-desk", "things", { i: "desk" }, "a desk", "desk"),
+  spell("h-ruler", "things", { i: "ruler" }, "a ruler", "ruler"),
+  spell("h-rubber", "things", { img: "photo-rubber" }, "a rubber", "rubber"),
+  spell("h-pencil", "things", { i: "pencil" }, "a pencil", "pencil"),
+  spell("h-notebook", "things", { i: "notebook" }, "a notebook", "notebook", { challenge: true }),
+  spell("h-pencilcase", "things", { img: "photo-pencilcase" }, "a pencil case", "pencil case", { challenge: true }),
+  ...COLOURS.map((c) => spell(`h-${c}`, "colours", { balloon: c }, `a ${c} balloon`, c,
+    c === "purple" || c === "yellow" || c === "orange" ? { challenge: true } : {})),
+  ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => spell(`h-n${n}`, "numbers", { num: n }, String(n), NUM[n],
+    n === 8 ? { challenge: true } : {})),
+  spell("h-flash", "friends", { img: "flash" }, "Flash", "Flash"),
+  spell("h-misty", "friends", { img: "misty" }, "Misty", "Misty"),
+  spell("h-cat", "phonics", { img: "tabby" }, "a cat", "cat"),
+  spell("h-rat", "phonics", { img: "rat" }, "a rat", "rat")
 ];
 
+// Game 4: listen, then shoot the right plane.
+function hear(id, topic, say, choices, extra) {
+  return { id, topic, say, choices, ...extra };
+}
+
 const PLANES = [
-  { id: "p1", icon: "bag", choices: ["a bag", "a book", "a pen"], answer: 0, tip: "It's a bag." },
-  { id: "p2", icon: "ruler", choices: ["a pen", "a ruler", "a rubber"], answer: 1, tip: "It's a ruler." },
-  { id: "p3", icon: "book", choices: ["a desk", "a bag", "a book"], answer: 2, tip: "It's a book." },
-  { id: "p4", icon: "pencil", choices: ["a pencil", "a pen", "a ruler"], answer: 0, tip: "It's a pencil." },
-  { id: "p5", icon: "desk", choices: ["a bag", "a desk", "a book"], answer: 1, tip: "It's a desk." },
-  { id: "p6", icon: "rubber", choices: ["a ruler", "a pen", "a rubber"], answer: 2, tip: "It's a rubber." },
-  { id: "p7", icon: "notebook", choices: ["a notebook", "a book", "a pencil"], answer: 0, tip: "It's a notebook." },
-  { id: "p8", icon: "pen", choices: ["a pencil", "a pen", "a ruler"], answer: 1, tip: "It's a pen." },
-  { id: "p9", icon: "pen", choices: ["a pen", "a pencil", "a rubber"], answer: 0, tip: "Look again. This one is a pen, not a pencil.", challenge: true },
-  { id: "p10", icon: "pencil", choices: ["a pen", "a pencil", "a ruler"], answer: 1, tip: "Look again. This one is a pencil, not a pen.", challenge: true }
+  hear("p-seven", "numbers", "seven", ["7", "1", "3"], { big: true }),
+  hear("p-three", "numbers", "three", ["3", "8", "5"], { big: true }),
+  hear("p-ten", "numbers", "ten", ["10", "2", "4"], { big: true }),
+  hear("p-six", "numbers", "six", ["6", "9", "5"], { big: true }),
+  hear("p-nine", "numbers", "nine", ["9", "5", "1"], { big: true }),
+  hear("p-g", "alphabet", "G.", ["G", "J", "C"], { big: true, show: "G" }),
+  hear("p-y", "alphabet", "Y.", ["Y", "I", "W"], { big: true, show: "Y" }),
+  hear("p-b", "alphabet", "B.", ["B", "D", "P"], { big: true, show: "B", challenge: true }),
+  hear("p-m", "alphabet", "M.", ["M", "N", "W"], { big: true, show: "M", challenge: true }),
+  hear("p-purple", "colours", "purple", ["purple", "red", "green"]),
+  hear("p-yellow", "colours", "yellow", ["yellow", "orange", "white"]),
+  hear("p-black", "colours", "black", ["black", "blue", "red"]),
+  hear("p-pencilcase", "things", "a pencil case", ["pencilcase", "pencil", "bag"], { icons: true }),
+  hear("p-notebook", "things", "a notebook", ["notebook", "book", "desk"], { icons: true }),
+  hear("p-desk", "things", "a desk", ["desk", "bag", "book"], { icons: true }),
+  hear("p-ruler", "things", "a ruler", ["ruler", "rubber", "pen"], { icons: true, challenge: true }),
+  hear("p-close", "classroom", "Close your bag, please.", ["Close your bag.", "Open your bag.", "Open your book."]),
+  hear("p-sit", "classroom", "Sit at your desk, please.", ["Sit at your desk.", "Stand up.", "Turn around."]),
+  hear("p-turn", "classroom", "Turn around.", ["Turn around.", "Stand up.", "Stretch."]),
+  hear("p-takeout", "classroom", "Take out your pencil case.", ["Take out your pencil case.", "Put away your book.", "Close your bag."]),
+  hear("p-pass", "classroom", "Pass me a ruler, please.", ["Pass me a ruler.", "Pass me a rubber.", "Pass me a pencil."], { challenge: true }),
+  hear("p-putaway", "classroom", "Put away your book, please.", ["Put away your book.", "Take out your book.", "Open your book."], { challenge: true }),
+  hear("p-thunder", "friends", "Hi, I'm Thunder.", ["Thunder", "Whisper", "Flash"]),
+  hear("p-age", "friends", "How old are you? I'm four.", ["4", "6", "10"], { big: true }),
+  hear("p-rat", "phonics", "A fat rat in a black bag.", ["a fat rat in a black bag", "a fat cat in a black bag", "a fat rat in a red bag"], { challenge: true })
 ];
 
 const BANKS = { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES };
-const KEY = "word-island-u1";
+const GAME_IDS = ["maze", "moles", "hangman", "planes"];
+const ROUND = 10;
+const KEY = "word-island-u1-v2";
+const OUTBOX = KEY + "-outbox";
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const params = new URLSearchParams(location.search);
+const openAll = params.get("open") === "all";
+const forcedGame = GAME_IDS.includes(params.get("game")) ? params.get("game") : null;
+const teacherMode = params.has("teacher");
 
 const ICONS = {
   pen: '<rect x="28" y="10" width="24" height="40" rx="6" fill="#2f6fed"/><rect x="28" y="10" width="24" height="10" rx="4" fill="#14213d"/><rect x="46" y="18" width="6" height="22" rx="2" fill="#9db7f5"/><polygon points="28,50 52,50 40,70" fill="#d5deee"/><circle cx="40" cy="66" r="2.5" fill="#14213d"/>',
@@ -591,7 +782,8 @@ const ICONS = {
   bag: '<rect x="18" y="30" width="44" height="36" rx="10" fill="#157a3a"/><path d="M30 30 v-6 a10 10 0 0 1 20 0 v6" fill="none" stroke="#0e4a24" stroke-width="4"/>',
   notebook: '<rect x="18" y="12" width="46" height="56" rx="4" fill="#2f6fed"/><rect x="28" y="12" width="36" height="56" fill="#f7fbff"/><circle cx="24" cy="24" r="3" fill="#d5e1f2"/><circle cx="24" cy="36" r="3" fill="#d5e1f2"/><circle cx="24" cy="48" r="3" fill="#d5e1f2"/><circle cx="24" cy="60" r="3" fill="#d5e1f2"/><path d="M34 26 h24 M34 36 h24 M34 46 h24" stroke="#9db4d6" stroke-width="2"/>',
   desk: '<rect x="8" y="28" width="64" height="12" rx="2" fill="#c4843c"/><rect x="16" y="40" width="8" height="26" fill="#8a5a20"/><rect x="56" y="40" width="8" height="26" fill="#8a5a20"/>',
-  rubber: '<rect x="16" y="30" width="48" height="22" rx="4" fill="#f2a7b8"/><rect x="16" y="30" width="16" height="22" rx="4" fill="#7eb6e6"/>'
+  rubber: '<rect x="16" y="30" width="48" height="22" rx="4" fill="#f2a7b8"/><rect x="16" y="30" width="16" height="22" rx="4" fill="#7eb6e6"/>',
+  pencilcase: '<rect x="8" y="28" width="64" height="28" rx="14" fill="#5b3fb5"/><path d="M16 30 h48" stroke="#c81e1e" stroke-width="3"/><rect x="44" y="24" width="6" height="10" rx="2" fill="#c9ced6"/><rect x="58" y="14" width="5" height="18" fill="#ffe14a"/><rect x="64" y="17" width="5" height="15" fill="#2a9d3a"/>'
 };
 
 let state = load();
@@ -609,6 +801,8 @@ const caption = document.getElementById("caption");
 function fresh() {
   return {
     sound: true,
+    name: "",
+    cls: "",
     best: { maze: 0, moles: 0, hangman: 0, planes: 0 },
     done: { maze: false, moles: false, hangman: false, planes: false },
     missed: { maze: [], moles: [], hangman: [], planes: [] }
@@ -622,6 +816,8 @@ function load() {
     if (!saved) return base;
     return {
       sound: saved.sound !== false,
+      name: typeof saved.name === "string" ? saved.name : "",
+      cls: typeof saved.cls === "string" ? saved.cls : "",
       best: { ...base.best, ...(saved.best || {}) },
       done: { ...base.done, ...(saved.done || {}) },
       missed: { ...base.missed, ...(saved.missed || {}) }
@@ -632,7 +828,11 @@ function load() {
 }
 
 function save() {
-  localStorage.setItem(KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state));
+  } catch (err) {
+    // Private windows can block storage. The game still works for this visit.
+  }
 }
 
 function esc(value) {
@@ -645,12 +845,83 @@ function icon(name) {
   return `<svg class="ico" viewBox="0 0 80 80" aria-hidden="true">${ICONS[name] || ""}</svg>`;
 }
 
+function balloonSvg(colour, cls) {
+  const fill = HEX[colour] || colour;
+  return `<svg class="${cls || "balloon"}" viewBox="0 0 60 88" aria-hidden="true">
+    <path d="M30 60 q-4 10 2 26" fill="none" stroke="#14213d" stroke-width="2"/>
+    <ellipse cx="30" cy="30" rx="24" ry="28" fill="${fill}" stroke="#14213d" stroke-width="3"/>
+    <polygon points="26,58 34,58 30,64" fill="${fill}" stroke="#14213d" stroke-width="2"/>
+    <ellipse cx="21" cy="19" rx="5" ry="8" fill="#fff" opacity=".45"/>
+  </svg>`;
+}
+
+const EAR = '<svg class="ear" viewBox="0 0 80 80" aria-hidden="true"><rect x="12" y="28" width="16" height="24" rx="3" fill="#14213d"/><polygon points="28,28 46,14 46,66 28,52" fill="#14213d"/><path d="M54 30 q8 10 0 20 M60 22 q16 18 0 36" fill="none" stroke="#2f6fed" stroke-width="5" stroke-linecap="round"/></svg>';
+
+function picture(item, small) {
+  const pic = item.pic;
+  let inner = "";
+  let alt = item.alt || "";
+  if (!pic) {
+    inner = EAR;
+    alt = "Listen";
+  } else if (pic.img) {
+    inner = `<img class="photo" src="img/${pic.img}.webp" alt="">`;
+  } else if (pic.i) {
+    inner = icon(pic.i);
+  } else if (pic.balloon) {
+    inner = balloonSvg(pic.balloon);
+  } else if (pic.count) {
+    inner = `<span class="tally">${Array.from({ length: pic.count }, () => icon("pencil")).join("")}</span>`;
+  } else if (pic.mix) {
+    inner = `<span class="mix"><span class="blob" style="background:${HEX[pic.mix[0]]}"></span>+<span class="blob" style="background:${HEX[pic.mix[1]]}"></span>=<span class="q">?</span></span>`;
+  } else if (pic.abc) {
+    inner = `<span class="letters">${pic.abc.split(" ").map((l) => `<span class="tile">${l}</span>`).join("")}<span class="tile q">?</span></span>`;
+  } else if (pic.num != null) {
+    inner = `<span class="numbadge">${pic.num}</span>`;
+  } else if (pic.quote) {
+    inner = `<span class="quote">“${esc(pic.quote)}”</span>`;
+  }
+  return `<div class="pic${small ? " small" : ""}" role="img" aria-label="${esc(alt)}">${inner}</div>`;
+}
+
+function shuffle(list) {
+  const row = list.slice();
+  for (let i = row.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = row[i];
+    row[i] = row[j];
+    row[j] = tmp;
+  }
+  return row;
+}
+
+// Ten questions: eight spread across the topics, then two challenge ones.
+function pickRound(bank) {
+  const byTopic = {};
+  shuffle(bank.filter((item) => !item.challenge)).forEach((item) => {
+    (byTopic[item.topic] = byTopic[item.topic] || []).push(item);
+  });
+  const topics = shuffle(Object.keys(byTopic));
+  const easy = [];
+  let k = 0;
+  while (easy.length < ROUND - 2 && topics.some((t) => byTopic[t].length)) {
+    const t = topics[k % topics.length];
+    k += 1;
+    if (byTopic[t].length) easy.push(byTopic[t].shift());
+  }
+  const hard = shuffle(bank.filter((item) => item.challenge)).slice(0, ROUND - easy.length);
+  const out = shuffle(easy).concat(hard);
+  const spare = shuffle(Object.values(byTopic).flat());
+  while (out.length < ROUND && spare.length) out.push(spare.shift());
+  return out;
+}
+
 function totalStars() {
-  return (state.best.maze || 0) + (state.best.moles || 0) + (state.best.hangman || 0) + (state.best.planes || 0);
+  return GAME_IDS.reduce((sum, id) => sum + (state.best[id] || 0), 0);
 }
 
 function unlocked(id) {
-  if (id === "maze") return true;
+  if (openAll || id === "maze" || id === forcedGame) return true;
   if (id === "moles") return !!state.done.maze;
   if (id === "hangman") return !!state.done.moles;
   return !!state.done.hangman;
@@ -669,6 +940,7 @@ function updateChrome() {
   const soundBtn = document.getElementById("soundBtn");
   soundBtn.textContent = state.sound ? "Sound on" : "Sound off";
   soundBtn.setAttribute("aria-pressed", state.sound ? "true" : "false");
+  document.getElementById("who").textContent = state.name ? state.name + (state.cls ? " · " + state.cls : "") : "";
   const stars = document.getElementById("stars");
   if (play) {
     stars.textContent = "★ " + play.stars;
@@ -687,9 +959,13 @@ function pickVoice() {
     || null;
 }
 
+function canSpeak() {
+  return "speechSynthesis" in window;
+}
+
 function speak(text, fromButton) {
   if (!text || (!state.sound && !fromButton)) return;
-  if (!("speechSynthesis" in window)) {
+  if (!canSpeak()) {
     if (fromButton) setFeedback("Read the words on the screen.", "tip");
     return;
   }
@@ -703,48 +979,55 @@ function speak(text, fromButton) {
   window.speechSynthesis.speak(utter);
 }
 
+function gameOf(item) {
+  return GAME_IDS.find((id) => BANKS[id].includes(item));
+}
+
 function spoken(item) {
   if (!item) return "";
-  if (play.gate === "maze" || play.gate === "hangman" || play.gate === "planes") return "What's this?";
-  if (play.gate === "moles") return item.prompt;
-  return "";
+  const game = gameOf(item);
+  if (game === "planes") return item.say;
+  if (game === "hangman") return item.word;
+  return item.speakQ || item.q;
 }
 
-function answerName(item) {
+// In "Listen and shoot", pupils without sound read the word instead.
+function listenText(item) {
+  return item.show || item.say;
+}
+
+function choiceText(item, choice) {
+  return item.icons ? THING[choice] : choice;
+}
+
+function answerText(item) {
   if (item.word) return item.word;
-  return item.choices[item.answer];
+  return choiceText(item, item.choices[0]);
 }
 
-function pictureName(item) {
-  const names = {
-    pen: "a pen", pencil: "a pencil", ruler: "a ruler", book: "a book",
-    bag: "a bag", notebook: "a notebook", desk: "a desk", rubber: "a rubber"
-  };
-  return names[item.icon] || "";
+function questionText(item) {
+  const game = gameOf(item);
+  if (game === "planes") return "Listen: " + listenText(item);
+  if (game === "hangman") return "Spell it: " + item.word;
+  if (item.pic && item.pic.quote) return `“${item.pic.quote}” ${item.q}`;
+  return item.q;
+}
+
+function tipFor(item) {
+  if (item.word) return `${item.word}. ${item.word.replace(/ /g, "").split("").join(", ")}.`;
+  return item.say;
 }
 
 function missedRecord(item) {
-  const label = play.gate === "hangman"
-    ? "Spell it."
-    : play.gate === "planes"
-      ? "Shoot the right word."
-      : (play.gate === "moles" ? item.prompt : "What's this?");
-  return { id: item.id, label, answer: answerName(item), tip: item.tip };
+  return { id: item.id, label: questionText(item), answer: answerText(item), tip: tipFor(item) };
 }
 
 function current() {
   return play.items[play.index];
 }
 
-function shuffled(choices, answerIndex) {
-  const row = choices.map((text, i) => ({ text, ok: i === answerIndex }));
-  for (let i = row.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const tmp = row[i];
-    row[i] = row[j];
-    row[j] = tmp;
-  }
-  return row;
+function choicePairs(item) {
+  return shuffle(item.choices.map((text, i) => ({ text, ok: i === 0 })));
 }
 
 function stopMoles() {
@@ -787,24 +1070,12 @@ function showRandomMoles() {
     mole.setAttribute("aria-hidden", "true");
     mole.tabIndex = -1;
   });
-  const pool = play.molePairs.slice();
-  for (let i = pool.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const tmp = pool[i];
-    pool[i] = pool[j];
-    pool[j] = tmp;
-  }
+  const pool = shuffle(play.molePairs);
   const show = [pool[0], pool[1]];
   if ((play.moleWait || 0) >= 1 && !show.some((pair) => pair.ok)) {
     show[0] = play.molePairs.find((pair) => pair.ok);
   }
-  const holes = [0, 1, 2, 3, 4, 5];
-  for (let i = holes.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const tmp = holes[i];
-    holes[i] = holes[j];
-    holes[j] = tmp;
-  }
+  const holes = shuffle([0, 1, 2, 3, 4, 5]);
   const chosen = [];
   show.forEach((pair, index) => {
     const mole = moles[holes[index]];
@@ -826,7 +1097,7 @@ function showRandomMoles() {
 function holdCorrectMole() {
   stopMoles();
   const moles = moleButtons();
-  const answer = current().choices[current().answer];
+  const answer = current().choices[0];
   moles.forEach((mole, index) => {
     mole.classList.remove("up", "wrong", "show-right");
     mole.textContent = "";
@@ -855,12 +1126,12 @@ function startMoleLoop() {
   function rise() {
     if (!live()) return;
     showRandomMoles();
-    molePop = setTimeout(drop, 1400);
+    molePop = setTimeout(drop, 2200);
   }
   function drop() {
     if (!live()) return;
     moleButtons().forEach((mole) => mole.classList.remove("up"));
-    molePop = setTimeout(rise, 420);
+    molePop = setTimeout(rise, 450);
   }
   rise();
 }
@@ -871,7 +1142,36 @@ function later(fn, ms) {
   timer = setTimeout(() => {
     if (!play || play.step !== step || play.left) return;
     fn();
-  }, reduceMotion ? 180 : ms);
+  }, ms);
+}
+
+function showName() {
+  clearTimeout(timer);
+  stopMoles();
+  play = null;
+  document.body.dataset.screen = "hub";
+  updateChrome();
+  setFeedback("");
+  setCaption(CAPTION.name);
+  view.innerHTML = `
+    <form class="namebox" data-form="name">
+      <p class="pill">Unit 1 · Word Island</p>
+      <h1>Hello! What's your name?</h1>
+      <label>Your name
+        <input id="pname" name="pname" maxlength="39" autocomplete="off" required value="${esc(state.name)}">
+      </label>
+      <label>Your class
+        <input id="pclass" name="pclass" maxlength="19" autocomplete="off" placeholder="1 Bestari" value="${esc(state.cls)}">
+      </label>
+      <button type="submit" class="btn gold">Start</button>
+    </form>
+  `;
+  document.getElementById("pname").focus();
+}
+
+function enter() {
+  if (forcedGame) start(forcedGame, "full");
+  else showHub();
 }
 
 function showHub() {
@@ -882,16 +1182,16 @@ function showHub() {
   updateChrome();
   setFeedback("");
   setCaption(CAPTION.hub);
-  const doneCount = ["maze", "moles", "hangman", "planes"].filter((id) => state.done[id]).length;
+  const doneCount = GAME_IDS.filter((id) => state.done[id]).length;
   const banner = doneCount === 4
-    ? `<p class="ladder">You finished Word Island. ${totalStars()} / 40 stars.</p>`
-    : `<p class="ladder">Word, answer, spelling, then the sky. Four games. Forty questions.</p>`;
+    ? `<p class="ladder">You finished Word Island. ${totalStars()} / 40 stars. Play again for new questions.</p>`
+    : `<p class="ladder">Four games. Ten questions each. New questions every time.</p>`;
   view.innerHTML = `
     <div class="hero">
       <div>
-        <p class="pill">Unit 1 · At school</p>
+        <p class="pill">Unit 1 · Friends and At school</p>
         <h1>Pen or pencil?</h1>
-        <p class="lede">Come to Word Island. Play, and practise.</p>
+        <p class="lede">Names, numbers, colours, school things and the stories. Come to Word Island. Play, and practise.</p>
         ${banner}
       </div>
       <svg class="robo" viewBox="0 0 120 120" aria-hidden="true">
@@ -907,10 +1207,10 @@ function showHub() {
     <div class="gates">
       ${GATES.map((gate) => gateCard(gate)).join("")}
     </div>
-    <p class="partner">Play with a partner. One reads. One answers. <button type="button" class="linkish" data-act="reset">Start over</button></p>
+    <p class="partner">Playing as <b>${esc(state.name)}</b>${state.cls ? ` · ${esc(state.cls)}` : ""}.
+      <button type="button" class="linkish" data-act="rename">Not you?</button>
+      · <button type="button" class="linkish" data-act="reset">Start over</button></p>
   `;
-  const title = view.querySelector("h1");
-  if (title) title.focus?.();
 }
 
 function gateCard(gate) {
@@ -937,7 +1237,7 @@ function start(gate, mode) {
     setFeedback(GATES.find((g) => g.id === gate).need, "tip");
     return;
   }
-  let items = BANKS[gate].slice();
+  let items = pickRound(BANKS[gate]);
   if (mode === "retry") {
     const ids = new Set((state.missed[gate] || []).map((row) => row.id));
     items = BANKS[gate].filter((item) => ids.has(item.id));
@@ -947,7 +1247,7 @@ function start(gate, mode) {
     }
   }
   play = {
-    gate, mode, items, index: 0, stars: 0, missed: [],
+    gate, mode, items, index: 0, stars: 0, missed: [], log: [],
     tried: false, locked: false, step: 0, left: false, finished: false, moving: false
   };
   renderPlay();
@@ -970,7 +1270,7 @@ function renderPlay() {
   const hint = play.gate === "hangman"
     ? "Guess a letter."
     : play.gate === "planes"
-      ? (reduceMotion ? "Tap the plane with the right word." : "Move the plane. Hold to shoot.")
+      ? (reduceMotion ? "Tap the plane with the right answer." : "Move the plane. Hold to shoot.")
       : play.gate === "moles"
         ? "Hit the right mole when it pops up."
         : "Read it. Then choose.";
@@ -1003,27 +1303,26 @@ function renderPlay() {
 function stageInner(item) {
   const chip = item.challenge ? `<span class="chip">Challenge</span> ` : "";
   if (play.gate === "maze") {
-    const pairs = shuffled(item.choices, item.answer);
     return `
       <div class="door">
         <span class="star" aria-hidden="true">★</span>
-        <div class="pic" role="img" aria-label="${esc(pictureName(item))}">${icon(item.icon)}</div>
+        ${picture(item)}
       </div>
       <div class="qrow">
-        <h2 id="qtitle" tabindex="-1">${chip}What's this?</h2>
+        <h2 id="qtitle" tabindex="-1">${chip}${esc(item.q)}</h2>
         <button type="button" class="ghost" data-act="hear">Hear it</button>
       </div>
       <div class="choices">
-        ${pairs.map((pair) => `<button type="button" class="choice" data-act="pick" data-ok="${pair.ok ? "1" : "0"}">${esc(pair.text)}</button>`).join("")}
+        ${choicePairs(item).map((pair) => `<button type="button" class="choice" data-act="pick" data-ok="${pair.ok ? "1" : "0"}">${esc(pair.text)}</button>`).join("")}
       </div>
     `;
   }
   if (play.gate === "moles") {
-    play.molePairs = shuffled(item.choices, item.answer);
+    play.molePairs = choicePairs(item);
     return `
-      <div class="pic small" role="img" aria-label="${esc(pictureName(item))}">${icon(item.icon)}</div>
+      ${picture(item, true)}
       <div class="qrow">
-        <h2 id="qtitle" tabindex="-1">${chip}${esc(item.prompt)}</h2>
+        <h2 id="qtitle" tabindex="-1">${chip}${esc(item.q)}</h2>
         <button type="button" class="ghost" data-act="hear">Hear it</button>
       </div>
       <p class="draghint">Hit the right answer when it pops up.</p>
@@ -1033,12 +1332,14 @@ function stageInner(item) {
     `;
   }
   if (play.gate === "planes") {
-    const pairs = shuffled(item.choices, item.answer);
+    const pairs = choicePairs(item);
     const colors = ["#c81e1e", "#157a3a", "#2f6fed"];
+    const silent = !state.sound || !canSpeak();
+    const title = silent ? `Shoot: “${esc(listenText(item))}”` : "Listen. Shoot it.";
     return `
-      <div class="pic small" role="img" aria-label="${esc(pictureName(item))}">${icon(item.icon)}</div>
+      ${picture(item, true)}
       <div class="qrow">
-        <h2 id="qtitle" tabindex="-1">${chip}Shoot the right word.</h2>
+        <h2 id="qtitle" tabindex="-1">${chip}${title}</h2>
         <button type="button" class="ghost" data-act="hear">Hear it</button>
       </div>
       <div class="sky${reduceMotion ? " still" : ""}" id="sky">
@@ -1046,8 +1347,8 @@ function stageInner(item) {
         <i class="cloud c2" aria-hidden="true"></i>
         <i class="cloud c3" aria-hidden="true"></i>
         ${pairs.map((pair, index) => `
-          <button type="button" class="bandit" data-act="shoot" data-ok="${pair.ok ? "1" : "0"}" data-lane="${index}">
-            <span>${esc(pair.text)}</span>
+          <button type="button" class="bandit" data-act="shoot" data-ok="${pair.ok ? "1" : "0"}" data-lane="${index}" aria-label="${esc(choiceText(item, pair.text))}">
+            <span class="${item.big ? "big" : ""}">${item.icons ? icon(pair.text) : esc(pair.text)}</span>
             <svg class="miniplane" viewBox="0 0 80 64" aria-hidden="true">
               <polygon points="10,22 40,30 70,22 40,26" fill="${colors[index]}" stroke="#14213d" stroke-width="3" stroke-linejoin="round"/>
               <polygon points="40,58 48,36 46,14 40,6 34,14 32,36" fill="${colors[index]}" stroke="#14213d" stroke-width="3" stroke-linejoin="round"/>
@@ -1067,98 +1368,37 @@ function stageInner(item) {
     `;
   }
   const letters = "abcdefghijklmnopqrstuvwxyz".split("");
+  const tries = ["#d62828", "#ffd60a", "#2a9d3a", "#1d6fe0", "#7b2cbf", "#f77f00"];
   return `
     <div class="hangrow">
-      <div class="pic small" role="img" aria-label="${esc(pictureName(item))}">${icon(item.icon)}</div>
-      <svg class="gallows" viewBox="0 0 160 190" aria-hidden="true">
-        <g fill="none" stroke="#14213d" stroke-width="4" stroke-linecap="round">
-          <path d="M16 176 H104"/>
-          <path d="M36 176 V16"/>
-          <path d="M36 16 H114"/>
-          <path d="M114 16 V40" stroke="#c4843c"/>
-        </g>
-        <g fill="none" stroke="#14213d" stroke-width="4" stroke-linecap="round">
-          <g class="part" data-part="1">
-            <circle cx="114" cy="56" r="15" fill="#fffdf8"/>
-            <circle cx="108" cy="53" r="1.6" fill="#14213d" stroke="none"/>
-            <circle cx="120" cy="53" r="1.6" fill="#14213d" stroke="none"/>
-            <path d="M108 61 Q114 65 120 61"/>
-          </g>
-          <g class="part" data-part="2"><path d="M114 72 V112"/></g>
-          <g class="part" data-part="3"><path d="M114 84 L94 100"/></g>
-          <g class="part" data-part="4"><path d="M114 84 L134 100"/></g>
-          <g class="part" data-part="5"><path d="M114 112 L96 142"/></g>
-          <g class="part" data-part="6"><path d="M114 112 L132 142"/></g>
-        </g>
-      </svg>
+      ${picture(item, true)}
+      <div class="balloons" aria-hidden="true">
+        ${tries.map((c, i) => balloonSvg(c, `try t${i + 1}`)).join("")}
+      </div>
     </div>
     <div class="qrow">
       <h2 id="qtitle" tabindex="-1">${chip}Spell it.</h2>
       <button type="button" class="ghost" data-act="hear">Hear it</button>
     </div>
     <div class="blanks" aria-label="Word to spell">
-      ${item.word.split("").map(() => `<span class="blank"></span>`).join("")}
+      ${item.word.split("").map((ch) => ch === " " ? `<span class="blank gap"></span>` : `<span class="blank"></span>`).join("")}
     </div>
-    <p class="tries" id="tries">6 tries left</p>
+    <p class="tries" id="tries">6 balloons left</p>
     <div class="abc">
       ${letters.map((letter) => `<button type="button" class="key" data-act="guess" data-letter="${letter}">${letter}</button>`).join("")}
     </div>
   `;
 }
 
-function bindDrag() {
-  const card = document.getElementById("card");
-  if (!card) return;
-  let drag = null;
-  function basketUnder(x, y) {
-    const stack = document.elementsFromPoint(x, y);
-    for (const el of stack) {
-      if (el.closest) {
-        const basket = el.closest("[data-act='basket']");
-        if (basket) return basket;
-      }
-    }
-    return null;
-  }
-  function end() {
-    card.classList.remove("dragging");
-    card.style.transform = "";
-    card.style.pointerEvents = "";
-    view.querySelectorAll(".basket").forEach((basket) => basket.classList.remove("over"));
-    drag = null;
-  }
-  card.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0 || !play || play.locked) return;
-    drag = { id: event.pointerId, x: event.clientX, y: event.clientY, dx: 0, dy: 0 };
-    card.setPointerCapture(event.pointerId);
-    card.classList.add("dragging");
-  });
-  card.addEventListener("pointermove", (event) => {
-    if (!drag || event.pointerId !== drag.id) return;
-    drag.dx = event.clientX - drag.x;
-    drag.dy = event.clientY - drag.y;
-    card.style.pointerEvents = "none";
-    card.style.transform = `translate(${drag.dx}px, ${drag.dy}px)`;
-    const hit = basketUnder(event.clientX, event.clientY);
-    view.querySelectorAll(".basket").forEach((basket) => basket.classList.toggle("over", basket === hit));
-  });
-  card.addEventListener("pointerup", (event) => {
-    if (!drag || event.pointerId !== drag.id) return;
-    const moved = Math.hypot(drag.dx, drag.dy) > 16;
-    const hit = basketUnder(event.clientX, event.clientY);
-    end();
-    if (moved && hit) grade(hit.dataset.basket === current().basket, hit);
-  });
-  card.addEventListener("pointercancel", end);
-}
-
 function paintBlanks(reveal) {
   const word = current().word;
   view.querySelectorAll(".blank").forEach((blank, index) => {
     const letter = word[index];
-    if (reveal || play.guessed.includes(letter)) {
+    if (letter === " ") return;
+    const low = letter.toLowerCase();
+    if (reveal || play.guessed.includes(low)) {
       blank.textContent = letter;
-      blank.classList.toggle("show", Boolean(reveal) && !play.guessed.includes(letter));
+      blank.classList.toggle("show", Boolean(reveal) && !play.guessed.includes(low));
     }
   });
 }
@@ -1168,14 +1408,15 @@ function guessLetter(letter) {
   if (!letter || play.guessed.includes(letter)) return;
   play.guessed.push(letter);
   const item = current();
+  const word = item.word.toLowerCase().replace(/ /g, "");
   const key = view.querySelector(`[data-letter="${letter}"]`);
-  if (item.word.includes(letter)) {
+  if (word.includes(letter)) {
     if (key) {
       key.disabled = true;
       key.classList.add("right");
     }
     paintBlanks(false);
-    const solved = item.word.split("").every((char) => play.guessed.includes(char));
+    const solved = word.split("").every((char) => play.guessed.includes(char));
     if (!solved) setFeedback("In the word.", "ok");
     if (solved) {
       play.locked = true;
@@ -1183,7 +1424,8 @@ function guessLetter(letter) {
       updateChrome();
       view.querySelectorAll(".key").forEach((btn) => { btn.disabled = true; });
       setFeedback("Yes! A star.", "ok");
-      later(next, 700);
+      speak(item.word, false);
+      later(next, 1300);
     }
     return;
   }
@@ -1192,11 +1434,11 @@ function guessLetter(letter) {
     key.classList.add("wrong");
   }
   play.wrong += 1;
-  const part = view.querySelector(`[data-part="${play.wrong}"]`);
-  if (part) part.classList.add("on");
+  const popped = view.querySelector(`.try.t${play.wrong}`);
+  if (popped) popped.classList.add("popped");
   const left = 6 - play.wrong;
   const tries = document.getElementById("tries");
-  if (tries) tries.textContent = left === 1 ? "1 try left" : left + " tries left";
+  if (tries) tries.textContent = left === 1 ? "1 balloon left" : left + " balloons left";
   if (play.wrong < 6) {
     setFeedback("Not in the word.", "tip");
     return;
@@ -1208,7 +1450,8 @@ function guessLetter(letter) {
   view.querySelectorAll(".key").forEach((btn) => { btn.disabled = true; });
   const nextBtn = view.querySelector("[data-act='next']");
   if (nextBtn) nextBtn.hidden = false;
-  setFeedback(item.tip, "tip");
+  setFeedback(tipFor(item), "tip");
+  speak(item.word, false);
 }
 
 function grade(ok, el) {
@@ -1225,7 +1468,8 @@ function grade(ok, el) {
     if (el) el.classList.add("right");
     updateChrome();
     setFeedback(first ? "Yes! A star." : "That's right.", "ok");
-    later(next, planes ? 420 : 650);
+    speak(item.say, false);
+    later(next, 1500);
     return;
   }
   if (el) {
@@ -1247,8 +1491,9 @@ function grade(ok, el) {
       if (nextBtn) nextBtn.hidden = false;
     }
   }
-  setFeedback(item.tip, "tip");
-  if (planes) later(next, 700);
+  setFeedback(tipFor(item), "tip");
+  speak(item.say, false);
+  if (planes) later(next, 1800);
 }
 
 function parkAnswer() {
@@ -1271,7 +1516,8 @@ function destroyPlane(foe, ok) {
     if (first) play.stars += 1;
     updateChrome();
     setFeedback(first ? "Yes! A star." : "That's right.", "ok");
-    later(next, 700);
+    speak(current().say, false);
+    later(next, 1500);
     return;
   }
   if (!play.tried) {
@@ -1290,7 +1536,7 @@ function startRaid() {
   const step = play.step;
   const foes = [...sky.querySelectorAll(".bandit")];
   const lanes = [17, 50, 83];
-  const drops = [-24, -150, -276].sort(() => Math.random() - 0.5);
+  const drops = shuffle([-24, -150, -276]);
   const keys = new Set();
   play.shipX = 0.5;
   play.shipY = 0.78;
@@ -1428,8 +1674,9 @@ function startRaid() {
         play.missed.push(missedRecord(current()));
       }
       parkAnswer();
-      setFeedback(current().tip, "tip");
-      later(next, 700);
+      setFeedback(tipFor(current()), "tip");
+      speak(current().say, false);
+      later(next, 1800);
     }
     raidFrame = requestAnimationFrame(frame);
   }
@@ -1446,6 +1693,14 @@ function next() {
   play.moving = true;
   clearTimeout(timer);
   stopMoles();
+  const item = current();
+  play.log.push({
+    id: item.id,
+    topic: item.topic,
+    q: questionText(item).slice(0, 80),
+    a: answerText(item).slice(0, 60),
+    ok: !play.missed.some((row) => row.id === item.id)
+  });
   play.step += 1;
   play.index += 1;
   if (play.index >= play.items.length) finish();
@@ -1467,6 +1722,16 @@ function finish() {
   renderResults();
   const perfect = play.stars === play.items.length;
   if (!reduceMotion && (perfect || firstClear)) burst();
+  setSendNote("Sending your stars to your teacher…", "");
+  sendRun({
+    name: state.name,
+    cls: state.cls,
+    game: play.gate,
+    mode: play.mode,
+    stars: play.stars,
+    total: play.items.length,
+    answers: play.log
+  }).then(showSendResult);
 }
 
 function renderResults() {
@@ -1476,8 +1741,6 @@ function renderResults() {
   setFeedback("");
   const total = play.items.length;
   const perfect = play.stars === total;
-  const best = state.best[play.gate] || 0;
-  const pct = Math.round((best / 10) * 100);
   const title = play.mode === "retry" ? "Practice done." : "Game complete!";
   let scoreLine = play.gate === "hangman"
     ? `You spelled ${play.stars} / ${total} words.`
@@ -1485,8 +1748,7 @@ function renderResults() {
       ? `You hit ${play.stars} / ${total} planes.`
       : `You got ${play.stars} / ${total} stars on the first try.`;
   if (play.mode === "retry") scoreLine = `You got ${play.stars} / ${total} this time.`;
-  let badgeLine = `${BADGE[play.gate]} collected. This gate ${pct}/100. Best ${best}/10.`;
-  if (play.mode === "retry") badgeLine = `Your ${GAME[play.gate]} score stays ${pct}/100.`;
+  const badgeLine = play.mode === "retry" ? "" : `<p>${esc(BADGE[play.gate])} collected.</p>`;
   const tips = play.missed.map((row) => `
     <li>
       <p><b>${esc(row.label)}</b> → ${esc(row.answer)}</p>
@@ -1496,17 +1758,23 @@ function renderResults() {
   const retryBtn = play.missed.length
     ? `<button type="button" class="btn leaf" data-act="retry">Wrong ones only</button>`
     : "";
+  const bests = GATES.map((gate) => `<li>${esc(gate.title)}: ★ ${state.best[gate.id] || 0}/10</li>`).join("");
   view.innerHTML = `
     <div class="playwrap results">
       <p class="pill">${esc(GAME[play.gate])}</p>
       <h2 tabindex="-1">${title}</h2>
       <p>${esc(scoreLine)}</p>
-      <p>${esc(badgeLine)}</p>
+      ${badgeLine}
       ${perfect && play.mode === "full" ? "<p>Every one was right on the first try.</p>" : ""}
+      <div class="report">
+        <p><b>${esc(state.name)}</b>${state.cls ? ` · ${esc(state.cls)}` : ""} · ★ ${totalStars()} / 40</p>
+        <ul class="bests">${bests}</ul>
+        <p class="sendnote" id="sendnote" role="status"></p>
+      </div>
       ${play.missed.length ? `<h3>Read the tip. Try again.</h3><ul class="tips">${tips}</ul>` : ""}
       <div class="actions">
         ${retryBtn}
-        <button type="button" class="btn gold" data-act="again">Play this gate again</button>
+        <button type="button" class="btn gold" data-act="again">Play again with new questions</button>
         <button type="button" class="btn" data-act="hub">Back to the island</button>
       </div>
     </div>
@@ -1514,6 +1782,77 @@ function renderResults() {
   const heading = view.querySelector("h2");
   if (heading) heading.focus();
 }
+
+function setSendNote(text, kind) {
+  const note = document.getElementById("sendnote");
+  if (!note) return;
+  note.textContent = text;
+  note.className = "sendnote" + (kind ? " " + kind : "");
+}
+
+function showSendResult(ok) {
+  if (ok) setSendNote("Sent to your teacher ✓", "ok");
+  else setSendNote("Not sent yet. It will send next time you open Word Island.", "");
+}
+
+// Results go to the teacher through Firebase. Runs wait in an outbox until they are sent.
+function readOutbox() {
+  try {
+    const rows = JSON.parse(localStorage.getItem(OUTBOX) || "[]");
+    return Array.isArray(rows) ? rows : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeOutbox(rows) {
+  try {
+    localStorage.setItem(OUTBOX, JSON.stringify(rows));
+  } catch (err) {
+    // Storage is blocked. The run is still tried once from memory.
+  }
+}
+
+let memoryOutbox = [];
+let flushing = null;
+
+function sendRun(run) {
+  memoryOutbox.push(run);
+  writeOutbox(readOutbox().concat([run]));
+  return flushOutbox();
+}
+
+function flushOutbox() {
+  if (flushing) return flushing;
+  if (typeof window.wiSend !== "function") return Promise.resolve(false);
+  flushing = (async () => {
+    let rows = readOutbox();
+    if (!rows.length) rows = memoryOutbox.slice();
+    while (rows.length) {
+      try {
+        await Promise.race([
+          window.wiSend(rows[0]),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 15000))
+        ]);
+      } catch (err) {
+        console.warn("Word Island: result not sent yet.", err);
+        return false;
+      }
+      rows = rows.slice(1);
+      memoryOutbox = memoryOutbox.slice(1);
+      writeOutbox(rows);
+    }
+    return true;
+  })().finally(() => { flushing = null; });
+  return flushing;
+}
+
+window.addEventListener("wi-send-ready", () => {
+  if (!readOutbox().length && !memoryOutbox.length) return;
+  flushOutbox().then((ok) => {
+    if (document.body.dataset.screen === "results") showSendResult(ok);
+  });
+});
 
 function leave() {
   if (!play || play.finished) {
@@ -1528,7 +1867,7 @@ function leave() {
     showHub();
     return;
   }
-  ask("Leave this game? Stars from this try will not be saved.", "Leave", () => {
+  ask2("Leave this game? Stars from this try will not be saved.", "Leave", () => {
     if (play) play.left = true;
     clearTimeout(timer);
     stopMoles();
@@ -1536,7 +1875,7 @@ function leave() {
   });
 }
 
-function ask(text, yesLabel, onYes) {
+function ask2(text, yesLabel, onYes) {
   pendingYes = onYes;
   document.getElementById("asktext").textContent = text;
   document.getElementById("askyes").textContent = yesLabel;
@@ -1547,6 +1886,69 @@ function ask(text, yesLabel, onYes) {
 function closeAsk() {
   pendingYes = null;
   document.getElementById("ask").hidden = true;
+}
+
+// Teacher view: every question by topic, to share on screen after the lesson.
+function teacherCard(game, item) {
+  const isPlanes = game === "planes";
+  const isSpell = game === "hangman";
+  const title = isPlanes ? `Listen: “${esc(listenText(item))}”` : isSpell ? "Spell it." : esc(item.q);
+  const list = isSpell
+    ? `<ul><li class="ans">${esc(item.word)}</li></ul>`
+    : `<ul>${choicePairs(item).map((pair) => `<li class="${pair.ok ? "ans" : ""}">${esc(choiceText(item, pair.text))}</li>`).join("")}</ul>`;
+  return `
+    <article class="tcard" data-topic="${item.topic}" data-id="${item.id}">
+      <p class="meta">${esc(GAME[game])} · ${esc(TOPICS[item.topic])}${item.challenge ? " · Challenge" : ""}</p>
+      ${picture(item, true)}
+      <h3>${title}</h3>
+      ${list}
+      <p class="say">${esc(item.say)}</p>
+      <div class="row">
+        <button type="button" class="btn" data-act="t-hear" data-id="${item.id}">Hear it</button>
+        <button type="button" class="btn gold" data-act="t-show" data-id="${item.id}">Show answer</button>
+      </div>
+    </article>
+  `;
+}
+
+function showTeacher() {
+  play = null;
+  document.body.dataset.screen = "teacher";
+  document.getElementById("stars").hidden = true;
+  updateChrome();
+  setCaption(CAPTION.teacher);
+  const base = location.origin + location.pathname;
+  const cards = [];
+  Object.keys(TOPICS).forEach((topic) => {
+    GAME_IDS.forEach((game) => {
+      BANKS[game].filter((item) => item.topic === topic).forEach((item) => cards.push(teacherCard(game, item)));
+    });
+  });
+  view.innerHTML = `
+    <div class="teach">
+      <p class="pill">Unit 1 · Teacher view</p>
+      <h1>Talk about the answers</h1>
+      <p class="lede">Share your screen. Ask the class first. Then tap Show answer. Pupils' results are on the quiz Teacher results page, under Word Island.</p>
+      <div class="links">
+        <p><b>Send one game to the whole class:</b></p>
+        ${GATES.map((gate) => `<p>${esc(gate.title)}: <code>${esc(base)}?game=${gate.id}</code></p>`).join("")}
+        <p>All games open: <code>${esc(base)}?open=all</code></p>
+      </div>
+      <div class="tfilter" role="group" aria-label="Topic">
+        <button type="button" class="ghost" data-act="t-topic" data-topic="" aria-pressed="true">All</button>
+        ${Object.keys(TOPICS).map((t) => `<button type="button" class="ghost" data-act="t-topic" data-topic="${t}" aria-pressed="false">${esc(TOPICS[t])}</button>`).join("")}
+      </div>
+      <div class="tgrid">${cards.join("")}</div>
+    </div>
+  `;
+}
+
+function findItem(id) {
+  for (const game of GAME_IDS) {
+    const item = BANKS[game].find((row) => row.id === id);
+    if (item) return item;
+  }
+  return null;
 }
 
 function burst() {
@@ -1590,6 +1992,21 @@ function burst() {
   tick();
 }
 
+document.body.addEventListener("submit", (event) => {
+  if (event.target.dataset.form !== "name") return;
+  event.preventDefault();
+  const name = document.getElementById("pname").value.trim().slice(0, 39);
+  const cls = document.getElementById("pclass").value.trim().slice(0, 19);
+  if (!name) {
+    setFeedback("Write your name first.", "tip");
+    return;
+  }
+  state.name = name;
+  state.cls = cls;
+  save();
+  enter();
+});
+
 document.body.addEventListener("click", (event) => {
   const el = event.target.closest("[data-act]");
   if (!el) return;
@@ -1628,12 +2045,33 @@ document.body.addEventListener("click", (event) => {
   else if (act === "hear") speak(spoken(current()), true);
   else if (act === "retry") start(play.gate, "retry");
   else if (act === "again") start(play.gate, "full");
+  else if (act === "rename") {
+    ask2("Change the name? This device's stars will clear for the new pupil.", "Change", () => {
+      state = { ...fresh(), sound: state.sound };
+      save();
+      showName();
+    });
+  }
   else if (act === "reset") {
-    ask("Start over? Stars and badges will clear.", "Start over", () => {
-      state = fresh();
+    ask2("Start over? Stars and badges will clear.", "Start over", () => {
+      state = { ...fresh(), sound: state.sound, name: state.name, cls: state.cls };
       save();
       showHub();
     });
+  }
+  else if (act === "t-topic") {
+    view.querySelectorAll("[data-act='t-topic']").forEach((btn) => btn.setAttribute("aria-pressed", btn === el ? "true" : "false"));
+    const topic = el.dataset.topic;
+    view.querySelectorAll(".tcard").forEach((card) => { card.hidden = Boolean(topic) && card.dataset.topic !== topic; });
+  }
+  else if (act === "t-show") {
+    const card = el.closest(".tcard");
+    const shown = card.classList.toggle("shown");
+    el.textContent = shown ? "Hide answer" : "Show answer";
+    if (shown) speak(findItem(el.dataset.id).say, true);
+  }
+  else if (act === "t-hear") {
+    speak(spoken(findItem(el.dataset.id)), true);
   }
 });
 
@@ -1653,10 +2091,6 @@ document.addEventListener("keydown", (event) => {
   if (play.gate === "planes") {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
       event.preventDefault();
-      if (!play.locked) {
-        play.armed = true;
-        play.shipX = (play.shipX || 0.5) + (event.key === "ArrowLeft" ? -0.07 : 0.07);
-      }
     } else if (reduceMotion && (event.key === "1" || event.key === "2" || event.key === "3")) {
       const button = [...view.querySelectorAll(".bandit")][Number(event.key) - 1];
       if (button) button.click();
@@ -1682,11 +2116,56 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-if ("speechSynthesis" in window) {
+if (canSpeak()) {
   window.speechSynthesis.onvoiceschanged = () => {};
 }
 
-showHub();
+if (teacherMode) showTeacher();
+else if (!state.name) showName();
+else enter();
+</script>
+<script type="module">
+// Firebase web settings are public by design; the Firestore rules decide who may read results.
+const config = {
+  apiKey: "AIzaSyCKqeNwxJa9SlOXW9Hx4OYqyn3Vkg9H4oI",
+  authDomain: "english-pdpr-quiz.firebaseapp.com",
+  projectId: "english-pdpr-quiz",
+  appId: "1:375910903849:web:93acc4c7e71b804bc22c38"
+};
+const SDK = "https://www.gstatic.com/firebasejs/11.10.0/";
+let ready = null;
+
+function boot() {
+  return Promise.all([
+    import(SDK + "firebase-app.js"),
+    import(SDK + "firebase-auth.js"),
+    import(SDK + "firebase-firestore.js")
+  ]).then(([appSdk, authSdk, storeSdk]) => {
+    const app = appSdk.initializeApp(config);
+    const auth = authSdk.getAuth(app);
+    const db = storeSdk.getFirestore(app);
+    return async (run) => {
+      const user = auth.currentUser || (await authSdk.signInAnonymously(auth)).user;
+      await storeSdk.addDoc(storeSdk.collection(db, "wordIsland"), {
+        uid: user.uid,
+        name: run.name,
+        cls: run.cls,
+        game: run.game,
+        mode: run.mode,
+        stars: run.stars,
+        total: run.total,
+        answers: run.answers,
+        createdAt: storeSdk.serverTimestamp()
+      });
+    };
+  });
+}
+
+window.wiSend = (run) => {
+  if (!ready) ready = boot().catch((err) => { ready = null; throw err; });
+  return ready.then((send) => send(run));
+};
+window.dispatchEvent(new Event("wi-send-ready"));
 </script>
 </body>
 </html>
