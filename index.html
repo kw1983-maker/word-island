@@ -253,7 +253,7 @@
   }
   .ear { width: 110px; height: 110px; }
   .tile.word { width: auto; height: 52px; padding: 0 10px; font-size: clamp(1rem, 3vw, 1.4rem); }
-  .letters .tile.q:last-child { height: 52px; }
+  .letters .tile.word ~ .tile.q { height: 52px; }
   .cal {
     width: 120px; height: 110px; border: 4px solid var(--ink); border-radius: 14px; background: #fff;
     display: grid; place-items: center; padding-top: 22px; position: relative; overflow: hidden;
@@ -1058,7 +1058,7 @@ function startMoleLoop() {
     return;
   }
   function live() {
-    return play && play.step === step && !play.locked && !play.tried && !play.finished && !play.left;
+    return play && play.step === step && !play.locked && !play.tried && !play.finished && !play.left && !play.paused;
   }
   function rise() {
     if (!live()) return;
@@ -1078,8 +1078,23 @@ function later(fn, ms) {
   const step = play.step;
   timer = setTimeout(() => {
     if (!play || play.step !== step || play.left) return;
-    fn();
+    // While the "Leave this game?" box is open, wait until the pupil chooses.
+    if (play.paused) play.afterPause = fn;
+    else fn();
   }, ms);
+}
+
+// The game waits behind the "Leave this game?" box, so nothing falls, pops up or moves on meanwhile.
+function resumeGame() {
+  if (!play || !play.paused) return;
+  play.paused = false;
+  if (play.left || play.finished) return;
+  const title = document.getElementById("qtitle");
+  if (title) title.focus({ preventScroll: true });
+  const waiting = play.afterPause;
+  play.afterPause = null;
+  if (waiting) waiting();
+  else if (play.gate === "moles" && !play.tried && !play.locked && !reduceMotion) startMoleLoop();
 }
 
 function resetScreen(screen) {
@@ -1310,6 +1325,12 @@ function renderPlay() {
   speak(spoken(item), false);
 }
 
+// Without sound, "Listen and shoot" shows the word to shoot instead.
+function planeTitle(item) {
+  const silent = !state.sound || !canSpeak();
+  return silent ? `Shoot: “${esc(listenText(item))}”` : "Listen. Shoot it.";
+}
+
 function stageInner(item) {
   const chip = item.challenge ? `<span class="chip">Challenge</span> ` : "";
   if (play.gate === "maze") {
@@ -1344,12 +1365,10 @@ function stageInner(item) {
   if (play.gate === "planes") {
     const pairs = choicePairs(item);
     const colors = ["#c81e1e", "#157a3a", "#2f6fed"];
-    const silent = !state.sound || !canSpeak();
-    const title = silent ? `Shoot: “${esc(listenText(item))}”` : "Listen. Shoot it.";
     return `
       ${picture(item, true)}
       <div class="qrow">
-        <h2 id="qtitle" tabindex="-1">${chip}${title}</h2>
+        <h2 id="qtitle" tabindex="-1">${chip}<span id="planetitle">${planeTitle(item)}</span></h2>
         <button type="button" class="ghost" data-act="hear">Hear it</button>
       </div>
       <div class="sky${reduceMotion ? " still" : ""}" id="sky">
@@ -1468,6 +1487,11 @@ function grade(ok, el) {
   if (!play || play.locked || play.left || play.finished) return;
   if (play.gate === "moles" && el && !el.classList.contains("up")) return;
   const planes = play.gate === "planes";
+  // With planes flying, a keyboard pick counts like a shot: a wrong plane falls and the pupil keeps flying.
+  if (planes && !reduceMotion && el) {
+    if (!el._down && !play.resolving) destroyPlane(el, ok);
+    return;
+  }
   if (!planes) stopMoles();
   const item = current();
   if (ok) {
@@ -1578,7 +1602,7 @@ function startRaid() {
     if (play && play.step === step) play.firing = keys.size > 0;
   }
   function keyDown(event) {
-    if (!play || play.step !== step || play.left) return;
+    if (!play || play.step !== step || play.left || play.paused) return;
     if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
     keys.add(event.key);
     play.firing = true;
@@ -1604,6 +1628,11 @@ function startRaid() {
   let last = 0;
   function frame(now) {
     if (!play || play.step !== step || play.left || play.finished) return;
+    if (play.paused) {
+      last = 0;
+      raidFrame = requestAnimationFrame(frame);
+      return;
+    }
     if (!last) last = now;
     const dt = Math.min(34, now - last);
     last = now;
@@ -1827,9 +1856,29 @@ function writeOutbox(rows) {
 let memoryOutbox = [];
 let flushing = null;
 
+// Each run gets a key, so a sent run can be taken out of the outbox even if more runs were added meanwhile.
+// The key stays on this device: wiSend lists the fields it sends.
+function sameRun(a, b) {
+  return a.key ? a.key === b.key : JSON.stringify(a) === JSON.stringify(b);
+}
+
+function pendingRuns() {
+  const stored = readOutbox();
+  return stored.concat(memoryOutbox.filter((run) => !stored.some((row) => sameRun(row, run))));
+}
+
+function dropRun(run) {
+  memoryOutbox = memoryOutbox.filter((row) => !sameRun(row, run));
+  const stored = readOutbox();
+  const at = stored.findIndex((row) => sameRun(row, run));
+  if (at >= 0) writeOutbox(stored.slice(0, at).concat(stored.slice(at + 1)));
+}
+
 function sendRun(run) {
-  memoryOutbox.push(run);
-  writeOutbox(readOutbox().concat([run]));
+  const row = { ...run, key: Date.now().toString(36) + Math.random().toString(36).slice(2, 8) };
+  memoryOutbox.push(row);
+  writeOutbox(readOutbox().concat([row]));
+  // A flush that is already running picks this run up too, because it reads the outbox again after every send.
   return flushOutbox();
 }
 
@@ -1837,8 +1886,10 @@ function flushOutbox() {
   if (flushing) return flushing;
   if (typeof window.wiSend !== "function") return Promise.resolve(false);
   flushing = (async () => {
-    let rows = readOutbox();
-    if (!rows.length) rows = memoryOutbox.slice();
+    // Never send a run twice in one flush, even if storage would not let it be removed.
+    const sent = [];
+    const unsent = () => pendingRuns().filter((run) => !sent.some((row) => sameRun(row, run)));
+    let rows = unsent();
     while (rows.length) {
       try {
         await Promise.race([
@@ -1849,9 +1900,9 @@ function flushOutbox() {
         console.warn("Word Island: result not sent yet.", err);
         return false;
       }
-      rows = rows.slice(1);
-      memoryOutbox = memoryOutbox.slice(1);
-      writeOutbox(rows);
+      sent.push(rows[0]);
+      dropRun(rows[0]);
+      rows = unsent();
     }
     return true;
   })().finally(() => { flushing = null; });
@@ -1859,7 +1910,7 @@ function flushOutbox() {
 }
 
 window.addEventListener("wi-send-ready", () => {
-  if (!readOutbox().length && !memoryOutbox.length) return;
+  if (!pendingRuns().length) return;
   flushOutbox().then((ok) => {
     if (document.body.dataset.screen === "results") showSendResult(ok);
   });
@@ -1878,6 +1929,7 @@ function leave() {
     showHub();
     return;
   }
+  play.paused = true;
   ask2("Leave this game? Stars from this try will not be saved.", "Leave", () => {
     if (play) play.left = true;
     clearTimeout(timer);
@@ -1894,9 +1946,10 @@ function ask2(text, yesLabel, onYes) {
   document.getElementById("askno").focus();
 }
 
-function closeAsk() {
+function closeAsk(resume) {
   pendingYes = null;
   document.getElementById("ask").hidden = true;
+  if (resume !== false) resumeGame();
 }
 
 // Teacher explain page: one question at a time, with a hint and the answer explained.
@@ -2223,13 +2276,15 @@ document.body.addEventListener("click", (event) => {
     state.sound = !state.sound;
     save();
     updateChrome();
+    const planeLine = document.getElementById("planetitle");
+    if (planeLine && play && !play.finished) planeLine.innerHTML = planeTitle(current());
     if (state.sound && play && !play.finished) speak(spoken(current()), false);
     return;
   }
   if (act === "ask-no") { closeAsk(); return; }
   if (act === "ask-yes") {
     const yes = pendingYes;
-    closeAsk();
+    closeAsk(false);
     if (yes) yes();
     return;
   }
