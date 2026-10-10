@@ -1,0 +1,192 @@
+// Word Island · Unit 9 (Super Minds pp. 106-117: At the beach).
+// Pictures live in img/u9/. The first choice of every question is the right one.
+WORD_ISLAND_UNITS.u9 = (() => {
+  const TOPICS = {
+    beach: "At the beach",
+    lets: "Let's … Good idea!",
+    song: "Happy holiday",
+    where: "Where's …? Where are …?",
+    story: "The top of the hill",
+    phonics: "Phonics: ee / ea",
+    places: "Countries",
+    weather: "Holiday weather"
+  };
+
+  const MAZE = [
+    look("u9m-fish", "beach", { img: "fish" }, "a boy with a fishing rod", "Look. What is it?", ["catch a fish", "read a book", "take a photo"], "Catch a fish."),
+    look("u9m-paint", "beach", { img: "paint" }, "a girl at an easel", "Look. What is it?", ["paint a picture", "take a photo", "read a book"], "Paint a picture."),
+    look("u9m-photo", "beach", { img: "photo" }, "a boy with a camera", "Look. What is it?", ["take a photo", "paint a picture", "listen to music"], "Take a photo."),
+    look("u9m-music", "beach", { img: "music" }, "a girl with headphones", "Look. What is it?", ["listen to music", "read a book", "eat ice cream"], "Listen to music."),
+    look("u9m-shells", "beach", { img: "shells" }, "a girl on the rocks", "Look. What is it?", ["look for shells", "catch a fish", "make a sandcastle"], "Look for shells.", { challenge: true }),
+    look("u9m-book", "beach", { img: "book" }, "a boy with a book", "Look. What is it?", ["read a book", "paint a picture", "listen to music"], "Read a book."),
+    look("u9m-sandcastle", "beach", { img: "sandcastle" }, "a girl making a castle of sand", "Look. What is it?", ["make a sandcastle", "look for shells", "eat ice cream"], "Make a sandcastle."),
+    look("u9m-guitar", "lets", { img: "guitar" }, "a guitar", "Let's …", ["play the guitar.", "play football.", "read a book."], "Let's play the guitar."),
+    look("u9m-rod", "lets", { img: "rod" }, "a fishing rod and a fish", "Let's …", ["catch a fish.", "eat ice cream.", "play the guitar."], "Let's catch a fish."),
+    look("u9m-icecream", "lets", { img: "icecream" }, "an ice cream", "Let's …", ["eat ice cream.", "make a sandcastle.", "catch a fish."], "Let's eat ice cream."),
+    look("u9m-openbook", "lets", { img: "openbook" }, "an open book", "Let's …", ["read a book.", "paint a picture.", "play football."], "Let's read a book."),
+    look("u9m-castle", "lets", { img: "castle" }, "a sandcastle with flags", "Let's …", ["make a sandcastle.", "read a book.", "take a photo."], "Let's make a sandcastle."),
+    look("u9m-football", "lets", { img: "football" }, "a football", "Let's …", ["play football.", "play the guitar.", "eat ice cream."], "Let's play football."),
+    look("u9m-l-music", "lets", { img: "l-music" }, "two girls and a radio", "Let's ___ to music. Which word?", ["listen", "look", "take"], "Let's listen to music."),
+    look("u9m-l-paint", "lets", { img: "l-paint" }, "two children and paints", "Let's ___ a picture. Which word?", ["paint", "take", "listen"], "Let's paint a picture."),
+    look("u9m-l-shells", "lets", { img: "l-shells" }, "a man and a boy on the beach", "Let's ___ for shells. Which word?", ["look", "listen", "paint"], "Let's look for shells.", { challenge: true }),
+    look("u9m-l-photo", "lets", { img: "l-photo" }, "a man with a camera", "Let's ___ a photo. Which word?", ["take", "look", "paint"], "Let's take a photo.", { challenge: true }),
+    look("u9m-s-hands", "song", { img: "s-hands" }, "two children running hand in hand", "What does the song say?", ["Let's run hand in hand.", "Let's swim in the sea.", "Let's catch a fish."], "Let's run hand in hand."),
+    look("u9m-s-shells", "song", { img: "s-shells" }, "two children with a red bucket", "What does the song say?", ["Let's look for shells.", "Let's take a photo.", "Let's swim in the sea."], "Let's look for shells."),
+    look("u9m-s-photo", "song", { img: "s-photo" }, "a boy with a camera", "What does the song say?", ["Let's take a photo.", "Let's catch a fish.", "Let's play in the sand."], "Let's take a photo."),
+    look("u9m-s-sand", "song", { img: "s-sand" }, "a boy with a spade in the sand", "What does the song say?", ["Let's play in the sand.", "Let's run hand in hand.", "Let's swim in the sea."], "Let's play in the sand."),
+    look("u9m-s-fish", "song", { img: "s-fish" }, "two boys with a net", "What does the song say?", ["Let's catch a fish.", "Let's look for shells.", "Let's take a photo."], "Let's catch a fish."),
+    look("u9m-s-swim", "song", { img: "s-swim" }, "children in the water", "What does the song say?", ["Let's swim in the sea.", "Let's play in the sand.", "Let's catch a fish."], "Let's swim in the sea."),
+    look("u9m-run", "story", { img: "st-run" }, "Flash runs fast up the hill", "What does Flash say?", ["Bye. See you at the top of the hill!", "Let me try.", "What a good idea!"], "Bye. See you at the top of the hill!"),
+    look("u9m-rock", "story", { img: "st-rock" }, "Flash sees a big rock", "What does Flash say?", ["What's that? … Oh no!", "Yes! Let's go.", "Thanks, Thunder."], "What's that? … Oh no!"),
+    look("u9m-end", "story", { img: "st-end" }, "Flash pushes the big rock", "What does Flash say?", ["This is the end of the race.", "Yes! Let's go.", "Let me try."], "This is the end of the race. We can't get to the top of the hill."),
+    look("u9m-lift", "story", { img: "st-lift" }, "Thunder holds up the big rock", "What does Thunder say?", ["Now you can race to the top, Flash!", "A race is not a good idea.", "Bye. See you at the top!"], "Now you can race to the top, Flash!"),
+    look("u9m-together", "story", { img: "st-together" }, "the friends walk hand in hand", "Who wins the race?", ["all the Super Friends", "Thunder", "Flash"], "They go to the top together. That's more fun!", { challenge: true }),
+    look("u9m-teeth", "phonics", { img: "teeth" }, "Jean brushes her teeth", "What does Jean keep really clean?", ["her teeth", "her feet", "her bag"], "Jean keeps her teeth really clean."),
+    look("u9m-palace", "places", { img: "palace" }, "Buckingham Palace", "Which country is it?", ["the UK", "Australia", "Canada"], "Buckingham Palace is in the UK."),
+    look("u9m-koala", "places", { img: "koala" }, "a koala in a tree", "Which country is it?", ["Australia", "Canada", "the UK"], "You find koalas in Australia."),
+    look("u9m-canada", "places", { img: "canada" }, "a lake, mountains and a horse", "Which country is it?", ["Canada", "Australia", "the UK"], "Canada: lakes, forests, mountains and horse riding.", { challenge: true }),
+    look("u9m-flag-au", "places", { img: "flag-au" }, "a blue flag with white stars", "Which country is it?", ["Australia", "Canada", "the UK"], "It's the flag of Australia."),
+    look("u9m-flag-ca", "places", { img: "flag-ca" }, "a red and white flag with a leaf", "Which country is it?", ["Canada", "the UK", "Australia"], "It's the flag of Canada."),
+    look("u9m-flag-uk", "places", { img: "flag-uk" }, "a red, white and blue flag", "Which country is it?", ["the UK", "Australia", "Canada"], "It's the flag of the UK."),
+    look("u9m-sunny", "weather", { img: "w-sunny" }, "a sun", "What's the weather like?", ["It's sunny.", "It's raining.", "It's cloudy."], "It's sunny."),
+    look("u9m-hot", "weather", { img: "w-hot" }, "a red thermometer", "What's the weather like?", ["It's hot.", "It's cold.", "It's snowing."], "It's hot."),
+    look("u9m-cold", "weather", { img: "w-cold" }, "a blue thermometer", "What's the weather like?", ["It's cold.", "It's hot.", "It's sunny."], "It's cold.", { challenge: true }),
+    look("u9m-snowing", "weather", { img: "w-snowing" }, "a cloud with snow", "What's the weather like?", ["It's snowing.", "It's raining.", "It's sunny."], "It's snowing."),
+    look("u9m-raining", "weather", { img: "w-raining" }, "a cloud with rain", "What's the weather like?", ["It's raining.", "It's snowing.", "It's hot."], "It's raining.", { challenge: true }),
+    look("u9m-cloudy", "weather", { img: "w-cloudy" }, "clouds", "What's the weather like?", ["It's cloudy.", "It's sunny.", "It's hot."], "It's cloudy.")
+  ];
+
+  const MOLES = [
+    ask("u9o-good", "lets", { img: "l-music" }, "two girls and a radio", "Let's listen to music. What does she say?", ["Good idea.", "I'm not sure.", "Sorry, I don't want to."]),
+    ask("u9o-notsure", "lets", { img: "l-paint" }, "a girl who is thinking", "Let's paint a picture. What does she say?", ["I'm not sure.", "Good idea.", "Sorry, I don't want to."], { challenge: true }),
+    ask("u9o-sorry", "lets", { img: "l-shells" }, "a boy reading a book", "Let's look for shells. What does he say?", ["Sorry, I don't want to.", "Good idea.", "I'm not sure."], { challenge: true }),
+    ask("u9o-photo", "lets", { img: "l-photo" }, "a woman and a man with a camera", "Let's take a photo. What does he say?", ["Good idea.", "Sorry, I don't want to.", "I'm not sure."]),
+    ask("u9o-bluebook", "where", { img: "bag-green" }, "a blue book in a green bag", "Where's the blue book?", ["It's in the green bag.", "They're in the green bag.", "It's in the black bag."]),
+    ask("u9o-orangebooks", "where", { img: "bag-black" }, "orange books in a black bag", "Where are the orange books?", ["They're in the black bag.", "It's in the black bag.", "They're in the blue bag."]),
+    ask("u9o-greenbooks", "where", { img: "bag-pink" }, "green books in a pink bag", "Where are the green books?", ["They're in the pink bag.", "It's in the pink bag.", "They're in the green bag."]),
+    ask("u9o-orangebook", "where", { img: "bag-blue" }, "one orange book in a blue bag", "Where's the orange book?", ["It's in the blue bag.", "They're in the black bag.", "It's in the orange bag."], { challenge: true }),
+    ask("u9o-shell", "where", { img: "shell-on" }, "a shell on a sandcastle", "Where's the shell?", ["It's on the sandcastle.", "They're on the sandcastle.", "It's in the sea."]),
+    ask("u9o-kites", "where", { img: "kites-blue" }, "kites in a blue and yellow toy box", "Where are the kites?", ["They're in the blue and yellow toy box.", "It's in the blue and yellow toy box.", "They're in the red toy box."]),
+    ask("u9o-kites-red", "where", { img: "kites-red" }, "kites in a red toy box", "Where are the kites?", ["They're in the red toy box.", "They're in the blue and yellow toy box.", "It's in the red toy box."], { challenge: true }),
+    ask("u9o-race", "story", { img: "flash" }, "Flash", "Who wants a race?", ["Flash.", "Thunder.", "Misty."]),
+    ask("u9o-wait", "story", { quote: "Just wait and see." }, "Someone says: Just wait and see.", "Who says it?", ["Thunder.", "Flash.", "Misty."], { speakQ: "Just wait and see. Who says it?", challenge: true }),
+    ask("u9o-try", "story", { img: "thunder" }, "Thunder", "Flash can't move the rock. What does Thunder say?", ["Let me try.", "Oh no!", "A race?"]),
+    ask("u9o-thanks", "story", { quote: "Thanks, Thunder." }, "Someone says: Thanks, Thunder.", "Who says it?", ["Flash.", "Thunder.", "The rock."], { speakQ: "Thanks, Thunder. Who says it?" }),
+    ask("u9o-together", "story", { quote: "Now you can race to the top, Flash!" }, "Thunder says: Now you can race to the top, Flash!", "What does Flash say?", ["No. Let's go together. That's more fun!", "Bye. See you at the top of the hill!", "Yes! Let's go."], { speakQ: "Now you can race to the top, Flash! What does Flash say?" }),
+    ask("u9o-clean", "phonics", { quote: "Jean keeps her teeth really …" }, "Jean keeps her teeth really …", "Finish the sentence.", ["clean.", "green.", "sweet."], { speakQ: "Jean keeps her teeth really … Finish the sentence." }),
+    ask("u9o-sound", "phonics", { quote: "cheese · pet · beach" }, "The words cheese, pet, beach", "Which word has a different sound?", ["pet", "cheese", "beach"], { speakQ: "Cheese, pet, beach. Which word has a different sound?", challenge: true }),
+    ask("u9o-koala", "places", { img: "koala" }, "a koala", "Where do you find koalas?", ["In Australia.", "In the UK.", "In Canada."]),
+    ask("u9o-palace", "places", { img: "palace" }, "Buckingham Palace", "Where can you see Buckingham Palace?", ["In the UK.", "In Australia.", "In Canada."]),
+    ask("u9o-whales", "places", { img: "canada" }, "Canada", "Where can you watch the whales or go horse riding?", ["In Canada.", "In the UK.", "In Australia."], { challenge: true }),
+    ask("u9o-mexico", "weather", { img: "w-sunny" }, "a sun", "What's the weather like in Mexico?", ["It's hot and sunny.", "It's cold and snowing.", "It's raining."]),
+    ask("u9o-scotland", "weather", { img: "w-snowing" }, "snow", "What's the weather like in Scotland?", ["It's cold and snowing.", "It's hot and sunny.", "It's cloudy."]),
+    ask("u9o-japan", "weather", { img: "w-raining" }, "rain", "What's the weather like in Japan?", ["It's raining.", "It's snowing.", "It's sunny."]),
+    ask("u9o-italy", "weather", { img: "w-cloudy" }, "clouds", "What's the weather like in Italy?", ["It's cloudy.", "It's raining.", "It's hot and sunny."], { challenge: true })
+  ];
+
+  const HANGMAN = [
+    spell("u9h-fish", "beach", { img: "fish" }, "a fish", "fish"),
+    spell("u9h-book", "beach", { img: "book" }, "a book", "book"),
+    spell("u9h-photo", "beach", { img: "photo" }, "a photo", "photo"),
+    spell("u9h-music", "beach", { img: "music" }, "music", "music"),
+    spell("u9h-shell", "beach", { img: "shell-on" }, "a shell", "shell"),
+    spell("u9h-sand", "song", { img: "s-sand" }, "sand", "sand"),
+    spell("u9h-sea", "song", { img: "s-swim" }, "the sea", "sea"),
+    spell("u9h-beach", "song", { img: "s-hands" }, "the beach", "beach", { challenge: true }),
+    spell("u9h-guitar", "lets", { img: "guitar" }, "a guitar", "guitar", { challenge: true }),
+    spell("u9h-bag", "where", { img: "bag-green" }, "a bag", "bag"),
+    spell("u9h-kite", "where", { img: "kites-blue" }, "a kite", "kite"),
+    spell("u9h-hill", "story", { img: "st-run" }, "a hill", "hill"),
+    spell("u9h-rock", "story", { img: "st-rock" }, "a rock", "rock"),
+    spell("u9h-teeth", "phonics", { img: "teeth" }, "teeth", "teeth"),
+    spell("u9h-clean", "phonics", { img: "teeth" }, "clean", "clean", { challenge: true }),
+    spell("u9h-koala", "places", { img: "koala" }, "a koala", "koala"),
+    spell("u9h-sunny", "weather", { img: "w-sunny" }, "sunny", "sunny"),
+    spell("u9h-hot", "weather", { img: "w-hot" }, "hot", "hot"),
+    spell("u9h-cold", "weather", { img: "w-cold" }, "cold", "cold"),
+    spell("u9h-rain", "weather", { img: "w-raining" }, "rain", "rain"),
+    spell("u9h-snow", "weather", { img: "w-snowing" }, "snow", "snow"),
+    spell("u9h-cloudy", "weather", { img: "w-cloudy" }, "cloudy", "cloudy", { challenge: true })
+  ];
+
+  const PLANES = [
+    hear("u9p-fish", "beach", "catch a fish", ["fish", "book", "paint"], { pics: true, alts: ["catch a fish", "read a book", "paint a picture"] }),
+    hear("u9p-sandcastle", "beach", "make a sandcastle", ["sandcastle", "shells", "music"], { pics: true, alts: ["make a sandcastle", "look for shells", "listen to music"] }),
+    hear("u9p-music", "beach", "listen to music", ["music", "photo", "book"], { pics: true, alts: ["listen to music", "take a photo", "read a book"] }),
+    hear("u9p-photo", "beach", "take a photo", ["photo", "paint", "fish"], { pics: true, alts: ["take a photo", "paint a picture", "catch a fish"], challenge: true }),
+    hear("u9p-icecream", "lets", "Let's eat ice cream.", ["icecream", "football", "guitar"], { pics: true, alts: ["ice cream", "football", "guitar"] }),
+    hear("u9p-football", "lets", "Let's play football.", ["football", "guitar", "castle"], { pics: true, alts: ["football", "guitar", "sandcastle"] }),
+    hear("u9p-good", "lets", "Good idea.", ["Good idea.", "I'm not sure.", "Sorry, I don't want to."]),
+    hear("u9p-sorry", "lets", "Sorry, I don't want to.", ["Sorry, I don't want to.", "Good idea.", "I'm not sure."], { challenge: true }),
+    hear("u9p-swim", "song", "Let's swim in the sea.", ["s-swim", "s-fish", "s-hands"], { pics: true, alts: ["swim in the sea", "catch a fish", "run hand in hand"] }),
+    hear("u9p-hands", "song", "Let's run hand in hand.", ["s-hands", "s-sand", "s-photo"], { pics: true, alts: ["run hand in hand", "play in the sand", "take a photo"] }),
+    hear("u9p-shell", "where", "Where's the shell? It's on the sandcastle.", ["shell-on", "shell-next", "kites-red"], { pics: true, alts: ["shell on the sandcastle", "shell next to the sandcastle", "kites in the red box"], challenge: true }),
+    hear("u9p-kites", "where", "They're in the blue and yellow toy box.", ["kites-blue", "kites-red", "shell-on"], { pics: true, alts: ["kites in the blue and yellow box", "kites in the red box", "a shell on the sandcastle"] }),
+    hear("u9p-bluebook", "where", "Where's the blue book? It's in the green bag.", ["bag-green", "bag-blue", "bag-black"], { pics: true, alts: ["the green bag", "the blue bag", "the black bag"] }),
+    hear("u9p-greenbooks", "where", "Where are the green books? They're in the pink bag.", ["bag-pink", "bag-yellow", "bag-orange"], { pics: true, alts: ["the pink bag", "the yellow bag", "the orange bag"], challenge: true }),
+    hear("u9p-together", "story", "No. Let's go together. That's more fun!", ["Let's go together.", "Let's have a race.", "Let me try."], { challenge: true }),
+    hear("u9p-wait", "story", "Just wait and see.", ["Just wait and see.", "What a good idea!", "Oh no!"]),
+    hear("u9p-teeth", "phonics", "Jean keeps her teeth really clean.", ["Jean keeps her teeth really clean.", "Jean keeps her feet really clean.", "Jean keeps her teeth really green."], { challenge: true }),
+    hear("u9p-canada", "places", "Canada", ["flag-ca", "flag-au", "flag-uk"], { pics: true, alts: ["Canada", "Australia", "the UK"] }),
+    hear("u9p-australia", "places", "Australia", ["flag-au", "flag-uk", "flag-ca"], { pics: true, alts: ["Australia", "the UK", "Canada"] }),
+    hear("u9p-snowing", "weather", "It's snowing.", ["w-snowing", "w-raining", "w-cloudy"], { pics: true, alts: ["snowing", "raining", "cloudy"] }),
+    hear("u9p-hot", "weather", "It's hot.", ["w-hot", "w-cold", "w-sunny"], { pics: true, alts: ["hot", "cold", "sunny"], challenge: true }),
+    hear("u9p-cloudy", "weather", "It's cloudy.", ["w-cloudy", "w-sunny", "w-raining"], { pics: true, alts: ["cloudy", "sunny", "raining"] }),
+    hear("u9p-beachcard", "weather", "It's hot here. Very hot. It's sunny.", ["p-beach", "p-snow", "p-japan"], { pics: true, alts: ["a sunny beach", "snow", "rain"] })
+  ];
+
+  // Teacher explain page: a hint per topic to give before the answer.
+  const HINTS = {
+    beach: "Say the chant: eat ice cream, take photos, catch fish, make castles, look for shells.",
+    lets: "Yes: Good idea. Maybe: I'm not sure. No: Sorry, I don't want to.",
+    song: "Sing Happy holiday: go to the beach, look for shells, play in the sand, take a photo, catch a fish, swim in the sea.",
+    where: "One thing: Where's …? It's … More than one: Where are …? They're …",
+    story: "Remember The top of the hill. Flash wants a race, a big rock stops her, and Thunder helps.",
+    phonics: "Listen for the long ee sound: J-ea-n, k-ee-ps, t-ee-th, cl-ea-n.",
+    places: "Australia: koalas and beaches. Canada: lakes, mountains and whales. The UK: Buckingham Palace.",
+    weather: "Look at the picture: sun, thermometer, cloud, rain or snow?"
+  };
+
+  // Notes for single questions: a better hint, and why the answer is right.
+  const NOTES = {
+    "u9m-shells": { hint: "Look at her hands. What is she looking at?", why: "She is on the rocks by the sea, looking for shells." },
+    "u9m-l-shells": { why: "Let's look for shells." },
+    "u9m-l-photo": { hint: "Look at the camera.", why: "Let's take a photo." },
+    "u9m-together": { hint: "Do they race to the top?", why: "Flash says: Let's go together. That's more fun! All the friends win." },
+    "u9m-canada": { why: "Canada has big lakes, forests and high mountains. You can go horse riding." },
+    "u9m-cold": { hint: "Is the thermometer red or blue?", why: "The thermometer is blue and low: it's cold." },
+    "u9m-raining": { hint: "Raindrops or snowflakes?", why: "Long drops are rain: it's raining. Round flakes are snow." },
+    "u9o-notsure": { hint: "Look at her face. Is she happy, or thinking?", why: "She is thinking: I'm not sure." },
+    "u9o-sorry": { hint: "Does he want to look for shells, or read his book?", why: "He wants to read: Sorry, I don't want to." },
+    "u9o-orangebook": { hint: "One orange book, or lots of orange books?", why: "One orange book: Where's the orange book? It's in the blue bag." },
+    "u9o-orangebooks": { why: "More than one book: Where are the orange books? They're in the black bag." },
+    "u9o-greenbooks": { why: "More than one book: They're in the pink bag." },
+    "u9o-kites-red": { hint: "What colour is the toy box?", why: "This toy box is red: They're in the red toy box." },
+    "u9o-wait": { hint: "Who is strong?", why: "Thunder says: Just wait and see. Then he moves the rock." },
+    "u9o-thanks": { why: "Thunder moves the rock, and Flash says: Thanks, Thunder." },
+    "u9o-together": { why: "Flash says: No. Let's go together. That's more fun!" },
+    "u9o-sound": { hint: "Say them: ch-ee-se, p-e-t, b-ea-ch.", why: "Cheese and beach have the long ee sound. Pet has a short e." },
+    "u9o-whales": { why: "The book says: Come to Canada. Watch the whales or go horse riding." },
+    "u9o-italy": { hint: "Look at the map on page 114.", why: "It's cloudy in Italy." },
+    "u9p-photo": { hint: "Listen: take a photo or paint a picture?", why: "Take a photo: he has a camera." },
+    "u9p-sorry": { why: "Sorry, I don't want to: he says no, nicely." },
+    "u9p-shell": { hint: "On the sandcastle, or next to it?", why: "It's on the sandcastle: the shell is on top." },
+    "u9p-together": { hint: "Do they race, or go together?", why: "Flash says: Let's go together. That's more fun!" },
+    "u9p-teeth": { hint: "Listen: teeth or feet? clean or green?", why: "Jean keeps her teeth really clean." },
+    "u9p-hot": { hint: "Red thermometer or blue thermometer?", why: "A red, high thermometer means hot." },
+    "u9p-greenbooks": { hint: "Listen for the colour of the bag: pink.", why: "The green books are in the pink bag." },
+    "u9p-beachcard": { why: "Dylan's postcard: It's hot here. Very hot. It's sunny. That is the beach picture." }
+  };
+
+  return {
+    id: "u9",
+    number: 9,
+    title: "At the beach",
+    h1: "Let's go to the beach!",
+    lede: "Beach fun, Let's …, Where's …? Where are …?, the story The top of the hill, countries and the weather. Come to Word Island. Play, and practise.",
+    topics: TOPICS,
+    hints: HINTS,
+    notes: NOTES,
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+  };
+})();
