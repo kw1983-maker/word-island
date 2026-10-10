@@ -460,26 +460,44 @@
   .namebox input {
     border: 3px solid var(--ink); border-radius: 12px; padding: 10px 12px; font-size: 1.2rem; background: #fff;
   }
-  .teach { width: min(1040px, 100%); margin: 0 auto; }
-  .teach h1 { font-size: clamp(2rem, 5vw, 3rem); }
-  .tfilter { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .explain { width: min(900px, 100%); margin: 0 auto; }
+  .explain h1 { font-size: clamp(2rem, 5vw, 3rem); }
+  .xbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 10px; }
+  .xbar select { border: 3px solid var(--ink); border-radius: 12px; padding: 6px 8px; font-weight: 700; background: #fff; }
   .links { background: #fff8e4; border-radius: 14px; padding: 10px 14px; margin: 10px 0; }
-  .links p { margin: 0 0 4px; }
+  .links summary { font-weight: 700; cursor: pointer; }
+  .links p { margin: 6px 0 0; }
   .links code { font-size: .9rem; word-break: break-all; }
-  .tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-  .tcard {
-    background: var(--card); border: 3px solid var(--ink); border-radius: 18px; padding: 12px;
-    display: flex; flex-direction: column; gap: 8px;
+  .xcard {
+    background: var(--card); border: 3px solid var(--ink); border-radius: 24px; padding: 18px;
+    box-shadow: var(--shadow); display: grid; gap: 12px;
   }
-  .tcard[hidden] { display: none; }
-  .tcard h3 { margin: 0; font-family: Fraunces, Palatino, Georgia, serif; font-size: 1.4rem; }
-  .tcard ul { margin: 0; padding-left: 20px; }
-  .tcard li.ans { font-weight: 400; }
-  .tcard.shown li.ans { font-weight: 700; color: var(--leaf); }
-  .tcard .say { display: none; margin: 0; font-weight: 700; color: var(--leaf); }
-  .tcard.shown .say { display: block; }
-  .tcard .row { display: flex; gap: 6px; margin-top: auto; }
-  .tcard .meta { margin: 0; font-size: .85rem; font-weight: 700; color: var(--sky); }
+  .xmeta { margin: 0; font-weight: 700; color: var(--sky); }
+  .xstat { margin: 0; font-weight: 700; color: var(--coral); }
+  .xcard .pic { min-height: 190px; }
+  .xcard .photo { max-height: 240px; }
+  .xcard .ico { width: 160px; height: 160px; }
+  .xq { font-family: Fraunces, Palatino, Georgia, serif; font-size: clamp(1.8rem, 4.4vw, 2.8rem); line-height: 1.15; margin: 0; font-weight: 600; }
+  .xq:focus { outline: none; }
+  .xchoices { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .xchoices li {
+    border: 3px solid var(--ink); border-radius: 14px; padding: 10px 14px; background: #fff;
+    font-weight: 700; font-size: 1.25rem; display: flex; gap: 12px; align-items: center;
+  }
+  .xchoices li > b {
+    flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--gold); border: 2px solid var(--ink);
+  }
+  .xchoices li img { height: 72px; width: auto; border-radius: 8px; }
+  .xchoices li .ico { width: 56px; height: 56px; }
+  .xcard.answered .xchoices li { opacity: .45; }
+  .xcard.answered .xchoices li.right { opacity: 1; background: var(--leaf-soft); border-color: var(--leaf); }
+  .xhint, .xwhy { margin: 0; border-radius: 14px; padding: 12px 14px; font-size: 1.25rem; line-height: 1.35; }
+  .xhint { background: #fff8e4; }
+  .xwhy { background: var(--leaf-soft); font-weight: 700; }
+  .xnav { display: flex; flex-wrap: wrap; gap: 8px; }
+  .xnav .grow, .xbar .grow { flex: 1; }
+  .gate-box { width: min(520px, 100%); margin: 20px auto; }
   #feedback {
     min-height: 2.8em;
     margin: 0 auto;
@@ -593,7 +611,7 @@ const CAPTION = {
   hangman: "Game 3. Look and listen. Spell the word. Save the balloons.",
   planes: "Game 4. Listen. Move the plane. Hold to shoot the right one.",
   results: "A wrong answer is fine. Read the tip. Try that one again.",
-  teacher: "Teacher view. Ask the class first. Then show the answer."
+  teacher: "Teacher only. Ask the class first, then show the hint, then the answer."
 };
 
 const GATES = [
@@ -1158,7 +1176,7 @@ function showUnits(ids) {
 
 function boot() {
   if (teacherMode) {
-    showTeacher(params.get("unit"));
+    teacherBoot();
     return;
   }
   showLoading();
@@ -1881,75 +1899,246 @@ function closeAsk() {
   document.getElementById("ask").hidden = true;
 }
 
-// Teacher view: every question by topic, to share on screen after the lesson.
-function teacherCard(game, item) {
-  const isPlanes = game === "planes";
-  const isSpell = game === "hangman";
-  const title = isPlanes ? `Listen: “${esc(listenText(item))}”` : isSpell ? "Spell it." : esc(item.q);
-  const list = isSpell
-    ? `<ul><li class="ans">${esc(item.word)}</li></ul>`
-    : `<ul>${choicePairs(item).map((pair) => `<li class="${pair.ok ? "ans" : ""}">${esc(choiceText(item, pair.text))}</li>`).join("")}</ul>`;
-  return `
-    <article class="tcard" data-topic="${item.topic}" data-id="${item.id}">
-      <p class="meta">${esc(GAME[game])} · ${esc(UNITS[item.unit].topics[item.topic])}${item.challenge ? " · Challenge" : ""}</p>
-      ${picture(item, true)}
-      <h3>${title}</h3>
-      ${list}
-      <p class="say">${esc(item.say)}</p>
-      <div class="row">
-        <button type="button" class="btn" data-act="t-hear" data-unit="${item.unit}" data-id="${item.id}">Hear it</button>
-        <button type="button" class="btn gold" data-act="t-show" data-unit="${item.unit}" data-id="${item.id}">Show answer</button>
+// Teacher explain page: one question at a time, with a hint and the answer explained.
+// Only the teacher's Google account can open it; pupils who try the link see a sign-in box.
+const TEACHER_EMAIL = "kokweng1983@gmail.com";
+const teacher = { user: null, rows: null, unit: null, game: "maze", cls: "", order: "book", index: 0, step: 0, pairs: null };
+
+function isTeacher(user) {
+  return Boolean(user && user.email === TEACHER_EMAIL && user.verified);
+}
+
+// Google sign-in only works on the Firebase address, so the explain page lives in the quiz site.
+// Pupils keep playing on Vercel; a teacher link opened there is sent across.
+const TEACHER_HOME = "https://english-pdpr-quiz.web.app/word-island/";
+const PUPIL_HOME = "https://word-island-red.vercel.app/";
+
+function teacherBoot() {
+  if (location.hostname.endsWith(".vercel.app")) {
+    location.replace(TEACHER_HOME + location.search);
+    return;
+  }
+  document.body.dataset.screen = "explain";
+  document.getElementById("stars").hidden = true;
+  setCaption(CAPTION.teacher);
+  view.innerHTML = `<div class="namebox gate-box"><h1>Teacher only</h1><p class="lede">Checking who you are…</p></div>`;
+  const ready = new Promise((resolve) => {
+    if (typeof window.wiTeacher === "object") resolve();
+    else window.addEventListener("wi-send-ready", resolve, { once: true });
+  });
+  ready.then(() => window.wiTeacher.watch((user) => {
+    teacher.user = user;
+    teacher.rows = null;
+    if (!isTeacher(user)) {
+      showTeacherGate();
+      return;
+    }
+    showTeacher(teacher.unit || params.get("unit"));
+    window.wiTeacher.results()
+      .then((rows) => {
+        teacher.rows = rows;
+        if (document.body.dataset.screen === "explain") renderExplain();
+      })
+      .catch((err) => console.warn("Word Island: results not loaded.", err));
+  })).catch(() => showTeacherGate("Word Island could not reach Firebase. Check the internet and try again."));
+}
+
+function showTeacherGate(problem) {
+  document.body.dataset.screen = "explain";
+  const signedInAs = teacher.user && teacher.user.email
+    ? `<p class="lede">You are signed in as ${esc(teacher.user.email)}. This page is for the teacher's account only.</p>`
+    : "";
+  view.innerHTML = `
+    <div class="namebox gate-box">
+      <p class="pill">Word Island</p>
+      <h1>Teacher only</h1>
+      <p class="lede">This page explains every answer. Sign in with the teacher's Google account to open it.</p>
+      ${signedInAs}
+      ${problem ? `<p class="lede">${esc(problem)}</p>` : ""}
+      <div class="actions">
+        <button type="button" class="btn gold" data-act="t-signin">Sign in with Google</button>
+        ${teacher.user ? `<button type="button" class="btn" data-act="t-signout">Sign out</button>` : ""}
       </div>
-    </article>
+    </div>
   `;
 }
 
 function showTeacher(wanted) {
   play = null;
   const unitId = UNITS[wanted] ? wanted : UNITS["u" + wanted] ? "u" + wanted : UNIT_IDS[UNIT_IDS.length - 1];
-  const unit = UNITS[unitId];
-  document.body.dataset.screen = "teacher";
-  document.getElementById("stars").hidden = true;
-  updateChrome();
-  setCaption(CAPTION.teacher);
-  const base = location.origin + location.pathname;
-  const cards = [];
-  Object.keys(unit.topics).forEach((topic) => {
-    GAME_IDS.forEach((game) => {
-      unit.banks[game].filter((item) => item.topic === topic).forEach((item) => cards.push(teacherCard(game, item)));
+  if (teacher.unit !== unitId) {
+    teacher.unit = unitId;
+    teacher.index = 0;
+  }
+  goTo(teacher.index);
+}
+
+function teacherHint(item) {
+  const unit = UNITS[item.unit];
+  const note = unit.notes[item.id];
+  if (note && note.hint) return note.hint;
+  if (item.word) {
+    const letters = item.word.replace(/ /g, "");
+    return `It starts with “${item.word[0]}”. It has ${letters.length} letters.`;
+  }
+  return unit.hints[item.topic];
+}
+
+function teacherWhy(item) {
+  const note = UNITS[item.unit].notes[item.id];
+  if (note && note.why) return note.why;
+  if (item.word) return `${item.word}: ${item.word.replace(/ /g, "").split("").join(", ")}.`;
+  return item.say;
+}
+
+// How the teacher's pupils did on each question, counted from saved results (no names).
+function teacherStats() {
+  const stats = {};
+  (teacher.rows || []).forEach((row) => {
+    const unit = typeof row.unit === "string" ? row.unit : "u1";
+    if (unit !== teacher.unit || (teacher.cls && row.cls !== teacher.cls) || !Array.isArray(row.answers)) return;
+    row.answers.forEach((answer) => {
+      if (!answer || typeof answer.id !== "string") return;
+      const stat = stats[answer.id] || (stats[answer.id] = { seen: 0, missed: 0 });
+      stat.seen += 1;
+      if (answer.ok !== true) stat.missed += 1;
     });
   });
+  return stats;
+}
+
+function teacherList() {
+  const bank = UNITS[teacher.unit].banks[teacher.game];
+  if (teacher.order !== "missed") return bank;
+  const stats = teacherStats();
+  const missed = (item) => (stats[item.id] ? stats[item.id].missed : 0);
+  return bank.slice().sort((a, b) => missed(b) - missed(a));
+}
+
+function goTo(index) {
+  const list = teacherList();
+  teacher.index = Math.max(0, Math.min(list.length - 1, index));
+  teacher.step = 0;
+  const item = list[teacher.index];
+  teacher.pairs = item.choices ? choicePairs(item) : null;
+  renderExplain();
+}
+
+function teacherChoice(item, pair, k) {
+  const label = esc(choiceText(item, pair.text));
+  const art = item.pics
+    ? `<img src="img/${item.unit}/${pair.text}.webp" alt="">`
+    : item.icons ? icon(pair.text) : "";
+  return `<li class="${pair.ok ? "right" : ""}"><b>${"ABC"[k] || k + 1}</b>${art}<span>${label}</span></li>`;
+}
+
+function renderExplain() {
+  document.body.dataset.screen = "explain";
+  document.getElementById("stars").hidden = true;
+  setCaption(CAPTION.teacher);
+  setFeedback("");
+  const unit = UNITS[teacher.unit];
+  const list = teacherList();
+  const item = list[teacher.index];
+  const game = item.game;
+  const stats = teacherStats();
+  const stat = stats[item.id];
+  const classes = [...new Set((teacher.rows || [])
+    .filter((row) => (typeof row.unit === "string" ? row.unit : "u1") === teacher.unit && row.cls)
+    .map((row) => row.cls))].sort();
+  const answered = teacher.step >= 2;
+  let title = esc(item.q || "");
+  if (game === "planes") title = answered ? `Listen: “${esc(listenText(item))}”` : "Listen. Which one?";
+  if (game === "hangman") title = "Spell it.";
+  if (item.pic && item.pic.quote && game !== "planes") title = esc(item.q);
+  const body = game === "hangman"
+    ? `<div class="blanks" aria-label="Word to spell">${item.word.split("").map((ch) => ch === " "
+        ? `<span class="blank gap"></span>`
+        : `<span class="blank">${answered ? esc(ch) : ""}</span>`).join("")}</div>`
+    : `<ol class="xchoices">${teacher.pairs.map((pair, k) => teacherChoice(item, pair, k)).join("")}</ol>`;
+  const base = PUPIL_HOME;
   view.innerHTML = `
-    <div class="teach">
-      <div class="tfilter" role="group" aria-label="Unit">
-        ${UNIT_IDS.map((id) => `<button type="button" class="ghost" data-act="t-unit" data-unit="${id}" aria-pressed="${id === unitId}">Unit ${UNITS[id].number}</button>`).join("")}
+    <div class="explain">
+      <div class="xbar" role="group" aria-label="Unit">
+        ${UNIT_IDS.map((id) => `<button type="button" class="ghost" data-act="t-unit" data-unit="${id}" aria-pressed="${id === teacher.unit}">Unit ${UNITS[id].number}</button>`).join("")}
+        <span class="grow"></span>
+        <a class="linkish" href="https://english-pdpr-quiz.web.app/results">Teacher results</a>
+        <button type="button" class="linkish" data-act="t-signout">Sign out</button>
       </div>
-      <p class="pill">Unit ${unit.number} · ${esc(unit.title)} · Teacher view</p>
-      <h1>Talk about the answers</h1>
-      <p class="lede">Share your screen. Ask the class first. Then tap Show answer. Pupils' results are on the quiz Teacher results page, under Word Island. Choose each class's unit there too.</p>
-      <div class="links">
-        <p><b>Pupils open:</b> <code>${esc(base)}</code></p>
-        <p><b>Send one game to the whole class:</b></p>
-        ${GATES.map((gate) => `<p>${esc(gate.title)}: <code>${esc(base)}?game=${gate.id}</code></p>`).join("")}
+      <div class="xbar" role="group" aria-label="Game">
+        ${GATES.map((gate) => `<button type="button" class="ghost" data-act="t-game" data-game="${gate.id}" aria-pressed="${gate.id === teacher.game}">${esc(gate.title)}</button>`).join("")}
+      </div>
+      <div class="xbar">
+        <label>Class
+          <select data-act="t-class">
+            <option value="">All classes</option>
+            ${classes.map((name) => `<option value="${esc(name)}" ${name === teacher.cls ? "selected" : ""}>${esc(name)}</option>`).join("")}
+          </select>
+        </label>
+        <button type="button" class="ghost" data-act="t-order" aria-pressed="${teacher.order === "missed"}" ${teacher.rows ? "" : "disabled"}>Most missed first</button>
+      </div>
+      <section class="xcard${answered ? " answered" : ""}" aria-label="Question ${teacher.index + 1} of ${list.length}">
+        <p class="xmeta">Unit ${unit.number} · ${esc(GAME[game])} · ${esc(unit.topics[item.topic])}${item.challenge ? " · Challenge" : ""} · ${teacher.index + 1} / ${list.length}</p>
+        ${stat ? `<p class="xstat">Missed by ${stat.missed} of ${stat.seen}${teacher.cls ? " in " + esc(teacher.cls) : ""}</p>` : ""}
+        ${picture(item)}
+        <h2 class="xq" id="xq" tabindex="-1">${title}</h2>
+        ${body}
+        ${teacher.step >= 1 ? `<p class="xhint"><b>Hint:</b> ${esc(teacherHint(item))}</p>` : ""}
+        ${answered ? `<p class="xwhy">${esc(teacherWhy(item))}</p>` : ""}
+        <div class="xnav">
+          <button type="button" class="btn" data-act="t-prev" ${teacher.index === 0 ? "disabled" : ""}>Back</button>
+          <button type="button" class="btn" data-act="t-hear">Hear it</button>
+          <span class="grow"></span>
+          <button type="button" class="btn" data-act="t-hint" ${teacher.step >= 1 ? "disabled" : ""}>Show hint</button>
+          <button type="button" class="btn gold" data-act="t-answer" ${answered ? "disabled" : ""}>Show answer</button>
+          <button type="button" class="btn leaf" data-act="t-next" ${teacher.index >= list.length - 1 ? "disabled" : ""}>Next</button>
+        </div>
+      </section>
+      <details class="links">
+        <summary>Links for pupils</summary>
+        <p>Every class: <code>${esc(base)}</code> (choose each class's unit on the quiz Teacher results page)</p>
+        ${GATES.map((gate) => `<p>${esc(gate.title)} only: <code>${esc(base)}?game=${gate.id}</code></p>`).join("")}
         <p>All games open: <code>${esc(base)}?open=all</code></p>
-      </div>
-      <div class="tfilter" role="group" aria-label="Topic">
-        <button type="button" class="ghost" data-act="t-topic" data-topic="" aria-pressed="true">All</button>
-        ${Object.keys(unit.topics).map((t) => `<button type="button" class="ghost" data-act="t-topic" data-topic="${t}" aria-pressed="false">${esc(unit.topics[t])}</button>`).join("")}
-      </div>
-      <div class="tgrid">${cards.join("")}</div>
+      </details>
     </div>
   `;
 }
 
-function findItem(unitId, id) {
-  const unit = UNITS[unitId];
-  if (!unit) return null;
-  for (const game of GAME_IDS) {
-    const item = unit.banks[game].find((row) => row.id === id);
-    if (item) return item;
+function teacherAct(act, el) {
+  // Sign-in comes before any unit is open, so it must not touch the question list.
+  if (act === "t-signin") {
+    window.wiTeacher.signIn().catch((err) => showTeacherGate(`Sign-in did not work: ${err && err.code ? err.code : err}`));
+    return;
   }
-  return null;
+  if (act === "t-signout") {
+    window.wiTeacher.signOut();
+    return;
+  }
+  if (!teacher.unit) return;
+  const list = teacherList();
+  const item = list[teacher.index];
+  if (act === "t-unit") showTeacher(el.dataset.unit);
+  else if (act === "t-game") {
+    teacher.game = el.dataset.game;
+    goTo(0);
+  }
+  else if (act === "t-order") {
+    teacher.order = teacher.order === "missed" ? "book" : "missed";
+    goTo(0);
+  }
+  else if (act === "t-prev") goTo(teacher.index - 1);
+  else if (act === "t-next") goTo(teacher.index + 1);
+  else if (act === "t-hear") speak(spoken(item), true);
+  else if (act === "t-hint") {
+    teacher.step = Math.max(teacher.step, 1);
+    renderExplain();
+    speak(teacherHint(item), true);
+  }
+  else if (act === "t-answer") {
+    teacher.step = 2;
+    renderExplain();
+    speak(teacherWhy(item), true);
+  }
 }
 
 function burst() {
@@ -2020,6 +2209,12 @@ document.body.addEventListener("submit", (event) => {
   route();
 });
 
+document.body.addEventListener("change", (event) => {
+  if (event.target.dataset.act !== "t-class") return;
+  teacher.cls = event.target.value;
+  goTo(teacher.order === "missed" ? 0 : teacher.index);
+});
+
 document.body.addEventListener("click", (event) => {
   const el = event.target.closest("[data-act]");
   if (!el) return;
@@ -2074,7 +2269,6 @@ document.body.addEventListener("click", (event) => {
   else if (act === "reload") boot();
   else if (act === "unit") openUnit(el.dataset.unit);
   else if (act === "units") showUnits(unitsForClass());
-  else if (act === "t-unit") showTeacher(el.dataset.unit);
   else if (act === "reset") {
     ask2("Start over? Stars and badges will clear.", "Start over", () => {
       state = { ...fresh(), sound: state.sound, name: state.name, cls: state.cls };
@@ -2082,26 +2276,22 @@ document.body.addEventListener("click", (event) => {
       showHub();
     });
   }
-  else if (act === "t-topic") {
-    view.querySelectorAll("[data-act='t-topic']").forEach((btn) => btn.setAttribute("aria-pressed", btn === el ? "true" : "false"));
-    const topic = el.dataset.topic;
-    view.querySelectorAll(".tcard").forEach((card) => { card.hidden = Boolean(topic) && card.dataset.topic !== topic; });
-  }
-  else if (act === "t-show") {
-    const card = el.closest(".tcard");
-    const shown = card.classList.toggle("shown");
-    el.textContent = shown ? "Hide answer" : "Show answer";
-    if (shown) speak(findItem(el.dataset.unit, el.dataset.id).say, true);
-  }
-  else if (act === "t-hear") {
-    speak(spoken(findItem(el.dataset.unit, el.dataset.id)), true);
-  }
+  else if (act.startsWith("t-") && act !== "t-class") teacherAct(act, el);
 });
 
 document.addEventListener("keydown", (event) => {
   const asking = !document.getElementById("ask").hidden;
   if (asking) {
     if (event.key === "Escape") closeAsk();
+    return;
+  }
+  if (document.body.dataset.screen === "explain" && teacher.unit && isTeacher(teacher.user)) {
+    if (event.target && event.target.closest && event.target.closest("select")) return;
+    const keys = { ArrowRight: "t-next", ArrowLeft: "t-prev", h: "t-hint", a: "t-answer", " ": "t-answer" };
+    if (keys[event.key]) {
+      event.preventDefault();
+      teacherAct(keys[event.key]);
+    }
     return;
   }
   if (!play || play.finished || play.left) return;
@@ -2215,6 +2405,31 @@ window.wiSend = async (run) => {
     answers: run.answers,
     createdAt: storeSdk.serverTimestamp()
   });
+};
+
+// Teacher explain page: Google sign-in, and the saved results (the rules let only the teacher read them).
+window.wiTeacher = {
+  async watch(onUser) {
+    const { authSdk, auth } = await loadSdk();
+    authSdk.onAuthStateChanged(auth, (user) => {
+      onUser(user && !user.isAnonymous ? { email: user.email, verified: user.emailVerified } : null);
+    });
+  },
+  async signIn() {
+    const { authSdk, auth } = await loadSdk();
+    const provider = new authSdk.GoogleAuthProvider();
+    provider.setCustomParameters({ login_hint: "kokweng1983@gmail.com" });
+    await authSdk.signInWithPopup(auth, provider);
+  },
+  async signOut() {
+    const { authSdk, auth } = await loadSdk();
+    await authSdk.signOut(auth);
+  },
+  async results() {
+    const { storeSdk, db } = await loadSdk();
+    const snap = await storeSdk.getDocs(storeSdk.collection(db, "wordIsland"));
+    return snap.docs.map((row) => row.data());
+  }
 };
 
 // Which units each class may open, set by the teacher on the quiz Teacher results page.

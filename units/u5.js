@@ -123,6 +123,59 @@ WORD_ISLAND_UNITS.u5 = (() => {
     hear("u5p-mud", "phonics", "Mum jumps in the mud with the ducks.", ["Mum jumps in the mud with the ducks.", "Mum runs in the mud with the ducks.", "Mum jumps in the lake with the ducks."], { challenge: true })
   ];
 
+  // Teacher explain page: a hint per topic to give before the answer.
+  const HINTS = {
+    days: "Say the days in order: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.",
+    free: "What are they doing in the picture? Swimming, football, singing …?",
+    when: "Two things: what do you do, and on which day?",
+    doyou: "Is she doing it? Then Yes, I do. Is she not doing it? Then No, I don't.",
+    story: "Remember the story We're lost! A rabbit helps the Super Friends find the lake.",
+    phonics: "Listen for the short u sound: m-u-d, d-u-ck, M-u-m.",
+    healthy: "Is it good for your body? Fruit, sport and sleep are healthy.",
+    piano: "Look at her hands and the arrows. What is she doing with the piano?"
+  };
+
+  // Notes for single questions: a better hint, and why the answer is right.
+  const NOTES = {
+    "u5m-d4": { why: "After Wednesday comes Thursday. Tuesday and Thursday sound alike at the start: t and th." },
+    "u5m-d5": { hint: "After the weekend, what day is it?", why: "After Sunday the week starts again: Monday." },
+    "u5m-match": { hint: "Remember the board on page 58.", why: "The board says Saturday: football match." },
+    "u5m-lake": { hint: "Remember the board on page 58.", why: "The board says Sunday: trip to the lake." },
+    "u5m-games2": { hint: "Look at his hands. Is it a toy or a game?", why: "He is holding a computer game: I play computer games." },
+    "u5m-sleep": { why: "He is on the sofa next to the TV: I watch TV and sleep." },
+    "u5m-rabbit": { why: "The rabbit shows them the way: Come with me." },
+    "u5m-mum": { why: "Mum jumps in the mud with the ducks." },
+    "u5m-h-sleep": { hint: "Look at the clock.", why: "Eight o'clock is a good time to sleep. Sleep is healthy." },
+    "u5m-h-sweets": { why: "Ice cream and sweets every day are not healthy." },
+    "u5m-h-tv": { hint: "Look at the moon. Is it day or night?", why: "Watching TV late at night is not healthy." },
+    "u5m-h-late": { hint: "Look at the clock. Is it late?", why: "Twelve o'clock at night is very late. We need sleep to be healthy." },
+    "u5m-p-ears": { why: "The music is too loud: Oh no! Cover your ears." },
+    "u5m-p-cat": { why: "There is a cat inside the piano: Look! Your cat is in the piano." },
+    "u5m-p-floor": { hint: "Look at the arrow and the cat.", why: "She puts the cat down: Put it on the floor." },
+    "u5m-p-sit": { hint: "Is she sitting down, or playing?", why: "Her hands are not on the keys yet: Sit down at the piano." },
+    "u5m-p-play": { why: "Music comes out of the piano: Start playing the piano." },
+    "u5o-sunday": { why: "There is no school on Sunday: No, I don't." },
+    "u5o-tv-no": { hint: "Is she watching TV, or walking away with a book?", why: "She doesn't watch TV, so she says: No, I don't." },
+    "u5o-games-no": { hint: "Is she at the computer?", why: "She plays football, not computer games: No, I don't." },
+    "u5o-mon": { hint: "Check the day in the answer: Mondays or Fridays?", why: "The question asks about Mondays: I go swimming on Mondays." },
+    "u5o-tue": { hint: "Tuesdays or Thursdays? Read the question again.", why: "The question says Tuesdays: I ride my bike on Tuesdays." },
+    "u5o-hours": { hint: "The question asks how many hours.", why: "We answer with a number of hours: I do sport four hours a week." },
+    "u5o-lake": { why: "Nobody knows where the lake is: I don't know. We're lost." },
+    "u5o-idea": { why: "Whisper has an idea. The others ask: What?" },
+    "u5o-come": { why: "The rabbit helps them: Come with me." },
+    "u5o-fun": { hint: "Who is not happy in the forest?", why: "Thunder says: This isn't much fun." },
+    "u5o-talk": { hint: "Who can talk to animals?", why: "Whisper can talk to animals, so he talks to the rabbit." },
+    "u5o-lost": { hint: "Who is lost at the end of the story?", why: "The rabbit says: Now, I'm lost. Whisper says: Now, he's lost!" },
+    "u5o-mud": { why: "Mum jumps in the mud with the ducks." },
+    "u5p-tue": { hint: "Listen to the start: t or th?", why: "Tuesday starts with t. Thursday starts with th." },
+    "u5p-thu": { hint: "Listen to the start: t or th?", why: "Thursday starts with th. Tuesday starts with t." },
+    "u5p-tv-no": { hint: "Listen to the end: Yes, I do or No, I don't?", why: "No, I don't: she does not watch TV." },
+    "u5p-sleep2": { hint: "Healthy sleep is early, not late.", why: "Sleep at eight o'clock is healthy." },
+    "u5p-floor": { hint: "Where does the cat go?", why: "Put it on the floor: she puts the cat down." },
+    "u5p-sit": { hint: "Sit down or start playing?", why: "Sit down at the piano: she sits, but does not play yet." },
+    "u5p-mud": { hint: "Listen: jumps or runs? mud or lake?", why: "Mum jumps in the mud with the ducks." }
+  };
+
   return {
     id: "u5",
     number: 5,
@@ -130,6 +183,8 @@ WORD_ISLAND_UNITS.u5 = (() => {
     h1: "What do you do on Mondays?",
     lede: "Days of the week, free time, Do you …?, the story We're lost!, and healthy habits. Come to Word Island. Play, and practise.",
     topics: TOPICS,
+    hints: HINTS,
+    notes: NOTES,
     banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
   };
 })();

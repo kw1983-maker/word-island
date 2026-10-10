@@ -136,6 +136,69 @@ WORD_ISLAND_UNITS.u1 = (() => {
     hear("p-rat", "phonics", "A fat rat in a black bag.", ["a fat rat in a black bag", "a fat cat in a black bag", "a fat rat in a red bag"], { challenge: true })
   ];
 
+  // Teacher explain page: a hint per topic to give before the answer.
+  const HINTS = {
+    friends: "Remember the Super Friends: Whisper, Thunder, Misty, Flash and Tabby the cat.",
+    numbers: "Count with your finger: one, two, three …",
+    alphabet: "Sing the alphabet song: A, B, C, D …",
+    colours: "Look at the colour. Find something in your room with the same colour.",
+    things: "Look at the picture. Is it for writing, for reading, or for carrying things?",
+    questions: "Look at the picture first. Is it the same thing as in the question?",
+    classroom: "What does the teacher want you to do? Look at the hands and the arrows.",
+    story: "Remember the stories. Who runs fast? Who disappears? Who talks to animals?",
+    phonics: "Listen for the short a sound: c-a-t, r-a-t, b-a-g."
+  };
+
+  // Notes for single questions: a better hint, and why the answer is right.
+  const NOTES = {
+    "m-pencil": { hint: "Look at the top. Is there a pink rubber?", why: "It's a pencil. It has a sharp grey tip and a rubber on top." },
+    "m-pen2": { hint: "Look at the end. Is there a sharp grey tip?", why: "It's a pen. A pen has ink. A pencil has a sharp grey tip." },
+    "m-ruler": { why: "It's a ruler. It is long and has lines to measure. A rubber is small and rubs out mistakes." },
+    "m-rubber": { why: "It's a rubber. We use it to rub out mistakes. A ruler is long with lines." },
+    "m-notebook": { why: "It's a notebook. We write in a notebook. A book has a story to read." },
+    "m-pencilcase": { why: "It's a pencil case. We keep pencils and pens in a pencil case." },
+    "m-pencilcase2": { hint: "Is it one pencil, or a bag for pencils?", why: "It's a pencil case. We keep pencils and pens in it." },
+    "m-mix1": { hint: "Think of grapes.", why: "Red and blue make purple." },
+    "m-mix2": { hint: "Think of grass and leaves.", why: "Blue and yellow make green." },
+    "m-mix3": { hint: "Think of an orange fruit.", why: "Red and yellow make orange." },
+    "m-n9": { hint: "Count slowly. Touch each pencil once.", why: "There are nine pencils. Ten is one more." },
+    "m-tabby": { why: "Tabby is the Super Friends' cat." },
+    "m-sit": { why: "The arrow points down to the chair: Sit at your desk, please." },
+    "m-open": { why: "The arrow shows the book opening: Open your book, please." },
+    "m-close": { why: "The arrow shows the bag closing: Close your bag, please." },
+    "m-pass": { why: "The boy gives the teacher something: Pass me a pen, please." },
+    "m-head": { hint: "Where is the pencil case going? Look at the arrow.", why: "The arrow goes up to his head: Put the pencil case on your head." },
+    "m-catch": { hint: "Is the pencil case going up or down?", why: "The pencil case falls down to his hand: Look down and catch it." },
+    "m-abc5": { hint: "Sing the alphabet from L.", why: "L, M, N, O, P." },
+    "m-rat": { hint: "It has a long tail. It is in the bag.", why: "It's a rat: r-a-t. A fat rat in a black bag." },
+    "m-cat": { why: "It's a cat: c-a-t. Tabby is a cat." },
+    "o-age6": { hint: "Look at the number.", why: "How old are you? I'm six." },
+    "o-age7": { hint: "Look at the number.", why: "How old are you? I'm seven." },
+    "o-pencil": { hint: "Is it a pen? Look closely at the tip.", why: "It isn't a pen, so we say No, it isn't. Then we say what it is: It's a pencil." },
+    "o-rubber": { why: "It isn't a ruler: No, it isn't. It's a rubber." },
+    "o-notebook": { hint: "A book or a notebook? Look at the lines and the rings.", why: "It isn't a book: No, it isn't. It's a notebook." },
+    "o-ruler": { hint: "Long with lines, or small and soft?", why: "It's long with lines: No, it isn't. It's a ruler." },
+    "o-orange": { why: "The balloon is orange, not red: No, it isn't. It's orange." },
+    "o-mix": { why: "Blue and yellow make green: It's green." },
+    "o-pass": { hint: "What do we say when we give something?", why: "When we give something to someone, we say: Here you are." },
+    "o-pass2": { hint: "What do we say when we give something?", why: "When we give something to someone, we say: Here you are." },
+    "o-sorry": { hint: "Someone says sorry. Is it OK?", why: "When someone says I'm sorry, we say: It's OK." },
+    "o-thanks": { hint: "What do we say when we get something?", why: "When someone gives us something, we say: Thank you." },
+    "o-tabbyage": { hint: "Remember the story: the cat tells them.", why: "In the story, Tabby says: I'm four." },
+    "o-lookatme": { hint: "Who can run very fast?", why: "Flash is fast. Flash says: Look at me!" },
+    "o-myturn": { hint: "Who can disappear?", why: "Misty can disappear. Misty says: My turn. Look!" },
+    "o-mybag": { why: "Flash runs fast to get her bag: My bag!" },
+    "o-animals": { hint: "Who talks to Tabby the cat?", why: "Whisper can talk to animals." },
+    "o-notebookstory": { hint: "Who forgets her things in the story?", why: "Flash runs home and says: Mum. My notebook!" },
+    "o-rat": { why: "A fat rat in a black bag." },
+    "p-b": { hint: "Listen: b, d or p?", why: "B, like bag. D is like desk. P is like pen." },
+    "p-m": { hint: "Listen: m, n or w?", why: "M, like Misty. N is like nine. W is like Whisper." },
+    "p-ruler": { hint: "Ruler or rubber? Listen to the middle of the word.", why: "Ruler: r-u-l-e-r. Rubber: r-u-b-b-e-r." },
+    "p-pass": { hint: "Listen to the last word: ruler or rubber?", why: "Pass me a ruler. Ruler has an l. Rubber has two b's." },
+    "p-putaway": { hint: "Put away or take out?", why: "Put away your book means put it in your bag." },
+    "p-rat": { hint: "Listen for two words: rat and black.", why: "A fat rat in a black bag." }
+  };
+
   return {
     id: "u1",
     number: 1,
@@ -143,6 +206,8 @@ WORD_ISLAND_UNITS.u1 = (() => {
     h1: "Pen or pencil?",
     lede: "Names, numbers, colours, school things and the stories. Come to Word Island. Play, and practise.",
     topics: TOPICS,
+    hints: HINTS,
+    notes: NOTES,
     banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
   };
 })();
