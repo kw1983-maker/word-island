@@ -1857,7 +1857,7 @@ let memoryOutbox = [];
 let flushing = null;
 
 // Each run gets a key, so a sent run can be taken out of the outbox even if more runs were added meanwhile.
-// The key stays on this device: wiSend lists the fields it sends.
+// The key is also the result's Firebase id, so sending a run twice still saves it only once.
 function sameRun(a, b) {
   return a.key ? a.key === b.key : JSON.stringify(a) === JSON.stringify(b);
 }
@@ -1875,7 +1875,10 @@ function dropRun(run) {
 }
 
 function sendRun(run) {
-  const row = { ...run, key: Date.now().toString(36) + Math.random().toString(36).slice(2, 8) };
+  const key = window.crypto && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+  const row = { ...run, key };
   memoryOutbox.push(row);
   writeOutbox(readOutbox().concat([row]));
   // A flush that is already running picks this run up too, because it reads the outbox again after every send.
@@ -2447,8 +2450,10 @@ function loadSdk() {
 
 window.wiSend = async (run) => {
   const { authSdk, storeSdk, auth, db } = await loadSdk();
+  // Wait for the saved sign-in, so a resend comes from the same pupil and may check its own result.
+  await auth.authStateReady();
   const user = auth.currentUser || (await authSdk.signInAnonymously(auth)).user;
-  await storeSdk.addDoc(storeSdk.collection(db, "wordIsland"), {
+  const data = {
     uid: user.uid,
     ...(run.unit ? { unit: run.unit } : {}),
     name: run.name,
@@ -2459,7 +2464,22 @@ window.wiSend = async (run) => {
     total: run.total,
     answers: run.answers,
     createdAt: storeSdk.serverTimestamp()
-  });
+  };
+  // Runs saved before keys existed still get a new id.
+  if (!run.key) {
+    await storeSdk.addDoc(storeSdk.collection(db, "wordIsland"), data);
+    return;
+  }
+  const ref = storeSdk.doc(db, "wordIsland", run.key);
+  try {
+    await storeSdk.setDoc(ref, data);
+  } catch (err) {
+    // A slow first try may have saved it after all. The rules refuse to overwrite a result,
+    // so check whether this pupil's result is already there before trying again later.
+    if (!err || err.code !== "permission-denied") throw err;
+    const saved = await storeSdk.getDoc(ref).catch(() => null);
+    if (!saved || !saved.exists()) throw err;
+  }
 };
 
 // Teacher explain page: Google sign-in, and the saved results (the rules let only the teacher read them).
