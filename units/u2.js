@@ -1,0 +1,190 @@
+// Word Island · Unit 2 (Super Minds pp. 22-33: Let's play!).
+// Pictures live in img/u2/. The first choice of every question is the right one.
+WORD_ISLAND_UNITS.u2 = (() => {
+  const TOPICS = {
+    toys: "Toys",
+    hisher: "His / her …",
+    favourite: "My favourite toy",
+    adjectives: "Big, small, old, new …",
+    story: "The go-kart race",
+    phonics: "Phonics: short e",
+    shapes: "Shapes"
+  };
+
+  const MAZE = [
+    look("u2m-kite", "toys", { img: "kite" }, "a kite", "What's this?", ["a kite", "a plane", "a ball"], "It's a kite."),
+    look("u2m-doll", "toys", { img: "doll" }, "a doll", "What's this?", ["a doll", "a monster", "a ball"], "It's a doll."),
+    look("u2m-monster", "toys", { img: "monster" }, "a green monster", "What's this?", ["a monster", "a doll", "a car"], "It's a monster."),
+    look("u2m-plane", "toys", { img: "plane" }, "a plane", "What's this?", ["a plane", "a kite", "a train"], "It's a plane."),
+    look("u2m-game", "toys", { img: "game" }, "a computer game", "What's this?", ["a computer game", "a car", "a train"], "It's a computer game."),
+    look("u2m-train", "toys", { img: "train" }, "a train", "What's this?", ["a train", "a car", "a bike"], "It's a train."),
+    look("u2m-car", "toys", { img: "car" }, "a car", "What's this?", ["a car", "a go-kart", "a train"], "It's a car."),
+    look("u2m-ball", "toys", { img: "ball" }, "a ball", "What's this?", ["a ball", "a kite", "a doll"], "It's a ball."),
+    look("u2m-bike", "toys", { img: "bike" }, "a bike", "What's this?", ["a bike", "a go-kart", "a car"], "It's a bike."),
+    look("u2m-gokart", "toys", { img: "gokart" }, "a go-kart", "What's this?", ["a go-kart", "a bike", "a car"], "It's a go-kart.", { challenge: true }),
+    look("u2m-longtrain", "adjectives", { img: "a-longtrain" }, "a long blue train", "What is it?", ["A long blue train.", "A short red train.", "A short blue train."], "A long blue train."),
+    look("u2m-shorttrain", "adjectives", { img: "a-shorttrain" }, "a short red train", "What is it?", ["A short red train.", "A long blue train.", "A long red train."], "A short red train."),
+    look("u2m-bigball", "adjectives", { img: "a-bigball" }, "a big green ball", "What is it?", ["A big green ball.", "A small yellow ball.", "A small green ball."], "A big green ball."),
+    look("u2m-smallball", "adjectives", { img: "a-smallball" }, "a small yellow ball", "What is it?", ["A small yellow ball.", "A big green ball.", "A big yellow ball."], "A small yellow ball."),
+    look("u2m-ugly", "adjectives", { img: "a-uglymonster" }, "an ugly purple monster", "What is it?", ["An ugly purple monster.", "A beautiful orange monster.", "A beautiful purple monster."], "An ugly purple monster."),
+    look("u2m-beautiful", "adjectives", { img: "a-beautifulmonster" }, "a beautiful orange monster", "What is it?", ["A beautiful orange monster.", "An ugly purple monster.", "An ugly orange monster."], "A beautiful orange monster.", { challenge: true }),
+    look("u2m-old", "adjectives", { img: "a-oldgokart" }, "an old black go-kart", "What is it?", ["An old black go-kart.", "A new pink go-kart.", "A new black go-kart."], "An old black go-kart."),
+    look("u2m-new", "adjectives", { img: "a-newgokart" }, "a new pink go-kart", "What is it?", ["A new pink go-kart.", "An old black go-kart.", "An old pink go-kart."], "A new pink go-kart.", { challenge: true }),
+    look("u2m-r-long", "adjectives", { img: "r-longtrain" }, "a long train", "What can you say?", ["It's a long train.", "It's a short train.", "It's a small boat."], "It's a long train."),
+    look("u2m-r-boat", "adjectives", { img: "r-boat" }, "a small boat on the sea", "What can you say?", ["It's a small boat.", "It's a big boat.", "It's a long train."], "It's a small boat. It isn't big.", { challenge: true }),
+    look("u2m-r-doll", "adjectives", { img: "r-doll" }, "a green doll with a purple dress", "What can you say?", ["It's an ugly doll.", "It's a beautiful doll.", "It's a new kite."], "It's an ugly doll."),
+    look("u2m-r-short", "adjectives", { img: "r-shorttrain" }, "a short purple train", "What can you say?", ["It's a short train.", "It's a long train.", "It's a big boat."], "It's a short train."),
+    look("u2m-ben", "hisher", { img: "ben" }, "a boy with a picture", "What's his name?", ["His name's Ben.", "Her name's Ben.", "His name's Lisa."], "His name's Ben."),
+    look("u2m-lisa", "hisher", { img: "lisa" }, "a girl with a picture", "What's her name?", ["Her name's Lisa.", "His name's Lisa.", "Her name's Ben."], "Her name's Lisa.", { challenge: true }),
+    look("u2m-emma", "favourite", { img: "emma" }, "Emma and a go-kart", "What's Emma's favourite toy?", ["a go-kart", "a plane", "a kite"], "My favourite toy's a go-kart. That's smart!"),
+    look("u2m-mike", "favourite", { img: "mike" }, "Mike with 8 on his T-shirt", "What's Mike's favourite number?", ["eight", "three", "four"], "My favourite number's eight. That's great!"),
+    look("u2m-go", "story", { img: "race-go" }, "the go-karts start the race", "What does the man say?", ["1, 2, 3 – Go!", "Thank you!", "That isn't fair!"], "1, 2, 3 – Go!"),
+    look("u2m-fair", "story", { img: "race-fair" }, "the friends next to Misty's broken go-kart", "What do the friends say?", ["That isn't fair!", "Congratulations!", "1, 2, 3 – Go!"], "That isn't fair! Ben broke Misty's go-kart."),
+    look("u2m-woah", "story", { img: "race-woah" }, "Misty's go-kart goes very fast", "Who is first now?", ["Misty", "Ben", "the man"], "Misty is fast. Woah!", { challenge: true }),
+    look("u2m-cup", "story", { img: "race-cup" }, "Misty with a big cup", "What does the man say?", ["Congratulations, Misty! You're first!", "Ha ha ha! Now I'm first!", "Hold on, Misty!"], "Congratulations, Misty! You're first!"),
+    look("u2m-ken-pens", "phonics", { img: "ken" }, "Ken with lots of pens", "How many pens has Ken got?", ["ten", "two", "eight"], "Ken and his ten red pens."),
+    look("u2m-ken-red", "phonics", { img: "ken" }, "Ken with lots of pens", "What colour are Ken's pens?", ["red", "green", "blue"], "Ken and his ten red pens.", { challenge: true }),
+    look("u2m-triangle", "shapes", { img: "triangle" }, "an orange shape with three sides", "What shape is it?", ["a triangle", "a square", "a circle"], "It's a triangle."),
+    look("u2m-square", "shapes", { img: "square" }, "a green shape with four sides the same", "What shape is it?", ["a square", "a rectangle", "a triangle"], "It's a square."),
+    look("u2m-circle", "shapes", { img: "circle" }, "a yellow round shape", "What shape is it?", ["a circle", "a square", "a triangle"], "It's a circle."),
+    look("u2m-rectangle", "shapes", { img: "rectangle" }, "a long red shape with four sides", "What shape is it?", ["a rectangle", "a square", "a parallelogram"], "It's a rectangle."),
+    look("u2m-parallelogram", "shapes", { img: "parallelogram" }, "a blue slanted shape with four sides", "What shape is it?", ["a parallelogram", "a rectangle", "a triangle"], "It's a parallelogram.", { challenge: true })
+  ];
+
+  const MOLES = [
+    ask("u2o-ben-age", "hisher", { img: "ben" }, "Ben", "How old is he?", ["He's seven.", "She's seven.", "He's six."]),
+    ask("u2o-ben-toy", "hisher", { img: "ben" }, "Ben", "What's his favourite toy?", ["His favourite toy's his ball.", "Her favourite toy's her ball.", "His favourite toy's his doll."]),
+    ask("u2o-lisa-age", "hisher", { img: "lisa" }, "Lisa", "How old is she?", ["She's six.", "He's six.", "She's seven."]),
+    ask("u2o-lisa-toy", "hisher", { img: "lisa" }, "Lisa", "What's her favourite toy?", ["Her favourite toy's her doll.", "His favourite toy's his doll.", "Her favourite toy's her ball."], { challenge: true }),
+    ask("u2o-his", "hisher", { quote: "What's ___ name? (a boy)" }, "Ask about a boy's name", "Which word?", ["his", "her", "he"], { speakQ: "Ask about a boy's name. What's his or her name?", challenge: true }),
+    ask("u2o-emma", "favourite", { img: "emma" }, "Emma", "Emma, what's your favourite toy?", ["My favourite toy's a go-kart.", "My favourite number's eight.", "My favourite toy's a plane."]),
+    ask("u2o-mike", "favourite", { img: "mike" }, "Mike", "Mike, what's your favourite number?", ["My favourite number's eight.", "My favourite number's three.", "My favourite toy's a go-kart."]),
+    ask("u2o-song-game", "favourite", { quote: "It isn't a kite or a …" }, "The song says: It isn't a kite or a …", "Finish the song.", ["computer game.", "go-kart.", "doll."], { speakQ: "My favourite toy isn't a plane. It isn't a kite or a … Finish the song." }),
+    ask("u2o-song-three", "favourite", { quote: "My favourite number isn't …" }, "The song says: My favourite number isn't …", "Finish the song.", ["three.", "eight.", "four."], { speakQ: "My favourite number isn't … Finish the song.", challenge: true }),
+    ask("u2o-monster", "adjectives", { img: "yellowmonster" }, "a yellow monster", "Is it a monster?", ["Yes, it is.", "No, it isn't.", "It's green."]),
+    ask("u2o-green", "adjectives", { img: "yellowmonster" }, "a yellow monster", "Is it green?", ["No, it isn't.", "Yes, it is.", "It's a monster."]),
+    ask("u2o-yellow", "adjectives", { img: "yellowmonster" }, "a yellow monster", "Is it yellow?", ["Yes, it is.", "No, it isn't.", "It's purple."]),
+    ask("u2o-an-ugly", "adjectives", { img: "a-uglymonster" }, "an ugly purple monster", "What can you say?", ["It's an ugly monster.", "It's a ugly monster.", "It's an beautiful monster."], { challenge: true }),
+    ask("u2o-an-old", "adjectives", { img: "a-oldgokart" }, "an old black go-kart", "What can you say?", ["It's an old go-kart.", "It's a old go-kart.", "It's a new go-kart."], { challenge: true }),
+    ask("u2o-new-kite", "adjectives", { img: "kite" }, "a kite", "What can you say?", ["It's a new kite.", "It's an new kite.", "It's a new train."]),
+    ask("u2o-ugly-says", "story", { quote: "Ha ha ha! What an ugly old go-kart!" }, "Someone says: Ha ha ha! What an ugly old go-kart!", "Who says it?", ["Ben.", "Misty.", "The man."], { speakQ: "Ha ha ha! What an ugly old go-kart! Who says it?" }),
+    ask("u2o-now-first", "story", { quote: "Ha ha ha! Now I'm first!" }, "Someone says: Ha ha ha! Now I'm first!", "Who says it?", ["Ben.", "Misty.", "The man."], { speakQ: "Ha ha ha! Now I'm first! Who says it?" }),
+    ask("u2o-thanks", "story", { quote: "Congratulations, Misty! You're first!" }, "The man says: Congratulations, Misty! You're first!", "What does Misty say?", ["Thank you!", "That isn't fair!", "Help!"], { speakQ: "Congratulations, Misty! You're first! What does Misty say?" }),
+    ask("u2o-winner", "story", { img: "race-cup" }, "Misty with a big cup", "Who wins the race?", ["Misty.", "Ben.", "The Red team."]),
+    ask("u2o-team", "story", { img: "race-go" }, "a green go-kart and a red go-kart", "Which team is Misty in?", ["The Green team.", "The Red team.", "The Blue team."], { challenge: true }),
+    ask("u2o-cheat", "story", { img: "race-fair" }, "Misty's broken go-kart", "Ben breaks Misty's go-kart. Is it OK?", ["No. Cheating is wrong.", "Yes, it is.", "Yes. Ben is first."]),
+    ask("u2o-ken", "phonics", { img: "ken" }, "a boy with ten red pens", "Who has got ten red pens?", ["Ken.", "Ben.", "Mike."]),
+    ask("u2o-book", "shapes", { quote: "My book is a …" }, "A boy says: My book is a …", "What shape is a book?", ["rectangle.", "circle.", "triangle."], { speakQ: "My book is a … What shape is a book?" }),
+    ask("u2o-see", "shapes", { img: "tangram" }, "a tangram made of triangles and a square", "What can you see?", ["I can see a square.", "I can see a circle.", "I can't see a triangle."]),
+    ask("u2o-tangram", "shapes", { img: "tangram" }, "a tangram", "What is a tangram?", ["An old Chinese toy.", "A new computer game.", "A big go-kart."], { challenge: true })
+  ];
+
+  const HANGMAN = [
+    spell("u2h-kite", "toys", { img: "kite" }, "a kite", "kite"),
+    spell("u2h-doll", "toys", { img: "doll" }, "a doll", "doll"),
+    spell("u2h-ball", "toys", { img: "ball" }, "a ball", "ball"),
+    spell("u2h-car", "toys", { img: "car" }, "a car", "car"),
+    spell("u2h-bike", "toys", { img: "bike" }, "a bike", "bike"),
+    spell("u2h-train", "toys", { img: "train" }, "a train", "train"),
+    spell("u2h-plane", "toys", { img: "plane" }, "a plane", "plane"),
+    spell("u2h-monster", "toys", { img: "monster" }, "a monster", "monster", { challenge: true }),
+    spell("u2h-long", "adjectives", { img: "a-longtrain" }, "a long train", "long"),
+    spell("u2h-short", "adjectives", { img: "a-shorttrain" }, "a short train", "short"),
+    spell("u2h-big", "adjectives", { img: "a-bigball" }, "a big ball", "big"),
+    spell("u2h-small", "adjectives", { img: "a-smallball" }, "a small ball", "small"),
+    spell("u2h-old", "adjectives", { img: "a-oldgokart" }, "an old go-kart", "old"),
+    spell("u2h-new", "adjectives", { img: "a-newgokart" }, "a new go-kart", "new"),
+    spell("u2h-ugly", "adjectives", { img: "a-uglymonster" }, "an ugly monster", "ugly", { challenge: true }),
+    spell("u2h-ten", "phonics", { img: "ken" }, "ten pens", "ten"),
+    spell("u2h-red", "phonics", { img: "ken" }, "red pens", "red"),
+    spell("u2h-pen", "phonics", { img: "ken" }, "a pen", "pen"),
+    spell("u2h-square", "shapes", { img: "square" }, "a square", "square"),
+    spell("u2h-circle", "shapes", { img: "circle" }, "a circle", "circle"),
+    spell("u2h-triangle", "shapes", { img: "triangle" }, "a triangle", "triangle", { challenge: true }),
+    spell("u2h-rectangle", "shapes", { img: "rectangle" }, "a rectangle", "rectangle", { challenge: true })
+  ];
+
+  const PLANES = [
+    hear("u2p-doll", "toys", "a doll", ["doll", "ball", "kite"], { pics: true, alts: ["a doll", "a ball", "a kite"] }),
+    hear("u2p-train", "toys", "a train", ["train", "plane", "car"], { pics: true, alts: ["a train", "a plane", "a car"] }),
+    hear("u2p-gokart", "toys", "a go-kart", ["gokart", "bike", "car"], { pics: true, alts: ["a go-kart", "a bike", "a car"] }),
+    hear("u2p-monster", "toys", "a monster", ["monster", "doll", "game"], { pics: true, alts: ["a monster", "a doll", "a computer game"] }),
+    hear("u2p-game", "toys", "a computer game", ["game", "car", "ball"], { pics: true, alts: ["a computer game", "a car", "a ball"] }),
+    hear("u2p-plane", "toys", "a plane", ["plane", "kite", "train"], { pics: true, alts: ["a plane", "a kite", "a train"], challenge: true }),
+    hear("u2p-longtrain", "adjectives", "a long blue train", ["a-longtrain", "a-shorttrain", "r-shorttrain"], { pics: true, alts: ["a long blue train", "a short red train", "a short purple train"] }),
+    hear("u2p-smallball", "adjectives", "a small yellow ball", ["a-smallball", "a-bigball", "ball"], { pics: true, alts: ["a small yellow ball", "a big green ball", "a beach ball"] }),
+    hear("u2p-old", "adjectives", "an old black go-kart", ["a-oldgokart", "a-newgokart", "car"], { pics: true, alts: ["an old black go-kart", "a new pink go-kart", "a blue car"], challenge: true }),
+    hear("u2p-beautiful", "adjectives", "a beautiful orange monster", ["a-beautifulmonster", "a-uglymonster", "yellowmonster"], { pics: true, alts: ["a beautiful orange monster", "an ugly purple monster", "a yellow monster"], challenge: true }),
+    hear("u2p-his", "hisher", "His name's Ben.", ["His name's Ben.", "Her name's Ben.", "His name's Lisa."]),
+    hear("u2p-she", "hisher", "She's six.", ["She's six.", "He's six.", "She's seven."], { challenge: true }),
+    hear("u2p-herdoll", "hisher", "Her favourite toy's her doll.", ["doll", "ball", "gokart"], { pics: true, alts: ["her doll", "her ball", "her go-kart"] }),
+    hear("u2p-eight", "favourite", "My favourite number's eight.", ["8", "3", "4"], { big: true, show: "My favourite number's eight." }),
+    hear("u2p-fav-gokart", "favourite", "My favourite toy's a go-kart. That's smart!", ["gokart", "plane", "kite"], { pics: true, alts: ["a go-kart", "a plane", "a kite"] }),
+    hear("u2p-fair", "story", "That isn't fair!", ["That isn't fair!", "That's great!", "Thank you!"]),
+    hear("u2p-hold", "story", "Hold on, Misty!", ["Hold on, Misty!", "Great, Misty!", "Help!"]),
+    hear("u2p-congrats", "story", "Congratulations, Misty! You're first!", ["Congratulations, Misty! You're first!", "Ha ha ha! Now I'm first!", "She's first! Stop her!"], { challenge: true }),
+    hear("u2p-ken", "phonics", "Ken and his ten red pens.", ["Ken and his ten red pens.", "Ken and his ten red hens.", "Ken and his two red pens."], { challenge: true }),
+    hear("u2p-triangle", "shapes", "a triangle", ["triangle", "square", "circle"], { pics: true, alts: ["a triangle", "a square", "a circle"] }),
+    hear("u2p-circle", "shapes", "a circle", ["circle", "rectangle", "triangle"], { pics: true, alts: ["a circle", "a rectangle", "a triangle"] }),
+    hear("u2p-rectangle", "shapes", "a rectangle", ["rectangle", "square", "parallelogram"], { pics: true, alts: ["a rectangle", "a square", "a parallelogram"], challenge: true })
+  ];
+
+  // Teacher explain page: a hint per topic to give before the answer.
+  const HINTS = {
+    toys: "Say the toys from the chant: a doll, a car, a bike, a go-kart, a train, a ball, a computer game, a monster, a plane, a kite.",
+    hisher: "A boy: his, he. A girl: her, she.",
+    favourite: "Sing the song: Emma's favourite toy, and Mike's favourite number.",
+    adjectives: "Look at the size, the colour and the age: long or short? big or small? old or new?",
+    story: "Remember the story The go-kart race. Ben cheats, but Misty wins.",
+    phonics: "Listen for the short e sound: K-e-n, t-e-n, r-e-d, p-e-n.",
+    shapes: "Count the sides: three sides is a triangle, four sides the same is a square, round is a circle."
+  };
+
+  // Notes for single questions: a better hint, and why the answer is right.
+  const NOTES = {
+    "u2m-gokart": { hint: "Car or go-kart? Look at the seat and the steering wheel.", why: "A go-kart has a seat and a steering wheel, but no roof." },
+    "u2m-beautiful": { hint: "Is it nice to look at, or ugly?", why: "The orange monster is beautiful. The purple monster is ugly." },
+    "u2m-new": { hint: "Is it shiny, or old and broken?", why: "The pink go-kart is shiny and new. The black one is old." },
+    "u2m-r-boat": { hint: "Look at the boat next to the sea. Is it big?", why: "The boat is small, so It's a small boat. It isn't a big boat." },
+    "u2m-r-doll": { why: "The doll is green with a funny face: It's an ugly doll." },
+    "u2m-lisa": { hint: "Is it a boy or a girl? A girl: her.", why: "Lisa is a girl, so we say: Her name's Lisa." },
+    "u2m-ben": { why: "Ben is a boy, so we say: His name's Ben." },
+    "u2m-fair": { why: "Ben broke Misty's go-kart. Her friends say: That isn't fair!" },
+    "u2m-woah": { hint: "Who is in the green go-kart?", why: "Her friend helps, and Misty's go-kart goes very fast. Misty is first." },
+    "u2m-cup": { why: "Misty wins the cup. The man says: Congratulations, Misty! You're first!" },
+    "u2m-ken-red": { why: "Ken and his ten red pens. The pens are red." },
+    "u2m-parallelogram": { hint: "It has four sides, but it leans.", why: "A parallelogram has four sides and leans to one side. A rectangle stands straight." },
+    "u2o-lisa-toy": { hint: "Lisa is a girl. Her or his? Doll or ball?", why: "Her favourite toy's her doll." },
+    "u2o-his": { why: "A boy: his. What's his name?" },
+    "u2o-song-three": { why: "Mike sings: My favourite number isn't three. His favourite number's eight." },
+    "u2o-green": { hint: "What colour is the monster?", why: "The monster is yellow, so: Is it green? No, it isn't." },
+    "u2o-an-ugly": { hint: "Ugly starts with u. a or an?", why: "Before a, e, i, o, u we say an: an ugly monster." },
+    "u2o-an-old": { hint: "Old starts with o. a or an?", why: "Before a, e, i, o, u we say an: an old go-kart." },
+    "u2o-new-kite": { why: "New starts with n, so we say a: a new kite." },
+    "u2o-ugly-says": { why: "Ben from the Red team laughs at Misty's go-kart." },
+    "u2o-now-first": { why: "Ben breaks Misty's go-kart. He says: Ha ha ha! Now I'm first!" },
+    "u2o-team": { hint: "What colour are Misty's clothes?", why: "Misty is in green: she is in the Green team. Ben is in the Red team." },
+    "u2o-cheat": { why: "The story says: fair play. Cheating is wrong." },
+    "u2o-tangram": { why: "The tangram is an old Chinese toy." },
+    "u2o-see": { hint: "Look for the shapes. Is there a round one?", why: "There's a square, but no circle: I can see a square." },
+    "u2p-she": { hint: "She or he? six or seven?", why: "Lisa is a girl and she is six: She's six." },
+    "u2p-old": { hint: "Listen for old and black.", why: "An old black go-kart." },
+    "u2p-beautiful": { hint: "Listen for the colour: orange.", why: "A beautiful orange monster." },
+    "u2p-congrats": { why: "The man says: Congratulations, Misty! You're first!" },
+    "u2p-ken": { hint: "Listen: pens or hens? ten or two?", why: "Ken and his ten red pens." },
+    "u2p-rectangle": { hint: "Long or square?", why: "A rectangle is long. A square has four sides the same." },
+    "u2p-plane": { why: "A plane flies with an engine. A kite flies on a string." }
+  };
+
+  return {
+    id: "u2",
+    number: 2,
+    title: "Let's play!",
+    h1: "What's your favourite toy?",
+    lede: "Toys, his and her, big and small, old and new, the story The go-kart race, and shapes. Come to Word Island. Play, and practise.",
+    topics: TOPICS,
+    hints: HINTS,
+    notes: NOTES,
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+  };
+})();
