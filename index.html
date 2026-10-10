@@ -472,6 +472,8 @@
     background: var(--card); border: 3px solid var(--ink); border-radius: 24px; padding: 18px;
     box-shadow: var(--shadow); display: grid; gap: 12px;
   }
+  .xtoday { display: flex; align-items: center; gap: 6px; font-weight: 700; }
+  .xtoday input { width: 20px; height: 20px; accent-color: var(--leaf); }
   .xmeta { margin: 0; font-weight: 700; color: var(--sky); }
   .xstat { margin: 0; font-weight: 700; color: var(--coral); }
   .xcard .pic { min-height: 190px; }
@@ -1958,7 +1960,9 @@ function closeAsk(resume) {
 // Teacher explain page: one question at a time, with a hint and the answer explained.
 // Only the teacher's Google account can open it; pupils who try the link see a sign-in box.
 const TEACHER_EMAIL = "kokweng1983@gmail.com";
-const teacher = { user: null, rows: null, unit: null, game: "maze", cls: "", order: "book", index: 0, step: 0, pairs: null };
+// view "played": only the questions pupils got (each pupil gets a random 10), most missed first.
+// view "all": the whole bank in book order.
+const teacher = { user: null, rows: null, stopRows: null, unit: null, game: "maze", cls: "", view: "played", today: true, index: 0, step: 0, pairs: null, shownId: null };
 
 function isTeacher(user) {
   return Boolean(user && user.email === TEACHER_EMAIL && user.verified);
@@ -1985,17 +1989,19 @@ function teacherBoot() {
   ready.then(() => window.wiTeacher.watch((user) => {
     teacher.user = user;
     teacher.rows = null;
+    if (teacher.stopRows) teacher.stopRows();
+    teacher.stopRows = null;
     if (!isTeacher(user)) {
       showTeacherGate();
       return;
     }
     showTeacher(teacher.unit || params.get("unit"));
-    window.wiTeacher.results()
-      .then((rows) => {
-        teacher.rows = rows;
-        if (document.body.dataset.screen === "explain") renderExplain();
-      })
-      .catch((err) => console.warn("Word Island: results not loaded.", err));
+    // Results keep arriving while pupils play, so the list of questions they got stays up to date.
+    window.wiTeacher.watchResults((rows) => {
+      teacher.rows = rows;
+      if (teacher.unit && isTeacher(teacher.user)) keepQuestion();
+    }, (err) => console.warn("Word Island: results not loaded.", err))
+      .then((stop) => { teacher.stopRows = stop; });
   })).catch(() => showTeacherGate("Word Island could not reach Firebase. Check the internet and try again."));
 }
 
@@ -2047,12 +2053,20 @@ function teacherWhy(item) {
   return item.say;
 }
 
+// A result still being saved has no time yet; it is from today.
+function fromToday(row) {
+  const at = row.createdAt;
+  if (!at || typeof at.toDate !== "function") return true;
+  return at.toDate().toDateString() === new Date().toDateString();
+}
+
 // How the teacher's pupils did on each question, counted from saved results (no names).
 function teacherStats() {
   const stats = {};
   (teacher.rows || []).forEach((row) => {
     const unit = typeof row.unit === "string" ? row.unit : "u1";
     if (unit !== teacher.unit || (teacher.cls && row.cls !== teacher.cls) || !Array.isArray(row.answers)) return;
+    if (teacher.today && !fromToday(row)) return;
     row.answers.forEach((answer) => {
       if (!answer || typeof answer.id !== "string") return;
       const stat = stats[answer.id] || (stats[answer.id] = { seen: 0, missed: 0 });
@@ -2065,10 +2079,12 @@ function teacherStats() {
 
 function teacherList() {
   const bank = UNITS[teacher.unit].banks[teacher.game];
-  if (teacher.order !== "missed") return bank;
+  if (teacher.view === "all") return bank;
   const stats = teacherStats();
-  const missed = (item) => (stats[item.id] ? stats[item.id].missed : 0);
-  return bank.slice().sort((a, b) => missed(b) - missed(a));
+  const count = (item, key) => (stats[item.id] ? stats[item.id][key] : 0);
+  return bank
+    .filter((item) => count(item, "seen") > 0)
+    .sort((a, b) => count(b, "missed") - count(a, "missed") || count(b, "seen") - count(a, "seen"));
 }
 
 function goTo(index) {
@@ -2076,7 +2092,19 @@ function goTo(index) {
   teacher.index = Math.max(0, Math.min(list.length - 1, index));
   teacher.step = 0;
   const item = list[teacher.index];
-  teacher.pairs = item.choices ? choicePairs(item) : null;
+  teacher.pairs = item && item.choices ? choicePairs(item) : null;
+  renderExplain();
+}
+
+// New results can reorder the list; stay on the question on screen, with its hint and answer as they were.
+function keepQuestion() {
+  if (document.body.dataset.screen !== "explain") return;
+  const at = teacherList().findIndex((item) => item.id === teacher.shownId);
+  if (at < 0) {
+    goTo(teacher.index);
+    return;
+  }
+  teacher.index = at;
   renderExplain();
 }
 
@@ -2096,22 +2124,10 @@ function renderExplain() {
   const unit = UNITS[teacher.unit];
   const list = teacherList();
   const item = list[teacher.index];
-  const game = item.game;
-  const stats = teacherStats();
-  const stat = stats[item.id];
+  teacher.shownId = item ? item.id : null;
   const classes = [...new Set((teacher.rows || [])
     .filter((row) => (typeof row.unit === "string" ? row.unit : "u1") === teacher.unit && row.cls)
     .map((row) => row.cls))].sort();
-  const answered = teacher.step >= 2;
-  let title = esc(item.q || "");
-  if (game === "planes") title = answered ? `Listen: “${esc(listenText(item))}”` : "Listen. Which one?";
-  if (game === "hangman") title = "Spell it.";
-  if (item.pic && item.pic.quote && game !== "planes") title = esc(item.q);
-  const body = game === "hangman"
-    ? `<div class="blanks" aria-label="Word to spell">${item.word.split("").map((ch) => ch === " "
-        ? `<span class="blank gap"></span>`
-        : `<span class="blank">${answered ? esc(ch) : ""}</span>`).join("")}</div>`
-    : `<ol class="xchoices">${teacher.pairs.map((pair, k) => teacherChoice(item, pair, k)).join("")}</ol>`;
   const base = PUPIL_HOME;
   view.innerHTML = `
     <div class="explain">
@@ -2131,25 +2147,13 @@ function renderExplain() {
             ${classes.map((name) => `<option value="${esc(name)}" ${name === teacher.cls ? "selected" : ""}>${esc(name)}</option>`).join("")}
           </select>
         </label>
-        <button type="button" class="ghost" data-act="t-order" aria-pressed="${teacher.order === "missed"}" ${teacher.rows ? "" : "disabled"}>Most missed first</button>
+        <label class="xtoday"><input type="checkbox" data-act="t-today" ${teacher.today ? "checked" : ""}> Today only</label>
       </div>
-      <section class="xcard${answered ? " answered" : ""}" aria-label="Question ${teacher.index + 1} of ${list.length}">
-        <p class="xmeta">Unit ${unit.number} · ${esc(GAME[game])} · ${esc(unit.topics[item.topic])}${item.challenge ? " · Challenge" : ""} · ${teacher.index + 1} / ${list.length}</p>
-        ${stat ? `<p class="xstat">Missed by ${stat.missed} of ${stat.seen}${teacher.cls ? " in " + esc(teacher.cls) : ""}</p>` : ""}
-        ${picture(item)}
-        <h2 class="xq" id="xq" tabindex="-1">${title}</h2>
-        ${body}
-        ${teacher.step >= 1 ? `<p class="xhint"><b>Hint:</b> ${esc(teacherHint(item))}</p>` : ""}
-        ${answered ? `<p class="xwhy">${esc(teacherWhy(item))}</p>` : ""}
-        <div class="xnav">
-          <button type="button" class="btn" data-act="t-prev" ${teacher.index === 0 ? "disabled" : ""}>Back</button>
-          <button type="button" class="btn" data-act="t-hear">Hear it</button>
-          <span class="grow"></span>
-          <button type="button" class="btn" data-act="t-hint" ${teacher.step >= 1 ? "disabled" : ""}>Show hint</button>
-          <button type="button" class="btn gold" data-act="t-answer" ${answered ? "disabled" : ""}>Show answer</button>
-          <button type="button" class="btn leaf" data-act="t-next" ${teacher.index >= list.length - 1 ? "disabled" : ""}>Next</button>
-        </div>
-      </section>
+      <div class="xbar" role="group" aria-label="Which questions">
+        <button type="button" class="ghost" data-act="t-view" data-view="played" aria-pressed="${teacher.view === "played"}">Questions pupils got</button>
+        <button type="button" class="ghost" data-act="t-view" data-view="all" aria-pressed="${teacher.view === "all"}">All questions</button>
+      </div>
+      ${item ? explainCard(unit, list, item) : explainEmpty()}
       <details class="links">
         <summary>Links for pupils</summary>
         <p>Every class: <code>${esc(base)}</code> (choose each class's unit on the quiz Teacher results page)</p>
@@ -2157,6 +2161,58 @@ function renderExplain() {
         <p>All games open: <code>${esc(base)}?open=all</code></p>
       </details>
     </div>
+  `;
+}
+
+// Nothing to show yet: results are loading, or no pupil has played this game.
+function explainEmpty() {
+  const who = teacher.cls ? `No pupil in ${esc(teacher.cls)}` : "No pupil";
+  const when = teacher.today ? " today" : "";
+  const text = teacher.rows
+    ? `${who} has played ${esc(GATES.find((gate) => gate.id === teacher.game).title)} in Unit ${UNITS[teacher.unit].number}${when} yet.`
+    : "Loading your pupils' results…";
+  return `
+    <section class="xcard">
+      <p class="xq">${text}</p>
+      <p class="lede">This list shows only the questions your pupils got. Each pupil gets 10 random questions, so it fills up as they play.</p>
+      <div class="xnav">
+        <button type="button" class="btn gold" data-act="t-view" data-view="all">Show all questions</button>
+      </div>
+    </section>
+  `;
+}
+
+function explainCard(unit, list, item) {
+  const game = item.game;
+  const stat = teacherStats()[item.id];
+  const answered = teacher.step >= 2;
+  let title = esc(item.q || "");
+  if (game === "planes") title = answered ? `Listen: “${esc(listenText(item))}”` : "Listen. Which one?";
+  if (game === "hangman") title = "Spell it.";
+  if (item.pic && item.pic.quote && game !== "planes") title = esc(item.q);
+  const body = game === "hangman"
+    ? `<div class="blanks" aria-label="Word to spell">${item.word.split("").map((ch) => ch === " "
+        ? `<span class="blank gap"></span>`
+        : `<span class="blank">${answered ? esc(ch) : ""}</span>`).join("")}</div>`
+    : `<ol class="xchoices">${teacher.pairs.map((pair, k) => teacherChoice(item, pair, k)).join("")}</ol>`;
+  return `
+  <section class="xcard${answered ? " answered" : ""}" aria-label="Question ${teacher.index + 1} of ${list.length}">
+    <p class="xmeta">Unit ${unit.number} · ${esc(GAME[game])} · ${esc(unit.topics[item.topic])}${item.challenge ? " · Challenge" : ""} · ${teacher.index + 1} / ${list.length}</p>
+    ${stat ? `<p class="xstat">Missed by ${stat.missed} of ${stat.seen}${teacher.cls ? " in " + esc(teacher.cls) : ""}${teacher.today ? " today" : ""}</p>` : ""}
+    ${picture(item)}
+    <h2 class="xq" id="xq" tabindex="-1">${title}</h2>
+    ${body}
+    ${teacher.step >= 1 ? `<p class="xhint"><b>Hint:</b> ${esc(teacherHint(item))}</p>` : ""}
+    ${answered ? `<p class="xwhy">${esc(teacherWhy(item))}</p>` : ""}
+    <div class="xnav">
+      <button type="button" class="btn" data-act="t-prev" ${teacher.index === 0 ? "disabled" : ""}>Back</button>
+      <button type="button" class="btn" data-act="t-hear">Hear it</button>
+      <span class="grow"></span>
+      <button type="button" class="btn" data-act="t-hint" ${teacher.step >= 1 ? "disabled" : ""}>Show hint</button>
+      <button type="button" class="btn gold" data-act="t-answer" ${answered ? "disabled" : ""}>Show answer</button>
+      <button type="button" class="btn leaf" data-act="t-next" ${teacher.index >= list.length - 1 ? "disabled" : ""}>Next</button>
+    </div>
+  </section>
   `;
 }
 
@@ -2178,10 +2234,11 @@ function teacherAct(act, el) {
     teacher.game = el.dataset.game;
     goTo(0);
   }
-  else if (act === "t-order") {
-    teacher.order = teacher.order === "missed" ? "book" : "missed";
+  else if (act === "t-view") {
+    teacher.view = el.dataset.view === "all" ? "all" : "played";
     goTo(0);
   }
+  else if (!item) return;
   else if (act === "t-prev") goTo(teacher.index - 1);
   else if (act === "t-next") goTo(teacher.index + 1);
   else if (act === "t-hear") speak(spoken(item), true);
@@ -2266,9 +2323,11 @@ document.body.addEventListener("submit", (event) => {
 });
 
 document.body.addEventListener("change", (event) => {
-  if (event.target.dataset.act !== "t-class") return;
-  teacher.cls = event.target.value;
-  goTo(teacher.order === "missed" ? 0 : teacher.index);
+  const act = event.target.dataset.act;
+  if (act === "t-class") teacher.cls = event.target.value;
+  else if (act === "t-today") teacher.today = event.target.checked;
+  else return;
+  goTo(teacher.view === "played" ? 0 : teacher.index);
 });
 
 document.body.addEventListener("click", (event) => {
@@ -2334,7 +2393,7 @@ document.body.addEventListener("click", (event) => {
       showHub();
     });
   }
-  else if (act.startsWith("t-") && act !== "t-class") teacherAct(act, el);
+  else if (act.startsWith("t-") && act !== "t-class" && act !== "t-today") teacherAct(act, el);
 });
 
 document.addEventListener("keydown", (event) => {
@@ -2344,7 +2403,7 @@ document.addEventListener("keydown", (event) => {
     return;
   }
   if (document.body.dataset.screen === "explain" && teacher.unit && isTeacher(teacher.user)) {
-    if (event.target && event.target.closest && event.target.closest("select")) return;
+    if (event.target && event.target.closest && event.target.closest("select, input")) return;
     const keys = { ArrowRight: "t-next", ArrowLeft: "t-prev", h: "t-hint", a: "t-answer", " ": "t-answer" };
     if (keys[event.key]) {
       event.preventDefault();
@@ -2500,10 +2559,11 @@ window.wiTeacher = {
     const { authSdk, auth } = await loadSdk();
     await authSdk.signOut(auth);
   },
-  async results() {
+  // Calls onRows again whenever a pupil's result arrives; resolves to a function that stops listening.
+  async watchResults(onRows, onError) {
     const { storeSdk, db } = await loadSdk();
-    const snap = await storeSdk.getDocs(storeSdk.collection(db, "wordIsland"));
-    return snap.docs.map((row) => row.data());
+    return storeSdk.onSnapshot(storeSdk.collection(db, "wordIsland"),
+      (snap) => onRows(snap.docs.map((row) => row.data())), onError);
   }
 };
 
