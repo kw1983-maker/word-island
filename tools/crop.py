@@ -1,6 +1,6 @@
-"""Crop the Unit 1 textbook pictures that Word Island uses.
+"""Crop the textbook pictures that Word Island uses.
 
-Run from the word-island folder:  python -I tools/crop.py
+Run from the word-island folder:  python -I tools/crop.py u5 [name ...]
 Boxes are (book page, x0, y0, x1, y1) in pixels of the page rendered at 80 dpi.
 """
 import io
@@ -12,59 +12,109 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-PDF = os.path.join(ROOT, "..", "unit 1.pdf")
-OUT = os.path.join(ROOT, "img")
-FIRST_PAGE = 4  # the PDF starts at book page 4
 SCALE = 2  # render at 160 dpi
 MAX_SIDE = 420
 
-BOXES = {
-    # p.9 Super Friends heads (no tick boxes)
-    "misty": (9, 72, 958, 218, 1112),
-    "whisper": (9, 246, 958, 390, 1112),
-    "flash": (9, 416, 958, 584, 1112),
-    "thunder": (9, 600, 958, 760, 1112),
-    "tabby": (9, 790, 958, 892, 1124),
-    # p.13 classroom instructions
-    "sit": (13, 61, 190, 494, 435),
-    "open": (13, 514, 190, 946, 435),
-    "close": (13, 61, 455, 494, 700),
-    "pass": (13, 514, 455, 946, 652),
-    # p.14-15 story: Watch out, Flash!
-    "sorry": (14, 40, 690, 535, 905),
-    "pencilcase-story": (14, 562, 925, 990, 1280),
-    "mybag": (15, 514, 125, 994, 445),
-    "rat": (15, 124, 905, 944, 1215),
-    # p.17 school things photos
-    "photo-bag": (17, 90, 585, 262, 738),
-    "photo-pen": (17, 400, 590, 632, 700),
-    "photo-pencilcase": (17, 676, 610, 962, 724),
-    "photo-rubber": (17, 404, 768, 624, 852),
-    # p.20 actions
-    "act-head": (20, 186, 160, 362, 440),
-    "act-catch": (20, 480, 180, 650, 440),
-    "act-stretch": (20, 786, 160, 984, 432),
-    "act-standup": (20, 186, 490, 384, 742),
-    "act-takeout": (20, 486, 480, 692, 728),
-    "act-turn": (20, 816, 470, 954, 742),
+UNITS = {
+    "u1": {
+        "pdf": "unit 1.pdf",
+        "first_page": 4,
+        "boxes": {
+            # p.9 Super Friends heads (no tick boxes)
+            "misty": (9, 72, 958, 218, 1112),
+            "whisper": (9, 246, 958, 390, 1112),
+            "flash": (9, 416, 958, 584, 1112),
+            "thunder": (9, 600, 958, 760, 1112),
+            "tabby": (9, 790, 958, 892, 1124),
+            # p.13 classroom instructions
+            "sit": (13, 61, 190, 494, 435),
+            "open": (13, 514, 190, 946, 435),
+            "close": (13, 61, 455, 494, 700),
+            "pass": (13, 514, 455, 946, 652),
+            # p.14-15 story: Watch out, Flash!
+            "sorry": (14, 40, 690, 535, 905),
+            "pencilcase-story": (14, 562, 925, 990, 1280),
+            "mybag": (15, 514, 125, 994, 445),
+            "rat": (15, 124, 905, 944, 1215),
+            # p.17 school things photos
+            "photo-bag": (17, 90, 585, 262, 738),
+            "photo-pen": (17, 400, 590, 632, 700),
+            "photo-pencilcase": (17, 676, 610, 962, 724),
+            "photo-rubber": (17, 404, 768, 624, 852),
+            # p.20 actions
+            "act-head": (20, 186, 160, 362, 440),
+            "act-catch": (20, 480, 180, 650, 440),
+            "act-stretch": (20, 786, 160, 984, 432),
+            "act-standup": (20, 186, 490, 384, 742),
+            "act-takeout": (20, 486, 480, 692, 728),
+            "act-turn": (20, 816, 470, 954, 742),
+        },
+    },
+    "u5": {
+        "pdf": "unit 5.pdf",
+        "first_page": 58,
+        "boxes": {
+            # p.58 This week board
+            "match": (58, 555, 455, 710, 565),
+            "lake": (58, 555, 622, 712, 732),
+            # p.60 song
+            "sing": (60, 20, 140, 330, 450),
+            "swim": (60, 520, 40, 990, 300),
+            "games": (60, 20, 720, 340, 960),
+            "hideseek": (60, 780, 440, 990, 760),
+            # p.61 Do you ...?
+            "tv-yes": (61, 384, 130, 664, 290),
+            "tv-no": (61, 709, 130, 919, 290),
+            "games-yes": (61, 419, 340, 659, 500),
+            "games-no": (61, 709, 340, 934, 500),
+            # p.63 story and phonics
+            "rabbit": (63, 19, 140, 499, 445),
+            "mud": (63, 134, 880, 959, 1215),
+            "duck": (63, 699, 950, 839, 1175),
+            "mum": (63, 404, 890, 709, 1110),
+            # p.65 My perfect week
+            "bike": (65, 659, 200, 889, 410),
+            "toys": (65, 84, 665, 264, 880),
+            "sleep": (65, 632, 660, 934, 925),
+            "swim2": (65, 634, 460, 894, 615),
+            "friends": (65, 79, 150, 569, 365),
+            "games2": (65, 114, 455, 259, 615),
+            # p.66 healthy or unhealthy
+            "h-fruit": (66, 190, 830, 350, 1005),
+            "h-sport": (66, 462, 835, 615, 1000),
+            "h-sleep": (66, 720, 840, 880, 1000),
+            "h-sweets": (66, 178, 1035, 350, 1200),
+            "h-tvnight": (66, 460, 1060, 628, 1225),
+            "h-late": (66, 718, 1060, 885, 1222),
+            # p.68 the piano
+            "p-ears": (68, 180, 190, 405, 410),
+            "p-cat": (68, 470, 190, 692, 405),
+            "p-floor": (68, 756, 180, 985, 410),
+            "p-open": (68, 180, 425, 410, 640),
+            "p-sit": (68, 468, 425, 697, 640),
+            "p-play": (68, 756, 425, 980, 640),
+        },
+    },
 }
 
 
-def main(only=None):
-    os.makedirs(OUT, exist_ok=True)
-    doc = fitz.open(PDF)
-    for name, (page, x0, y0, x1, y1) in BOXES.items():
+def main(unit_id, only=None):
+    unit = UNITS[unit_id]
+    out = os.path.join(ROOT, "img", unit_id)
+    os.makedirs(out, exist_ok=True)
+    doc = fitz.open(os.path.join(ROOT, "..", unit["pdf"]))
+    for name, (page, x0, y0, x1, y1) in unit["boxes"].items():
         if only and name not in only:
             continue
-        pdf_page = doc[page - FIRST_PAGE]
+        pdf_page = doc[page - unit["first_page"]]
         clip = fitz.Rect(x0, y0, x1, y1) * (72 / 80)
         pix = pdf_page.get_pixmap(dpi=80 * SCALE, clip=clip)
         img = Image.open(io.BytesIO(pix.tobytes("png"))).convert("RGB")
         img.thumbnail((MAX_SIDE, MAX_SIDE))
-        path = os.path.join(OUT, name + ".webp")
+        path = os.path.join(out, name + ".webp")
         img.save(path, "WEBP", quality=72, method=6)
         print(f"{name:18} {img.size[0]}x{img.size[1]} {os.path.getsize(path) // 1024} KB")
 
 
 if __name__ == "__main__":
-    main(set(sys.argv[1:]) or None)
+    main(sys.argv[1], set(sys.argv[2:]) or None)

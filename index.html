@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f3eee4">
-<title>Word Island · Unit 1</title>
+<title>Word Island</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%227%22 fill=%22%23ffe14a%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -229,7 +229,7 @@
   .blob { width: 64px; height: 64px; border-radius: 50% 46% 52% 44%; border: 3px solid var(--ink); display: inline-block; }
   .mix .q, .tile.q { background: #fff; border: 3px dashed var(--ink); }
   .mix .q { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; }
-  .letters { display: flex; gap: 8px; }
+  .letters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 100%; }
   .tile {
     width: 56px; height: 64px; display: grid; place-items: center;
     border: 3px solid var(--ink); border-radius: 12px; background: #fff;
@@ -252,6 +252,26 @@
     transform: rotate(45deg) skew(10deg, 10deg);
   }
   .ear { width: 110px; height: 110px; }
+  .tile.word { width: auto; height: 52px; padding: 0 10px; font-size: clamp(1rem, 3vw, 1.4rem); }
+  .letters .tile.q:last-child { height: 52px; }
+  .cal {
+    width: 120px; height: 110px; border: 4px solid var(--ink); border-radius: 14px; background: #fff;
+    display: grid; place-items: center; padding-top: 22px; position: relative; overflow: hidden;
+    font-family: Fraunces, Palatino, Georgia, serif; font-size: 2.2rem; font-weight: 700;
+  }
+  .cal i { position: absolute; left: 0; right: 0; top: 0; height: 26px; background: #d62828; }
+  .pic.small .cal { width: 96px; height: 90px; font-size: 1.8rem; }
+  .classes { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .classes legend { font-weight: 700; margin-bottom: 6px; padding: 0; }
+  .classpick input { position: absolute; opacity: 0; pointer-events: none; }
+  .classpick span {
+    display: inline-block; min-width: 64px; text-align: center; padding: 10px 14px; font-weight: 700; font-size: 1.2rem;
+    border: 3px solid var(--ink); border-radius: 12px; background: #fff; box-shadow: 0 3px 0 rgba(20, 33, 61, .18); cursor: pointer;
+  }
+  .classpick input:checked + span { background: var(--gold); }
+  .classpick input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 3px; }
+  .unitpick { text-align: left; font-size: 1.1rem; }
+  .bandit span img { display: block; width: 100%; max-height: 64px; object-fit: contain; }
   .choices { display: grid; gap: 10px; margin-top: 12px; }
   .choice, .mole, .next, .btn {
     font-weight: 700;
@@ -568,7 +588,6 @@
 <script>
 const CAPTION = {
   name: "Write your name. Your teacher will see your stars.",
-  hub: "Names, numbers, colours and school things. Come to Word Island. Play, and practise.",
   maze: "Game 1. Look at the picture. At the star door, choose the answer.",
   moles: "Game 2. Read the question. Hit the mole when the right answer pops up.",
   hangman: "Game 3. Look and listen. Spell the word. Save the balloons.",
@@ -593,18 +612,6 @@ const GAME = {
 
 const BADGE = { maze: "Maze badge", moles: "Mole badge", hangman: "Balloon badge", planes: "Plane badge" };
 
-const TOPICS = {
-  friends: "Friends",
-  numbers: "Numbers",
-  alphabet: "The alphabet",
-  colours: "Colours",
-  things: "School things",
-  questions: "Is it a …?",
-  classroom: "Classroom language",
-  story: "The stories",
-  phonics: "Phonics: short a"
-};
-
 const HEX = {
   red: "#d62828", yellow: "#ffd60a", orange: "#f77f00", purple: "#7b2cbf",
   blue: "#1d6fe0", green: "#2a9d3a", black: "#1b1b1b", white: "#ffffff"
@@ -625,149 +632,37 @@ function look(id, topic, pic, alt, q, choices, say, extra) {
   return { id, topic, pic, alt, q, choices, say, ...extra };
 }
 
-const MAZE = [
-  look("m-pen", "things", { i: "pen" }, "a pen", "What's this?", ["a pen", "a pencil", "a ruler"], "It's a pen."),
-  look("m-pencil", "things", { i: "pencil" }, "a pencil", "What's this?", ["a pencil", "a pen", "a pencil case"], "It's a pencil."),
-  look("m-ruler", "things", { i: "ruler" }, "a ruler", "What's this?", ["a ruler", "a rubber", "a desk"], "It's a ruler."),
-  look("m-rubber", "things", { img: "photo-rubber" }, "a rubber", "What's this?", ["a rubber", "a ruler", "a pen"], "It's a rubber."),
-  look("m-book", "things", { i: "book" }, "a book", "What's this?", ["a book", "a bag", "a desk"], "It's a book."),
-  look("m-notebook", "things", { i: "notebook" }, "a notebook", "What's this?", ["a notebook", "a book", "a pencil"], "It's a notebook."),
-  look("m-bag", "things", { img: "photo-bag" }, "a bag", "What's this?", ["a bag", "a book", "a desk"], "It's a bag."),
-  look("m-desk", "things", { i: "desk" }, "a desk", "What's this?", ["a desk", "a bag", "a book"], "It's a desk."),
-  look("m-pencilcase", "things", { img: "photo-pencilcase" }, "a pencil case", "What's this?", ["a pencil case", "a pencil", "a bag"], "It's a pencil case."),
-  look("m-pen2", "things", { img: "photo-pen" }, "a pen", "What's this?", ["a pen", "a pencil", "a pencil case"], "It's a pen, not a pencil.", { challenge: true }),
-  look("m-pencilcase2", "things", { i: "pencilcase" }, "a pencil case", "What's this?", ["a pencil case", "a pencil", "a notebook"], "It's a pencil case, not a pencil.", { challenge: true }),
-  ...COLOURS.map((c, k) => look(`m-${c}`, "colours", { balloon: c }, `a ${c} balloon`, "What colour is it?",
-    [c, COLOURS[(k + 1) % 8], COLOURS[(k + 3) % 8]], `It's ${c}.`)),
-  look("m-mix1", "colours", { mix: ["red", "blue"] }, "red and blue paint", "Mix the colours. What colour?", ["purple", "green", "orange"], "Red and blue make purple.", { challenge: true }),
-  look("m-mix2", "colours", { mix: ["blue", "yellow"] }, "blue and yellow paint", "Mix the colours. What colour?", ["green", "purple", "orange"], "Blue and yellow make green.", { challenge: true }),
-  look("m-mix3", "colours", { mix: ["red", "yellow"] }, "red and yellow paint", "Mix the colours. What colour?", ["orange", "purple", "green"], "Red and yellow make orange.", { challenge: true }),
-  ...[3, 5, 6, 7, 8, 10].map((n) => look(`m-n${n}`, "numbers", { count: n }, `${n} pencils`, "How many?",
-    [NUM[n], NUM[n - 1], NUM[n === 10 ? 8 : n + 1]], `${cap(NUM[n])} pencils.`)),
-  look("m-n9", "numbers", { count: 9 }, "9 pencils", "How many?", ["nine", "ten", "eight"], "Nine pencils.", { challenge: true }),
-  look("m-misty", "friends", { img: "misty" }, "Misty", "Who is it?", ["Misty", "Flash", "Whisper"], "It's Misty."),
-  look("m-whisper", "friends", { img: "whisper" }, "Whisper", "Who is it?", ["Whisper", "Thunder", "Flash"], "It's Whisper."),
-  look("m-flash", "friends", { img: "flash" }, "Flash", "Who is it?", ["Flash", "Misty", "Thunder"], "It's Flash."),
-  look("m-thunder", "friends", { img: "thunder" }, "Thunder", "Who is it?", ["Thunder", "Whisper", "Misty"], "It's Thunder."),
-  look("m-tabby", "friends", { img: "tabby" }, "Tabby the cat", "Who is it?", ["Tabby", "Flash", "Whisper"], "It's Tabby. Tabby is a cat."),
-  look("m-sit", "classroom", { img: "sit" }, "The teacher and a boy", "What does the teacher say?", ["Sit at your desk, please.", "Open your book, please.", "Close your bag, please."], "Sit at your desk, please."),
-  look("m-open", "classroom", { img: "open" }, "The teacher and a girl", "What does the teacher say?", ["Open your book, please.", "Close your book, please.", "Sit at your desk, please."], "Open your book, please."),
-  look("m-close", "classroom", { img: "close" }, "The teacher and a girl", "What does the teacher say?", ["Close your bag, please.", "Open your bag, please.", "Pass me a pen, please."], "Close your bag, please."),
-  look("m-pass", "classroom", { img: "pass" }, "The teacher and a boy", "What does the teacher say?", ["Pass me a pen, please.", "Open your book, please.", "Close your bag, please."], "Pass me a pen, please."),
-  look("m-standup", "classroom", { img: "act-standup" }, "A boy", "What does the teacher say?", ["Stand up.", "Turn around.", "Stretch."], "Stand up."),
-  look("m-turn", "classroom", { img: "act-turn" }, "A boy", "What does the teacher say?", ["Turn around.", "Stand up.", "Stretch."], "Turn around."),
-  look("m-stretch", "classroom", { img: "act-stretch" }, "A boy", "What does the teacher say?", ["Stretch.", "Stand up.", "Turn around."], "Stretch."),
-  look("m-takeout", "classroom", { img: "act-takeout" }, "A boy and a box", "What does the teacher say?", ["Take out your pencil case.", "Put the pencil case on your head.", "Stand up."], "Take out your pencil case."),
-  look("m-head", "classroom", { img: "act-head" }, "A boy with a pencil case", "What does the teacher say?", ["Put the pencil case on your head.", "Take out your pencil case.", "Look down and catch it."], "Put the pencil case on your head.", { challenge: true }),
-  look("m-catch", "classroom", { img: "act-catch" }, "A boy with a pencil case", "What does the teacher say?", ["Look down and catch it.", "Put the pencil case on your head.", "Turn around."], "Look down and catch it.", { challenge: true }),
-  look("m-abc1", "alphabet", { abc: "A B C" }, "A, B, C, and then", "What comes next?", ["D", "E", "G"], "A, B, C, D."),
-  look("m-abc2", "alphabet", { abc: "H I J" }, "H, I, J, and then", "What comes next?", ["K", "L", "M"], "H, I, J, K."),
-  look("m-abc3", "alphabet", { abc: "P Q R" }, "P, Q, R, and then", "What comes next?", ["S", "T", "O"], "P, Q, R, S."),
-  look("m-abc4", "alphabet", { abc: "W X Y" }, "W, X, Y, and then", "What comes next?", ["Z", "V", "U"], "W, X, Y, Z."),
-  look("m-abc5", "alphabet", { abc: "L M N" }, "L, M, N, and then", "What comes next?", ["O", "P", "Q"], "L, M, N, O.", { challenge: true }),
-  look("m-rat", "phonics", { img: "rat" }, "a rat in a bag", "What's this?", ["a rat", "a cat", "a bag"], "A fat rat in a black bag."),
-  look("m-cat", "phonics", { img: "tabby" }, "a cat", "What's this?", ["a cat", "a rat", "a bag"], "It's a cat.")
-];
-
 // Game 2: question and answer. The first choice is always the right one.
 function ask(id, topic, pic, alt, q, choices, extra) {
   return { id, topic, pic, alt, q, choices, say: choices[0], ...extra };
 }
-
-const MOLES = [
-  ask("o-misty", "friends", { img: "misty" }, "Misty", "What's your name?", ["I'm Misty.", "I'm Flash.", "I'm six."]),
-  ask("o-thunder", "friends", { img: "thunder" }, "Thunder", "What's your name?", ["I'm Thunder.", "I'm Whisper.", "I'm four."]),
-  ask("o-age6", "friends", { num: 6 }, "six", "How old are you?", ["I'm six.", "I'm Carlos.", "Yes, it is."]),
-  ask("o-age7", "friends", { num: 7 }, "seven", "How old are you?", ["I'm seven.", "I'm six.", "It's seven."]),
-  ask("o-pen", "questions", { i: "pen" }, "a pen", "Is it a pen?", ["Yes, it is.", "No, it isn't.", "It's a ruler."]),
-  ask("o-book", "questions", { i: "book" }, "a book", "Is it a book?", ["Yes, it is.", "No, it isn't.", "It's a pen."]),
-  ask("o-bag", "questions", { img: "photo-bag" }, "a bag", "Is it a bag?", ["Yes, it is.", "No, it isn't.", "It's a desk."]),
-  ask("o-pencil", "questions", { i: "pencil" }, "a pencil", "Is it a pen?", ["No, it isn't. It's a pencil.", "Yes, it is.", "No, it isn't. It's a ruler."]),
-  ask("o-rubber", "questions", { img: "photo-rubber" }, "a rubber", "Is it a ruler?", ["No, it isn't. It's a rubber.", "Yes, it is.", "No, it isn't. It's a pencil."]),
-  ask("o-pencilcase", "questions", { img: "photo-pencilcase" }, "a pencil case", "What's this?", ["It's a pencil case.", "It's a pencil.", "Yes, it is."]),
-  ask("o-notebook", "questions", { i: "notebook" }, "a notebook", "Is it a book?", ["No, it isn't. It's a notebook.", "Yes, it is.", "No, it isn't. It's a bag."], { challenge: true }),
-  ask("o-ruler", "questions", { i: "ruler" }, "a ruler", "Is it a rubber?", ["No, it isn't. It's a ruler.", "Yes, it is.", "No, it isn't. It's a desk."], { challenge: true }),
-  ask("o-green", "colours", { balloon: "green" }, "a green balloon", "What colour is it?", ["It's green.", "It's blue.", "Yes, it is."]),
-  ask("o-orange", "colours", { balloon: "orange" }, "an orange balloon", "Is it red?", ["No, it isn't. It's orange.", "Yes, it is.", "No, it isn't. It's yellow."]),
-  ask("o-purple", "colours", { balloon: "purple" }, "a purple balloon", "Is it purple?", ["Yes, it is.", "No, it isn't. It's blue.", "It's red."]),
-  ask("o-mix", "colours", { mix: ["blue", "yellow"] }, "blue and yellow paint", "Mix blue and yellow. What colour is it?", ["It's green.", "It's purple.", "It's orange."], { challenge: true }),
-  ask("o-pass", "classroom", { img: "pass" }, "The teacher and a boy", "Pass me a pen, please.", ["Here you are.", "I'm sorry.", "Thank you."]),
-  ask("o-pass2", "classroom", { i: "ruler" }, "a ruler", "Pass me a ruler, please.", ["Here you are.", "It's OK.", "I'm six."]),
-  ask("o-sorry", "classroom", { img: "sorry" }, "Flash and a man in the street", "I'm sorry.", ["It's OK.", "Here you are.", "Thank you."]),
-  ask("o-thanks", "classroom", { img: "pencilcase-story" }, "The Super Friends with Flash's things", "Here's your pencil case.", ["Thank you.", "It's OK.", "I'm sorry."]),
-  ask("o-tabbyname", "story", { img: "tabby" }, "Tabby the cat", "What's your name, cat?", ["I'm Tabby.", "I'm four.", "I'm Flash."]),
-  ask("o-tabbyage", "story", { img: "tabby" }, "Tabby the cat", "How old are you, Tabby?", ["I'm four.", "I'm six.", "I'm Tabby."]),
-  ask("o-lookatme", "story", { quote: "Look at me!" }, "Someone says: Look at me!", "Who says it?", ["Flash.", "Misty.", "Tabby."], { speakQ: "Look at me! Who says it?" }),
-  ask("o-myturn", "story", { quote: "My turn. Look!" }, "Someone says: My turn. Look!", "Who says it?", ["Misty.", "Thunder.", "Flash."], { speakQ: "My turn. Look! Who says it?" }),
-  ask("o-mybag", "story", { img: "mybag" }, "Flash runs with a bag", "Who says \"My bag!\"?", ["Flash.", "Misty.", "Whisper."], { speakQ: "My bag! Who says it?" }),
-  ask("o-animals", "story", { img: "tabby" }, "Tabby the cat", "Who speaks to animals?", ["Whisper.", "Thunder.", "Flash."]),
-  ask("o-notebookstory", "story", { quote: "Mum. My notebook!" }, "Someone says: Mum. My notebook!", "Who says it?", ["Flash.", "Thunder.", "Tabby."], { speakQ: "Mum. My notebook! Who says it?", challenge: true }),
-  ask("o-rat", "phonics", { img: "rat" }, "a rat in a black bag", "What's in the black bag?", ["A fat rat.", "A fat cat.", "A red pen."])
-];
 
 // Game 3: spelling.
 function spell(id, topic, pic, alt, word, extra) {
   return { id, topic, pic, alt, word, say: word, ...extra };
 }
 
-const HANGMAN = [
-  spell("h-pen", "things", { i: "pen" }, "a pen", "pen"),
-  spell("h-bag", "things", { img: "photo-bag" }, "a bag", "bag"),
-  spell("h-book", "things", { i: "book" }, "a book", "book"),
-  spell("h-desk", "things", { i: "desk" }, "a desk", "desk"),
-  spell("h-ruler", "things", { i: "ruler" }, "a ruler", "ruler"),
-  spell("h-rubber", "things", { img: "photo-rubber" }, "a rubber", "rubber"),
-  spell("h-pencil", "things", { i: "pencil" }, "a pencil", "pencil"),
-  spell("h-notebook", "things", { i: "notebook" }, "a notebook", "notebook", { challenge: true }),
-  spell("h-pencilcase", "things", { img: "photo-pencilcase" }, "a pencil case", "pencil case", { challenge: true }),
-  ...COLOURS.map((c) => spell(`h-${c}`, "colours", { balloon: c }, `a ${c} balloon`, c,
-    c === "purple" || c === "yellow" || c === "orange" ? { challenge: true } : {})),
-  ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => spell(`h-n${n}`, "numbers", { num: n }, String(n), NUM[n],
-    n === 8 ? { challenge: true } : {})),
-  spell("h-flash", "friends", { img: "flash" }, "Flash", "Flash"),
-  spell("h-misty", "friends", { img: "misty" }, "Misty", "Misty"),
-  spell("h-cat", "phonics", { img: "tabby" }, "a cat", "cat"),
-  spell("h-rat", "phonics", { img: "rat" }, "a rat", "rat")
-];
-
 // Game 4: listen, then shoot the right plane.
 function hear(id, topic, say, choices, extra) {
   return { id, topic, say, choices, ...extra };
 }
 
-const PLANES = [
-  hear("p-seven", "numbers", "seven", ["7", "1", "3"], { big: true }),
-  hear("p-three", "numbers", "three", ["3", "8", "5"], { big: true }),
-  hear("p-ten", "numbers", "ten", ["10", "2", "4"], { big: true }),
-  hear("p-six", "numbers", "six", ["6", "9", "5"], { big: true }),
-  hear("p-nine", "numbers", "nine", ["9", "5", "1"], { big: true }),
-  hear("p-g", "alphabet", "G.", ["G", "J", "C"], { big: true, show: "G" }),
-  hear("p-y", "alphabet", "Y.", ["Y", "I", "W"], { big: true, show: "Y" }),
-  hear("p-b", "alphabet", "B.", ["B", "D", "P"], { big: true, show: "B", challenge: true }),
-  hear("p-m", "alphabet", "M.", ["M", "N", "W"], { big: true, show: "M", challenge: true }),
-  hear("p-purple", "colours", "purple", ["purple", "red", "green"]),
-  hear("p-yellow", "colours", "yellow", ["yellow", "orange", "white"]),
-  hear("p-black", "colours", "black", ["black", "blue", "red"]),
-  hear("p-pencilcase", "things", "a pencil case", ["pencilcase", "pencil", "bag"], { icons: true }),
-  hear("p-notebook", "things", "a notebook", ["notebook", "book", "desk"], { icons: true }),
-  hear("p-desk", "things", "a desk", ["desk", "bag", "book"], { icons: true }),
-  hear("p-ruler", "things", "a ruler", ["ruler", "rubber", "pen"], { icons: true, challenge: true }),
-  hear("p-close", "classroom", "Close your bag, please.", ["Close your bag.", "Open your bag.", "Open your book."]),
-  hear("p-sit", "classroom", "Sit at your desk, please.", ["Sit at your desk.", "Stand up.", "Turn around."]),
-  hear("p-turn", "classroom", "Turn around.", ["Turn around.", "Stand up.", "Stretch."]),
-  hear("p-takeout", "classroom", "Take out your pencil case.", ["Take out your pencil case.", "Put away your book.", "Close your bag."]),
-  hear("p-pass", "classroom", "Pass me a ruler, please.", ["Pass me a ruler.", "Pass me a rubber.", "Pass me a pencil."], { challenge: true }),
-  hear("p-putaway", "classroom", "Put away your book, please.", ["Put away your book.", "Take out your book.", "Open your book."], { challenge: true }),
-  hear("p-thunder", "friends", "Hi, I'm Thunder.", ["Thunder", "Whisper", "Flash"]),
-  hear("p-age", "friends", "How old are you? I'm four.", ["4", "6", "10"], { big: true }),
-  hear("p-rat", "phonics", "A fat rat in a black bag.", ["a fat rat in a black bag", "a fat cat in a black bag", "a fat rat in a red bag"], { challenge: true })
-];
-
-const BANKS = { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES };
+const WORD_ISLAND_UNITS = {};
+</script>
+<script src="units/u1.js"></script>
+<script src="units/u5.js"></script>
+<script>
 const GAME_IDS = ["maze", "moles", "hangman", "planes"];
 const ROUND = 10;
-const KEY = "word-island-u1-v2";
-const OUTBOX = KEY + "-outbox";
+const UNITS = WORD_ISLAND_UNITS;
+const UNIT_IDS = Object.keys(UNITS).sort((a, b) => UNITS[a].number - UNITS[b].number);
+UNIT_IDS.forEach((id) => GAME_IDS.forEach((game) => UNITS[id].banks[game].forEach((item) => {
+  item.unit = id;
+  item.game = game;
+})));
+const PUPIL_KEY = "word-island-pupil";
+// Unit 1 went live with this outbox name, so every unit keeps using it.
+const OUTBOX = "word-island-u1-v2-outbox";
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const params = new URLSearchParams(location.search);
 const openAll = params.get("open") === "all";
@@ -786,6 +681,8 @@ const ICONS = {
   pencilcase: '<rect x="8" y="28" width="64" height="28" rx="14" fill="#5b3fb5"/><path d="M16 30 h48" stroke="#c81e1e" stroke-width="3"/><rect x="44" y="24" width="6" height="10" rx="2" fill="#c9ced6"/><rect x="58" y="14" width="5" height="18" fill="#ffe14a"/><rect x="64" y="17" width="5" height="15" fill="#2a9d3a"/>'
 };
 
+let U = null;
+let classes = null;
 let state = load();
 let play = null;
 let timer = 0;
@@ -809,30 +706,47 @@ function fresh() {
   };
 }
 
+function readJson(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || "null");
+  } catch (err) {
+    return null;
+  }
+}
+
+function progressKey(id) {
+  return `word-island-${id}-v2`;
+}
+
+// The pupil (name, class, sound) is shared; stars are kept per unit.
+// Before units, Unit 1 kept the pupil inside its own record, so read that as a fallback.
 function load() {
   const base = fresh();
-  try {
-    const saved = JSON.parse(localStorage.getItem(KEY) || "null");
-    if (!saved) return base;
-    return {
-      sound: saved.sound !== false,
-      name: typeof saved.name === "string" ? saved.name : "",
-      cls: typeof saved.cls === "string" ? saved.cls : "",
-      best: { ...base.best, ...(saved.best || {}) },
-      done: { ...base.done, ...(saved.done || {}) },
-      missed: { ...base.missed, ...(saved.missed || {}) }
-    };
-  } catch (err) {
-    return base;
-  }
+  const pupil = readJson(PUPIL_KEY) || readJson(progressKey("u1")) || {};
+  const saved = (U && readJson(progressKey(U.id))) || {};
+  return {
+    sound: pupil.sound !== false,
+    name: typeof pupil.name === "string" ? pupil.name : "",
+    cls: typeof pupil.cls === "string" ? pupil.cls : "",
+    best: { ...base.best, ...(saved.best || {}) },
+    done: { ...base.done, ...(saved.done || {}) },
+    missed: { ...base.missed, ...(saved.missed || {}) }
+  };
 }
 
 function save() {
   try {
-    localStorage.setItem(KEY, JSON.stringify(state));
+    localStorage.setItem(PUPIL_KEY, JSON.stringify({ sound: state.sound, name: state.name, cls: state.cls }));
+    if (U) localStorage.setItem(progressKey(U.id), JSON.stringify({ best: state.best, done: state.done, missed: state.missed }));
   } catch (err) {
     // Private windows can block storage. The game still works for this visit.
   }
+}
+
+function useUnit(id) {
+  U = UNITS[id];
+  state = load();
+  document.title = `Word Island · Unit ${U.number}`;
 }
 
 function esc(value) {
@@ -865,7 +779,7 @@ function picture(item, small) {
     inner = EAR;
     alt = "Listen";
   } else if (pic.img) {
-    inner = `<img class="photo" src="img/${pic.img}.webp" alt="">`;
+    inner = `<img class="photo" src="img/${item.unit}/${pic.img}.webp" alt="">`;
   } else if (pic.i) {
     inner = icon(pic.i);
   } else if (pic.balloon) {
@@ -880,6 +794,10 @@ function picture(item, small) {
     inner = `<span class="numbadge">${pic.num}</span>`;
   } else if (pic.quote) {
     inner = `<span class="quote">“${esc(pic.quote)}”</span>`;
+  } else if (pic.days) {
+    inner = `<span class="letters">${pic.days.map((d) => `<span class="tile word">${esc(d)}</span>`).join("")}<span class="tile q">?</span></span>`;
+  } else if (pic.cal) {
+    inner = `<span class="cal"><i></i>${esc(pic.cal)}</span>`;
   }
   return `<div class="pic${small ? " small" : ""}" role="img" aria-label="${esc(alt)}">${inner}</div>`;
 }
@@ -980,7 +898,7 @@ function speak(text, fromButton) {
 }
 
 function gameOf(item) {
-  return GAME_IDS.find((id) => BANKS[id].includes(item));
+  return item.game;
 }
 
 function spoken(item) {
@@ -997,6 +915,7 @@ function listenText(item) {
 }
 
 function choiceText(item, choice) {
+  if (item.pics) return item.alts[item.choices.indexOf(choice)];
   return item.icons ? THING[choice] : choice;
 }
 
@@ -1145,53 +1064,126 @@ function later(fn, ms) {
   }, ms);
 }
 
-function showName() {
+function resetScreen(screen) {
   clearTimeout(timer);
   stopMoles();
   play = null;
-  document.body.dataset.screen = "hub";
+  document.body.dataset.screen = screen || "hub";
   updateChrome();
   setFeedback("");
+}
+
+function showLoading() {
+  resetScreen();
+  setCaption("Opening Word Island…");
+  view.innerHTML = `<div class="namebox"><h1>Word Island</h1><p class="lede">Opening your unit…</p></div>`;
+}
+
+// Classes come from the teacher's list. Without it (offline), pupils type a class and see every unit.
+function showName() {
+  resetScreen();
   setCaption(CAPTION.name);
+  const names = classes ? Object.keys(classes).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })) : [];
+  const classField = classes
+    ? `<fieldset class="classes"><legend>Tap your class</legend>
+        ${names.map((name) => `<label class="classpick"><input type="radio" name="pclass" value="${esc(name)}" ${name === state.cls ? "checked" : ""} required><span>${esc(name)}</span></label>`).join("")}
+      </fieldset>`
+    : `<label>Your class
+        <input id="pclass" name="pclass" maxlength="19" autocomplete="off" placeholder="2B" value="${esc(state.cls)}">
+      </label>`;
   view.innerHTML = `
     <form class="namebox" data-form="name">
-      <p class="pill">Unit 1 · Word Island</p>
+      <p class="pill">Word Island</p>
       <h1>Hello! What's your name?</h1>
       <label>Your name
         <input id="pname" name="pname" maxlength="39" autocomplete="off" required value="${esc(state.name)}">
       </label>
-      <label>Your class
-        <input id="pclass" name="pclass" maxlength="19" autocomplete="off" placeholder="1 Bestari" value="${esc(state.cls)}">
-      </label>
+      ${classField}
       <button type="submit" class="btn gold">Start</button>
     </form>
   `;
   document.getElementById("pname").focus();
 }
 
-function enter() {
+function unitsForClass() {
+  if (!classes) return UNIT_IDS;
+  return (classes[state.cls] || []).filter((id) => UNITS[id]);
+}
+
+function route() {
+  U = null;
+  state = load();
+  if (!state.name || (classes && !classes[state.cls])) {
+    showName();
+    return;
+  }
+  const ids = unitsForClass();
+  if (!ids.length) showClosed();
+  else if (ids.length === 1) openUnit(ids[0]);
+  else showUnits(ids);
+}
+
+function openUnit(id) {
+  useUnit(id);
   if (forcedGame) start(forcedGame, "full");
   else showHub();
 }
 
+function showClosed() {
+  resetScreen();
+  setCaption("Your teacher will open a unit soon.");
+  view.innerHTML = `
+    <div class="namebox">
+      <h1>Not open yet</h1>
+      <p class="lede">Your teacher has not opened a unit for <b>${esc(state.cls)}</b> yet.</p>
+      <div class="actions">
+        <button type="button" class="btn gold" data-act="reload">Try again</button>
+        <button type="button" class="btn" data-act="rename">Not your class?</button>
+      </div>
+    </div>
+  `;
+}
+
+function showUnits(ids) {
+  resetScreen();
+  setCaption("Choose your unit.");
+  view.innerHTML = `
+    <div class="namebox">
+      <p class="pill">${esc(state.name)} · ${esc(state.cls)}</p>
+      <h1>Choose your unit</h1>
+      ${ids.map((id) => `<button type="button" class="btn gold unitpick" data-act="unit" data-unit="${id}">Unit ${UNITS[id].number} · ${esc(UNITS[id].title)}</button>`).join("")}
+    </div>
+  `;
+}
+
+function boot() {
+  if (teacherMode) {
+    showTeacher(params.get("unit"));
+    return;
+  }
+  showLoading();
+  loadClasses().then((found) => {
+    classes = found && Object.keys(found).length ? found : null;
+    route();
+  });
+}
+
 function showHub() {
-  clearTimeout(timer);
-  stopMoles();
-  play = null;
-  document.body.dataset.screen = "hub";
-  updateChrome();
-  setFeedback("");
-  setCaption(CAPTION.hub);
+  resetScreen();
+  setCaption(U.lede);
   const doneCount = GAME_IDS.filter((id) => state.done[id]).length;
   const banner = doneCount === 4
     ? `<p class="ladder">You finished Word Island. ${totalStars()} / 40 stars. Play again for new questions.</p>`
     : `<p class="ladder">Four games. Ten questions each. New questions every time.</p>`;
+  const more = unitsForClass().length > 1
+    ? ` · <button type="button" class="linkish" data-act="units">Other unit</button>`
+    : "";
   view.innerHTML = `
     <div class="hero">
       <div>
-        <p class="pill">Unit 1 · Friends and At school</p>
-        <h1>Pen or pencil?</h1>
-        <p class="lede">Names, numbers, colours, school things and the stories. Come to Word Island. Play, and practise.</p>
+        <p class="pill">Unit ${U.number} · ${esc(U.title)}</p>
+        <h1>${esc(U.h1)}</h1>
+        <p class="lede">${esc(U.lede)}</p>
         ${banner}
       </div>
       <svg class="robo" viewBox="0 0 120 120" aria-hidden="true">
@@ -1209,7 +1201,7 @@ function showHub() {
     </div>
     <p class="partner">Playing as <b>${esc(state.name)}</b>${state.cls ? ` · ${esc(state.cls)}` : ""}.
       <button type="button" class="linkish" data-act="rename">Not you?</button>
-      · <button type="button" class="linkish" data-act="reset">Start over</button></p>
+      · <button type="button" class="linkish" data-act="reset">Start over</button>${more}</p>
   `;
 }
 
@@ -1237,10 +1229,10 @@ function start(gate, mode) {
     setFeedback(GATES.find((g) => g.id === gate).need, "tip");
     return;
   }
-  let items = pickRound(BANKS[gate]);
+  let items = pickRound(U.banks[gate]);
   if (mode === "retry") {
     const ids = new Set((state.missed[gate] || []).map((row) => row.id));
-    items = BANKS[gate].filter((item) => ids.has(item.id));
+    items = U.banks[gate].filter((item) => ids.has(item.id));
     if (!items.length) {
       showHub();
       return;
@@ -1348,7 +1340,7 @@ function stageInner(item) {
         <i class="cloud c3" aria-hidden="true"></i>
         ${pairs.map((pair, index) => `
           <button type="button" class="bandit" data-act="shoot" data-ok="${pair.ok ? "1" : "0"}" data-lane="${index}" aria-label="${esc(choiceText(item, pair.text))}">
-            <span class="${item.big ? "big" : ""}">${item.icons ? icon(pair.text) : esc(pair.text)}</span>
+            <span class="${item.big ? "big" : ""}">${item.pics ? `<img src="img/${item.unit}/${pair.text}.webp" alt="">` : item.icons ? icon(pair.text) : esc(pair.text)}</span>
             <svg class="miniplane" viewBox="0 0 80 64" aria-hidden="true">
               <polygon points="10,22 40,30 70,22 40,26" fill="${colors[index]}" stroke="#14213d" stroke-width="3" stroke-linejoin="round"/>
               <polygon points="40,58 48,36 46,14 40,6 34,14 32,36" fill="${colors[index]}" stroke="#14213d" stroke-width="3" stroke-linejoin="round"/>
@@ -1724,6 +1716,7 @@ function finish() {
   if (!reduceMotion && (perfect || firstClear)) burst();
   setSendNote("Sending your stars to your teacher…", "");
   sendRun({
+    unit: U.id,
     name: state.name,
     cls: state.cls,
     game: play.gate,
@@ -1761,7 +1754,7 @@ function renderResults() {
   const bests = GATES.map((gate) => `<li>${esc(gate.title)}: ★ ${state.best[gate.id] || 0}/10</li>`).join("");
   view.innerHTML = `
     <div class="playwrap results">
-      <p class="pill">${esc(GAME[play.gate])}</p>
+      <p class="pill">Unit ${U.number} · ${esc(GAME[play.gate])}</p>
       <h2 tabindex="-1">${title}</h2>
       <p>${esc(scoreLine)}</p>
       ${badgeLine}
@@ -1898,54 +1891,62 @@ function teacherCard(game, item) {
     : `<ul>${choicePairs(item).map((pair) => `<li class="${pair.ok ? "ans" : ""}">${esc(choiceText(item, pair.text))}</li>`).join("")}</ul>`;
   return `
     <article class="tcard" data-topic="${item.topic}" data-id="${item.id}">
-      <p class="meta">${esc(GAME[game])} · ${esc(TOPICS[item.topic])}${item.challenge ? " · Challenge" : ""}</p>
+      <p class="meta">${esc(GAME[game])} · ${esc(UNITS[item.unit].topics[item.topic])}${item.challenge ? " · Challenge" : ""}</p>
       ${picture(item, true)}
       <h3>${title}</h3>
       ${list}
       <p class="say">${esc(item.say)}</p>
       <div class="row">
-        <button type="button" class="btn" data-act="t-hear" data-id="${item.id}">Hear it</button>
-        <button type="button" class="btn gold" data-act="t-show" data-id="${item.id}">Show answer</button>
+        <button type="button" class="btn" data-act="t-hear" data-unit="${item.unit}" data-id="${item.id}">Hear it</button>
+        <button type="button" class="btn gold" data-act="t-show" data-unit="${item.unit}" data-id="${item.id}">Show answer</button>
       </div>
     </article>
   `;
 }
 
-function showTeacher() {
+function showTeacher(wanted) {
   play = null;
+  const unitId = UNITS[wanted] ? wanted : UNITS["u" + wanted] ? "u" + wanted : UNIT_IDS[UNIT_IDS.length - 1];
+  const unit = UNITS[unitId];
   document.body.dataset.screen = "teacher";
   document.getElementById("stars").hidden = true;
   updateChrome();
   setCaption(CAPTION.teacher);
   const base = location.origin + location.pathname;
   const cards = [];
-  Object.keys(TOPICS).forEach((topic) => {
+  Object.keys(unit.topics).forEach((topic) => {
     GAME_IDS.forEach((game) => {
-      BANKS[game].filter((item) => item.topic === topic).forEach((item) => cards.push(teacherCard(game, item)));
+      unit.banks[game].filter((item) => item.topic === topic).forEach((item) => cards.push(teacherCard(game, item)));
     });
   });
   view.innerHTML = `
     <div class="teach">
-      <p class="pill">Unit 1 · Teacher view</p>
+      <div class="tfilter" role="group" aria-label="Unit">
+        ${UNIT_IDS.map((id) => `<button type="button" class="ghost" data-act="t-unit" data-unit="${id}" aria-pressed="${id === unitId}">Unit ${UNITS[id].number}</button>`).join("")}
+      </div>
+      <p class="pill">Unit ${unit.number} · ${esc(unit.title)} · Teacher view</p>
       <h1>Talk about the answers</h1>
-      <p class="lede">Share your screen. Ask the class first. Then tap Show answer. Pupils' results are on the quiz Teacher results page, under Word Island.</p>
+      <p class="lede">Share your screen. Ask the class first. Then tap Show answer. Pupils' results are on the quiz Teacher results page, under Word Island. Choose each class's unit there too.</p>
       <div class="links">
+        <p><b>Pupils open:</b> <code>${esc(base)}</code></p>
         <p><b>Send one game to the whole class:</b></p>
         ${GATES.map((gate) => `<p>${esc(gate.title)}: <code>${esc(base)}?game=${gate.id}</code></p>`).join("")}
         <p>All games open: <code>${esc(base)}?open=all</code></p>
       </div>
       <div class="tfilter" role="group" aria-label="Topic">
         <button type="button" class="ghost" data-act="t-topic" data-topic="" aria-pressed="true">All</button>
-        ${Object.keys(TOPICS).map((t) => `<button type="button" class="ghost" data-act="t-topic" data-topic="${t}" aria-pressed="false">${esc(TOPICS[t])}</button>`).join("")}
+        ${Object.keys(unit.topics).map((t) => `<button type="button" class="ghost" data-act="t-topic" data-topic="${t}" aria-pressed="false">${esc(unit.topics[t])}</button>`).join("")}
       </div>
       <div class="tgrid">${cards.join("")}</div>
     </div>
   `;
 }
 
-function findItem(id) {
+function findItem(unitId, id) {
+  const unit = UNITS[unitId];
+  if (!unit) return null;
   for (const game of GAME_IDS) {
-    const item = BANKS[game].find((row) => row.id === id);
+    const item = unit.banks[game].find((row) => row.id === id);
     if (item) return item;
   }
   return null;
@@ -1971,9 +1972,16 @@ function burst() {
     rot: Math.random() * 6
   }));
   let frame = 0;
+  // Clear the whole canvas in its own pixels, so a resize mid-burst cannot leave confetti behind.
+  function wipe() {
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+  }
   function tick() {
     frame += 1;
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    wipe();
     bits.forEach((bit) => {
       bit.vy += bit.g;
       bit.x += bit.vx;
@@ -1987,7 +1995,7 @@ function burst() {
       ctx.restore();
     });
     if (frame < 70) requestAnimationFrame(tick);
-    else ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    else wipe();
   }
   tick();
 }
@@ -1996,15 +2004,20 @@ document.body.addEventListener("submit", (event) => {
   if (event.target.dataset.form !== "name") return;
   event.preventDefault();
   const name = document.getElementById("pname").value.trim().slice(0, 39);
-  const cls = document.getElementById("pclass").value.trim().slice(0, 19);
+  const picked = event.target.querySelector("input[name='pclass']:checked") || document.getElementById("pclass");
+  const cls = picked ? picked.value.trim().slice(0, 19) : "";
   if (!name) {
     setFeedback("Write your name first.", "tip");
+    return;
+  }
+  if (classes && !classes[cls]) {
+    setFeedback("Tap your class.", "tip");
     return;
   }
   state.name = name;
   state.cls = cls;
   save();
-  enter();
+  route();
 });
 
 document.body.addEventListener("click", (event) => {
@@ -2047,11 +2060,21 @@ document.body.addEventListener("click", (event) => {
   else if (act === "again") start(play.gate, "full");
   else if (act === "rename") {
     ask2("Change the name? This device's stars will clear for the new pupil.", "Change", () => {
+      try {
+        UNIT_IDS.forEach((id) => localStorage.removeItem(progressKey(id)));
+      } catch (err) {
+        // Storage is blocked; nothing was kept anyway.
+      }
+      U = null;
       state = { ...fresh(), sound: state.sound };
       save();
       showName();
     });
   }
+  else if (act === "reload") boot();
+  else if (act === "unit") openUnit(el.dataset.unit);
+  else if (act === "units") showUnits(unitsForClass());
+  else if (act === "t-unit") showTeacher(el.dataset.unit);
   else if (act === "reset") {
     ask2("Start over? Stars and badges will clear.", "Start over", () => {
       state = { ...fresh(), sound: state.sound, name: state.name, cls: state.cls };
@@ -2068,10 +2091,10 @@ document.body.addEventListener("click", (event) => {
     const card = el.closest(".tcard");
     const shown = card.classList.toggle("shown");
     el.textContent = shown ? "Hide answer" : "Show answer";
-    if (shown) speak(findItem(el.dataset.id).say, true);
+    if (shown) speak(findItem(el.dataset.unit, el.dataset.id).say, true);
   }
   else if (act === "t-hear") {
-    speak(spoken(findItem(el.dataset.id)), true);
+    speak(spoken(findItem(el.dataset.unit, el.dataset.id)), true);
   }
 });
 
@@ -2120,9 +2143,34 @@ if (canSpeak()) {
   window.speechSynthesis.onvoiceschanged = () => {};
 }
 
-if (teacherMode) showTeacher();
-else if (!state.name) showName();
-else enter();
+// The teacher's class list arrives from Firebase. If it is slow or blocked, every unit stays open.
+function loadClasses() {
+  const ready = new Promise((resolve) => {
+    if (typeof window.wiClasses === "function") resolve();
+    else window.addEventListener("wi-send-ready", resolve, { once: true });
+  });
+  const fetched = ready
+    .then(() => window.wiClasses())
+    .then(cleanClasses)
+    .catch((err) => {
+      console.warn("Word Island: class list not loaded.", err);
+      return null;
+    });
+  const late = new Promise((resolve) => setTimeout(() => resolve(null), 8000));
+  return Promise.race([fetched, late]);
+}
+
+function cleanClasses(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const out = {};
+  Object.keys(raw).slice(0, 40).forEach((name) => {
+    const ids = Array.isArray(raw[name]) ? raw[name] : [];
+    out[name.slice(0, 19)] = ids.filter((id) => typeof id === "string" && UNITS[id]);
+  });
+  return out;
+}
+
+boot();
 </script>
 <script type="module">
 // Firebase web settings are public by design; the Firestore rules decide who may read results.
@@ -2135,35 +2183,45 @@ const config = {
 const SDK = "https://www.gstatic.com/firebasejs/11.10.0/";
 let ready = null;
 
-function boot() {
-  return Promise.all([
-    import(SDK + "firebase-app.js"),
-    import(SDK + "firebase-auth.js"),
-    import(SDK + "firebase-firestore.js")
-  ]).then(([appSdk, authSdk, storeSdk]) => {
-    const app = appSdk.initializeApp(config);
-    const auth = authSdk.getAuth(app);
-    const db = storeSdk.getFirestore(app);
-    return async (run) => {
-      const user = auth.currentUser || (await authSdk.signInAnonymously(auth)).user;
-      await storeSdk.addDoc(storeSdk.collection(db, "wordIsland"), {
-        uid: user.uid,
-        name: run.name,
-        cls: run.cls,
-        game: run.game,
-        mode: run.mode,
-        stars: run.stars,
-        total: run.total,
-        answers: run.answers,
-        createdAt: storeSdk.serverTimestamp()
-      });
-    };
-  });
+function loadSdk() {
+  if (!ready) {
+    ready = Promise.all([
+      import(SDK + "firebase-app.js"),
+      import(SDK + "firebase-auth.js"),
+      import(SDK + "firebase-firestore.js")
+    ]).then(([appSdk, authSdk, storeSdk]) => {
+      const app = appSdk.initializeApp(config);
+      return { authSdk, storeSdk, auth: authSdk.getAuth(app), db: storeSdk.getFirestore(app) };
+    }).catch((err) => {
+      ready = null;
+      throw err;
+    });
+  }
+  return ready;
 }
 
-window.wiSend = (run) => {
-  if (!ready) ready = boot().catch((err) => { ready = null; throw err; });
-  return ready.then((send) => send(run));
+window.wiSend = async (run) => {
+  const { authSdk, storeSdk, auth, db } = await loadSdk();
+  const user = auth.currentUser || (await authSdk.signInAnonymously(auth)).user;
+  await storeSdk.addDoc(storeSdk.collection(db, "wordIsland"), {
+    uid: user.uid,
+    ...(run.unit ? { unit: run.unit } : {}),
+    name: run.name,
+    cls: run.cls,
+    game: run.game,
+    mode: run.mode,
+    stars: run.stars,
+    total: run.total,
+    answers: run.answers,
+    createdAt: storeSdk.serverTimestamp()
+  });
+};
+
+// Which units each class may open, set by the teacher on the quiz Teacher results page.
+window.wiClasses = async () => {
+  const { storeSdk, db } = await loadSdk();
+  const snap = await storeSdk.getDoc(storeSdk.doc(db, "settings", "wordIsland"));
+  return snap.exists() ? snap.get("classes") : null;
 };
 window.dispatchEvent(new Event("wi-send-ready"));
 </script>
