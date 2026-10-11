@@ -582,6 +582,22 @@
     padding: 18px;
   }
   .ask[hidden] { display: none; }
+  /* The teacher has paused the class: everything stops until they press Resume. */
+  .hush {
+    position: fixed; inset: 0; z-index: 20;
+    display: grid; place-items: center; padding: 18px;
+    background: rgba(20, 33, 61, .94); color: #fff; text-align: center;
+  }
+  .hush[hidden] { display: none; }
+  .hushbox { display: grid; justify-items: center; gap: 10px; max-width: 34ch; }
+  .hushbox svg { width: clamp(110px, 26vw, 170px); height: auto; animation: hushpulse 1.6s ease-in-out infinite; }
+  .hushbox h2 {
+    margin: 0; font-family: Fraunces, Palatino, Georgia, serif; font-weight: 600;
+    font-size: clamp(2rem, 7vw, 3.4rem); line-height: 1.05;
+  }
+  .hushbox h2:focus { outline: none; }
+  .hushbox p { margin: 0; font-size: clamp(1.1rem, 3.6vw, 1.4rem); font-weight: 600; color: var(--gold); }
+  @keyframes hushpulse { 50% { transform: scale(1.08); } }
   .askbox {
     background: #fff;
     border: 3px solid var(--ink);
@@ -655,6 +671,13 @@
       <button type="button" class="btn" id="askno" data-act="ask-no">Stay</button>
       <button type="button" class="btn gold" id="askyes" data-act="ask-yes">Leave</button>
     </div>
+  </div>
+</div>
+<div id="hush" class="hush" role="alertdialog" aria-modal="true" aria-labelledby="hushtitle" aria-describedby="hushtext" hidden>
+  <div class="hushbox">
+    <svg viewBox="0 0 80 80" aria-hidden="true"><rect x="12" y="28" width="16" height="24" rx="3" fill="#fff"/><polygon points="28,28 46,14 46,66 28,52" fill="#fff"/><path d="M54 30 q8 10 0 20 M60 22 q16 18 0 36" fill="none" stroke="#ffe14a" stroke-width="5" stroke-linecap="round"/></svg>
+    <h2 id="hushtitle" tabindex="-1">Stop and listen to your teacher</h2>
+    <p id="hushtext">Hands off. Eyes on your teacher. Your game will wait for you.</p>
   </div>
 </div>
 <noscript><p>This page needs JavaScript. Turn it on, then open Word Island again.</p></noscript>
@@ -1139,7 +1162,7 @@ function later(fn, ms) {
 
 // The game waits behind the "Leave this game?" box, so nothing falls, pops up or moves on meanwhile.
 function resumeGame() {
-  if (!play || !play.paused) return;
+  if (hushed || !play || !play.paused) return;
   play.paused = false;
   if (play.left || play.finished) return;
   const title = document.getElementById("qtitle");
@@ -1200,6 +1223,7 @@ function unitsForClass() {
 function route() {
   U = null;
   state = load();
+  applyHush();
   if (!state.name || (classes && !classes[state.cls])) {
     showName();
     return;
@@ -1249,10 +1273,50 @@ function boot() {
     return;
   }
   showLoading();
+  watchHush();
   loadClasses().then((found) => {
     classes = found && Object.keys(found).length ? found : null;
     route();
   });
+}
+
+// The teacher can pause a class from the results page. The pause arrives live, even in the middle of a game:
+// the game freezes behind a "Stop and listen" screen and carries on, untouched, when the teacher resumes.
+let pausedClasses = {};
+let hushed = false;
+let hushWatching = false;
+
+function watchHush() {
+  if (hushWatching) return;
+  hushWatching = true;
+  firebaseReady()
+    .then(() => window.wiWatchSettings((data) => {
+      const raw = data && typeof data.paused === "object" && data.paused ? data.paused : {};
+      pausedClasses = {};
+      Object.keys(raw).slice(0, 40).forEach((name) => { if (raw[name] === true) pausedClasses[name] = true; });
+      applyHush();
+    }))
+    .catch((err) => {
+      hushWatching = false;
+      console.warn("Word Island: pause switch not loaded.", err);
+    });
+}
+
+function applyHush() {
+  const on = !teacherMode && Boolean(state.cls) && pausedClasses[state.cls] === true;
+  if (on === hushed) return;
+  hushed = on;
+  const ask = document.getElementById("ask");
+  document.getElementById("hush").hidden = !on;
+  document.querySelector(".app").inert = on;
+  ask.inert = on;
+  if (on) {
+    if (play) play.paused = true;
+    if (canSpeak()) window.speechSynthesis.cancel();
+    document.getElementById("hushtitle").focus({ preventScroll: true });
+  } else if (ask.hidden) {
+    resumeGame();
+  }
 }
 
 function showHub() {
@@ -2430,6 +2494,10 @@ document.body.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
+  if (hushed) {
+    event.preventDefault();
+    return;
+  }
   const asking = !document.getElementById("ask").hidden;
   if (asking) {
     if (event.key === "Escape") closeAsk();
@@ -2637,6 +2705,13 @@ window.wiClasses = async () => {
   const { storeSdk, db } = await loadSdk();
   const snap = await storeSdk.getDoc(storeSdk.doc(db, "settings", "wordIsland"));
   return snap.exists() ? snap.get("classes") : null;
+};
+// Live settings for the pause switch: calls onData again whenever the teacher pauses or resumes a class.
+window.wiWatchSettings = async (onData) => {
+  const { storeSdk, db } = await loadSdk();
+  return storeSdk.onSnapshot(storeSdk.doc(db, "settings", "wordIsland"),
+    (snap) => onData(snap.exists() ? snap.data() : {}),
+    (err) => console.warn("Word Island: pause switch not loaded.", err));
 };
 window.dispatchEvent(new Event("wi-send-ready"));
 </script>
