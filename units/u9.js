@@ -167,7 +167,7 @@ WORD_ISLAND_UNITS.u9 = (() => {
     "u9o-together": { why: "Flash says: No. Let's go together. That's more fun!" },
     "u9o-sound": { hint: "Say them: ch-ee-se, p-e-t, b-ea-ch.", why: "Cheese and beach have the long ee sound. Pet has a short e." },
     "u9o-whales": { why: "The book says: Come to Canada. Watch the whales or go horse riding." },
-    "u9o-italy": { hint: "Look at the map on page 114.", why: "It's cloudy in Italy." },
+    "u9o-italy": { hint: "On the weather map, Italy has a cloud. Cloud means cloudy.", why: "It's cloudy in Italy." },
     "u9p-photo": { hint: "Listen: take a photo or paint a picture?", why: "Take a photo: he has a camera." },
     "u9p-sorry": { why: "Sorry, I don't want to: he says no, nicely." },
     "u9p-shell": { hint: "On the sandcastle, or next to it?", why: "It's on the sandcastle: the shell is on top." },

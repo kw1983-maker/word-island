@@ -139,8 +139,8 @@ WORD_ISLAND_UNITS.u5 = (() => {
   const NOTES = {
     "u5m-d4": { why: "After Wednesday comes Thursday. Tuesday and Thursday sound alike at the start: t and th." },
     "u5m-d5": { hint: "After the weekend, what day is it?", why: "After Sunday the week starts again: Monday." },
-    "u5m-match": { hint: "Remember the board on page 58.", why: "The board says Saturday: football match." },
-    "u5m-lake": { hint: "Remember the board on page 58.", why: "The board says Sunday: trip to the lake." },
+    "u5m-match": { hint: "Think of the weekend board: Saturday = football match, Sunday = trip to the lake.", why: "The board says Saturday: football match." },
+    "u5m-lake": { hint: "Think of the weekend board: Saturday = football match, Sunday = trip to the lake.", why: "The board says Sunday: trip to the lake." },
     "u5m-games2": { hint: "Look at his hands. Is it a toy or a game?", why: "He is holding a computer game: I play computer games." },
     "u5m-sleep": { why: "He is on the sofa next to the TV: I watch TV and sleep." },
     "u5m-rabbit": { why: "The rabbit shows them the way: Come with me." },
