@@ -1,11 +1,11 @@
 // Word Island · "Listen and shoot", drawn on a canvas.
-// It plays like Class Rules Defender: a chrome jet, enemy planes that take three hits, explosions,
+// It plays like Class Rules Defender: a chrome jet, enemy planes that take four hits, explosions,
 // combos, weapon upgrades and power-ups. index.html owns the questions, stars and results;
 // this file flies the planes and reports what happened through the hooks it is given.
 window.SkyGame = (() => {
-  const HITS = 3;
-  const POWER_SECONDS = 6;
-  const UPGRADES = [800, 2000];
+  const HITS = 4;
+  const POWER_SECONDS = 4;
+  const UPGRADES = [1400, 3200];
   const POWERS = {
     shield: { color: "#00eaff", label: "SHIELD", glyph: "⛨" },
     rapid: { color: "#ff5577", label: "RAPID", glyph: "»" },
@@ -77,6 +77,7 @@ window.SkyGame = (() => {
     hit() { this.tone(220, "sawtooth", 0.08, 0.05); },
     boom() { this.noise(0.45, 0.16); },
     wrong() { this.tone(150, "sawtooth", 0.35, 0.09); this.tone(100, "sawtooth", 0.35, 0.09); },
+    drop() { this.tone(180, "square", 0.05, 0.03); },
     combo(n) {
       const freq = Math.min(1600, 500 + n * 120);
       this.tone(freq, "square", 0.08, 0.05);
@@ -111,7 +112,8 @@ window.SkyGame = (() => {
     game = {
       host, canvas, ctx: canvas.getContext("2d"), round, hooks,
       w: 0, h: 0, dpr: 1, frame: 0, last: 0, raf: 0,
-      wave: null, enemies: [], bullets: [], particles: [], shockwaves: [], popups: [], powerups: [], trail: [],
+      wave: null, enemies: [], bullets: [], shots: [], particles: [], shockwaves: [], popups: [], powerups: [], trail: [],
+      safe: 0,
       stars: [], clouds: [], shake: 0, banner: null, aim: null, holding: false, keys: new Set(), shotAt: 0
     };
     fit();
@@ -135,11 +137,13 @@ window.SkyGame = (() => {
     const lanes = planes.length === 2 ? [0.3, 0.7] : [0.18, 0.5, 0.82];
     const drops = shuffle([0, 1, 2]).map((k) => -40 - k * 120);
     game.enemies.forEach((foe) => { foe.fleeing = true; });
+    game.shots = [];
     game.wave = { step: step || 0, resolved: false };
     game.enemies = game.enemies.filter((foe) => foe.y < game.h + 80).concat(planes.map((plane, lane) => ({
       lane, fx: lanes[lane], x: lanes[lane] * game.w, y: drops[lane % 3],
       ok: plane.ok, text: plane.text || "", img: picture(plane.img), big: !!plane.big,
-      hp: HITS, flash: 0, prop: Math.random() * 6, gone: false, fleeing: false, alpha: 1, layout: null
+      hp: HITS, flash: 0, prop: Math.random() * 6, gone: false, fleeing: false, alpha: 1, layout: null,
+      shotIn: 1.2 + Math.random() * 0.6
     })));
   }
 
@@ -297,7 +301,7 @@ window.SkyGame = (() => {
         popup(foe.x, foe.y - 58, "COMBO x" + round.combo + "!", "#ffcc00");
         sound.combo(round.combo);
       }
-      if (Math.random() < 0.4) dropPower(foe.x, foe.y);
+      if (Math.random() < 0.22) dropPower(foe.x, foe.y);
       upgrade();
       game.enemies.forEach((other) => { if (other !== foe) other.fleeing = true; });
       game.hooks.onRight();
@@ -379,6 +383,36 @@ window.SkyGame = (() => {
       game.particles.push({ x: jet.x, y, vx: (Math.random() - 0.5) * 180, vy: -Math.random() * 240 - 60, life: 0.5, color: "#fff3aa", size: 1 + Math.random() * 2.5 });
     }
     sound.shoot();
+  }
+
+  // A red shot dropped by an enemy plane. It falls straight, a little off to one side.
+  function dropShot(foe) {
+    const s = scale();
+    game.shots.push({
+      x: foe.x,
+      y: foe.y + 18 * s,
+      vx: (Math.random() - 0.5) * 36,
+      vy: game.h * 0.5
+    });
+    sound.drop();
+  }
+
+  // A red shot hit the jet. Shield soaks it. A short gap stops one burst costing the score twice.
+  // This is not a wrong answer: the pupil can still shoot the right plane.
+  function struck(jet) {
+    if (game.round.timers.shield > 0) {
+      burst(jet.x, jet.y - 10, "#00eaff", 10, 280);
+      sound.hit();
+      return;
+    }
+    if (game.safe > 0) return;
+    game.safe = 0.7;
+    game.round.combo = 0;
+    game.round.score = Math.max(0, game.round.score - 50);
+    burst(jet.x, jet.y - 16, "#ff3300", 14, 360);
+    shakeBy(10);
+    sound.wrong();
+    popup(jet.x, jet.y - 48, "-50", "#ff6a55");
   }
 
   // ---------- layout of a plane's answer label ----------
@@ -475,6 +509,7 @@ window.SkyGame = (() => {
     }
 
     Object.keys(timers).forEach((key) => { timers[key] = Math.max(0, timers[key] - dt); });
+    game.safe = Math.max(0, game.safe - dt);
 
     if (game.frame % 2 === 0) game.trail.push({ x: jet.x + (Math.random() - 0.5) * 8, y: jet.y + 36 * s, life: 1, size: 3 + Math.random() * 4 });
     game.trail.forEach((t) => { t.y += 70 * dt; t.life -= 3.6 * dt; });
@@ -493,15 +528,25 @@ window.SkyGame = (() => {
     game.bullets.forEach((b) => { b.x += b.vx * dt; b.y += b.vy * dt; });
     game.bullets = game.bullets.filter((b) => b.y > -30 && b.x > -30 && b.x < w + 30);
 
-    // Planes fall a little faster each question; slow-mo halves it.
+    // Planes fall faster each question, and drift further sideways so a late shot misses.
     const wave = game.wave;
-    const fall = h * 0.15 * (1 + 0.04 * (wave ? wave.step : 0)) * (timers.slow > 0 ? 0.5 : 1);
+    const step = wave ? wave.step : 0;
+    const fall = h * 0.21 * (1 + 0.08 * step) * (timers.slow > 0 ? 0.55 : 1);
+    const sway = (16 + step * 3) * s;
     game.enemies.forEach((foe) => {
-      foe.x = foe.fx * w + Math.sin(now / 600 + foe.lane * 2) * 6 * s;
+      foe.x = foe.fx * w + Math.sin(now / 420 + foe.lane * 2) * sway;
       foe.y += (foe.fleeing ? fall * 2.6 : fall) * dt;
       foe.prop += 30 * dt;
       if (foe.fleeing) foe.alpha = Math.max(0, foe.alpha - dt * 1.2);
       if (foe.flash > 0) foe.flash -= dt;
+      // Drop a red shot once the answer can be read. Later questions shoot more often.
+      if (wave && !wave.resolved && !foe.fleeing && !foe.gone && box(foe).top >= 0) {
+        foe.shotIn -= dt;
+        if (foe.shotIn <= 0) {
+          dropShot(foe);
+          foe.shotIn = Math.max(0.95, 1.7 - step * 0.07) + Math.random() * 0.35;
+        }
+      }
     });
 
     if (wave && !wave.resolved) {
@@ -533,6 +578,20 @@ window.SkyGame = (() => {
       const rightOne = game.enemies.find((foe) => foe.ok && !foe.gone && !foe.fleeing);
       if (!wave.resolved && rightOne && box(rightOne).top > h + 10) escaped();
     }
+
+    if (!wave || wave.resolved) game.shots = [];
+    game.shots.forEach((shot) => {
+      shot.x += shot.vx * dt;
+      shot.y += shot.vy * dt;
+    });
+    game.shots = game.shots.filter((shot) => {
+      if (shot.y > h + 24) return false;
+      if (Math.abs(shot.x - jet.x) < 26 * s && Math.abs(shot.y - jet.y) < 30 * s) {
+        struck(jet);
+        return false;
+      }
+      return true;
+    });
     game.enemies = game.enemies.filter((foe) => !foe.gone && foe.alpha > 0 && box(foe).top < h + 40);
 
     game.powerups.forEach((p) => { p.y += 130 * dt; p.bob += 9 * dt; });
@@ -607,6 +666,33 @@ window.SkyGame = (() => {
       ctx.beginPath();
       ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
       ctx.fill();
+    });
+
+    game.shots.forEach((shot) => {
+      ctx.save();
+      ctx.translate(shot.x, shot.y);
+      ctx.strokeStyle = "#ff3355";
+      ctx.lineWidth = 4;
+      ctx.lineCap = "round";
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.moveTo(0, -34);
+      ctx.lineTo(0, -10);
+      ctx.stroke();
+      ctx.fillStyle = "#ff3355";
+      ctx.globalAlpha = 0.4;
+      ctx.beginPath();
+      ctx.arc(0, 0, 16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, -14);
+      ctx.lineTo(7, 3);
+      ctx.lineTo(0, 16);
+      ctx.lineTo(-7, 3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
     });
 
     game.enemies.forEach((foe) => drawEnemy(foe, now));
