@@ -6,6 +6,7 @@ import { drawIsland, randomSeed, tagUnit, islandMax } from "./puzzles.js";
 import { sound } from "./sound.js";
 import { voice } from "./voice.js";
 import { hud } from "./hud.js";
+import { panel } from "./panel.js";
 
 const UNIT_IDS = ["u1", "u2", "u3", "u4", "u5", "u6", "u7", "u8", "u9"];
 const WAIT = 8000; // ms for the class list and the unit file, the same patience Word Island has
@@ -172,7 +173,7 @@ async function boot() {
   engine.start(test.scene, test.update, { overlay: hand });
   // The hotbar and the hand: the selected slot is what the hand holds.
   hud.onSelect((item) => hand.setItem(item));
-  hud.blockWhile(() => screens.state.covered);
+  hud.blockWhile(() => screens.state.covered || panel.isOpen());
   const kit = params.has("kit") ? await import("./kit.js") : null;
   // The island waits behind the Play card; the tap itself switches on sound and voice.
   screens.onPlay(() => {

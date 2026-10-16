@@ -1,99 +1,107 @@
-/* Treasure Quest: the frame around the 3D island and the retro look and sound kit's panels (spec 0003). */
-
-/* Pixelify Sans (SIL Open Font License, fonts/OFL.txt), kept here so no font server is called.
-   Cut down to Basic Latin plus · … “ ” ‘ ’ at weight 600, with a plainer 2 and 5 so they never read as 8 and S
-   (tools/make-pixel-font.py). The device font fills in if it fails. */
-@font-face {
-  font-family: "Pixelify Sans";
-  src: url("fonts/pixelify-sans.woff2") format("woff2");
-  font-weight: 400 700;
-  font-display: swap;
-}
+/* Treasure Quest: the frame around the 3D island, in BlockWords' look (spec 0004).
+   The panel, button, hotbar and dialog rules are BlockWords' own (css/style.css at commit 31a2bf4):
+   chunky borders and hard shadows, white text, its Trebuchet font stack. */
 
 :root {
+  --font: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
   --ink: #14213d;
-  --gold: #ffe14a;
-  --card: #fffdf8;
-  --sky: #8fd3ff;
-  /* The kit palette (spec 0003); blocks.js draws with the same hex values. */
-  --plank: #c8a165;
-  --plank-dark: #8b6a3e;
-  --frame: #4a3220;
-  --grass: #5cb85c;
-  --grass-dark: #3d8b3d;
-  --stone: #9a9a9a;
-  --stone-dark: #6e6e6e;
-  --coral: #c0392b;
-  --paper: #fff6e0;
-  /* Wood grain: faint dark lines over the plank colour, light enough to keep text contrast. */
-  --grain: repeating-linear-gradient(180deg, transparent 0 6px, rgba(139, 106, 62, .28) 6px 8px);
-  --pixel: "Pixelify Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --gold: #ffd23f;   /* BlockWords' keyword yellow */
+  --ok: #6ede7a;     /* BlockWords' "done" green */
+  --bad: #ff8f7f;
 }
 * { box-sizing: border-box; }
 html, body {
   margin: 0; height: 100%; overflow: hidden;
-  background: var(--ink); color: var(--ink);
+  background: #0a0d14; color: #fff;
   font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* The island fills the screen. It is drawn at a low resolution and scaled up, so keep the pixels sharp. */
+/* The island fills the screen, drawn at screen size; block pictures keep sharp square pixels. */
 #world {
   position: fixed; inset: 0;
   display: block; width: 100vw; height: 100vh; height: 100dvh;
-  image-rendering: pixelated;
   touch-action: none;
-  background: var(--sky);
+  background: #88ccf5;
 }
 
-/* Chunky block buttons: square corners, a darker bottom edge, and they press down when tapped. */
-.btn, .wbtn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 48px; padding: 10px 20px;
-  border: 4px solid var(--frame); border-radius: 0;
-  background: var(--stone); color: var(--ink);
-  box-shadow: inset 0 -5px 0 var(--stone-dark);
-  font: 600 1.15rem/1.2 var(--pixel); text-decoration: none; cursor: pointer;
+/* BlockWords' buttons: green for the main action, grey for the rest. */
+.btn-big, .btn-small {
+  display: block; width: 100%; margin: 10px 0; padding: 14px;
+  font: bold 20px/1 var(--font); color: #fff; text-align: center; text-decoration: none;
+  background: #4b8a3f;
+  border: 3px solid #12200f;
+  box-shadow: 0 0 0 2px #78bd68 inset, 0 5px 0 #2d5626;
+  border-radius: 4px;
+  cursor: pointer;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, .5);
   touch-action: manipulation;
 }
-.btn.gold { background: var(--gold); box-shadow: inset 0 -5px 0 #c99400; }
-.wbtn.grass { background: var(--grass); box-shadow: inset 0 -5px 0 var(--grass-dark); }
-.btn:active, .wbtn:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .25); }
-.btn:focus-visible, .back:focus-visible, .wbtn:focus-visible, .hbtn:focus-visible { outline: 4px solid #2f6fed; outline-offset: 3px; }
+.btn-big:hover { background: #58a349; }
+.btn-big:active { transform: translateY(3px); box-shadow: 0 0 0 2px #78bd68 inset, 0 2px 0 #2d5626; }
+.btn-small {
+  padding: 9px; font-size: 16px;
+  background: #4a4a56;
+  box-shadow: 0 0 0 2px #767686 inset, 0 4px 0 #2a2a33;
+}
+.btn-small:hover { background: #56566a; }
+.btn-small:active { transform: translateY(2px); box-shadow: 0 0 0 2px #767686 inset, 0 2px 0 #2a2a33; }
+.btn-big:focus-visible, .btn-small:focus-visible, .speak-btn:focus-visible, .back:focus-visible {
+  outline: 3px solid var(--gold); outline-offset: 3px;
+}
 @media (prefers-reduced-motion: reduce) {
-  .btn:active, .wbtn:active:not(:disabled) { transform: none; }
+  .btn-big:active, .btn-small:active { transform: none; }
 }
 
-/* Loading, "not open", "turn your phone" and the other messages: one card at a time. */
+/* BlockWords' panel: dark grey, a hard black border and an inset grey ring. */
+.panel {
+  background: #23232b;
+  border: 4px solid #14141a;
+  box-shadow: 0 0 0 3px #4a4a56 inset, 0 12px 40px rgba(0, 0, 0, .6);
+  border-radius: 6px;
+  padding: 24px 28px;
+  max-width: 640px; width: 100%;
+  text-align: center;
+}
+.panel-title { margin: 0 0 14px; font-size: 26px; text-shadow: 3px 3px 0 #000; }
+.panel-title:focus { outline: none; }
+
+/* Loading, "not open", "turn your phone", the Play card and the other messages: one at a time,
+   on BlockWords' dark overlay. */
 .screen {
   position: fixed; inset: 0; z-index: 10;
-  display: grid; place-items: center;
+  display: flex; align-items: center; justify-content: center;
   padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  background: rgba(20, 33, 61, .78);
+  background: rgba(6, 8, 14, .82);
+  overflow: auto;
 }
 .screen[hidden] { display: none; }
-.card {
-  max-width: 30rem; padding: 22px 24px; text-align: center;
-  background: var(--grain), var(--plank); border: 4px solid var(--frame);
-  box-shadow: 0 6px 0 rgba(0, 0, 0, .3);
+/* The Play card and loading use BlockWords' title screen sky. */
+.screen[data-key="ready"], .screen[data-key="loading"] {
+  background: linear-gradient(180deg, #1b2a3f 0%, #0d1420 60%, #07090f 100%);
 }
-.card h1 { margin: 0 0 8px; font-family: var(--pixel); font-weight: 600; font-size: clamp(1.4rem, 5vw, 2rem); line-height: 1.15; }
-.card h1:focus { outline: none; }
-.card p { margin: 0; font-size: 1.1rem; line-height: 1.4; }
-.actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
+.screen .panel { max-width: 30rem; }
+.screen .panel p { margin: 0; font-size: 18px; line-height: 1.4; opacity: .9; }
+.screen[data-key="ready"] .panel-title, .screen[data-key="loading"] .panel-title {
+  font-size: 40px; letter-spacing: 1px; text-shadow: 4px 4px 0 #1a1a1a, 8px 8px 0 rgba(0, 0, 0, .35);
+}
+.actions { margin-top: 14px; }
 .actions:empty { display: none; }
+.btn-big.play { padding: 18px; font-size: 26px; }
 
-/* A way home from the running quest, clear of phone notches. */
+/* The way out of the running island (the pause menu in spec 0004), clear of phone notches. */
 .back {
   position: fixed; z-index: 5;
   top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left));
   min-height: 44px; padding: 8px 16px;
-  border: 4px solid var(--frame); border-radius: 0;
-  background: var(--plank); color: var(--ink);
-  box-shadow: inset 0 -4px 0 var(--plank-dark);
-  font: 600 1.1rem/1 var(--pixel); cursor: pointer;
+  font: bold 17px/1 var(--font); color: #fff;
+  background: #4a4a56;
+  border: 3px solid #14141a; border-radius: 4px;
+  box-shadow: 0 0 0 2px #767686 inset, 0 4px 0 #2a2a33;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, .5);
+  cursor: pointer; touch-action: manipulation;
 }
 .back[hidden] { display: none; }
 
@@ -104,13 +112,12 @@ html, body {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   padding-bottom: max(10px, env(safe-area-inset-bottom));
   pointer-events: none;
-  color: #fff; font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
 }
 .hud[hidden] { display: none; }
 .counter { display: flex; gap: 18px; }
 .counter p {
   display: flex; align-items: center; gap: 6px; margin: 0;
-  font: bold 20px/1 'Trebuchet MS', sans-serif; text-shadow: 2px 2px 0 #000;
+  font: bold 20px/1 var(--font); text-shadow: 2px 2px 0 #000;
 }
 .counter svg { width: 20px; height: 20px; shape-rendering: crispEdges; filter: drop-shadow(2px 2px 0 #000); }
 .hotbar {
@@ -127,119 +134,120 @@ html, body {
   pointer-events: auto; cursor: pointer; touch-action: manipulation;
 }
 .slot.sel { border-color: #fff; box-shadow: 0 0 0 2px #fff inset; transform: scale(1.06); }
-.slot:focus-visible { outline: 3px solid #ffd23f; outline-offset: 2px; }
+.slot:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 .slot img { width: 40px; height: 40px; image-rendering: pixelated; pointer-events: none; }
 .slot .count {
   position: absolute; right: 3px; bottom: 1px;
   color: #fff; font: bold 15px/1 monospace; text-shadow: 2px 2px 0 #000;
 }
-/* A phone on its side: smaller slots, so the island stays in view. */
+
+/* The talk box: BlockWords' quest dialog (a speaker line with a speak button, a big picture,
+   big bold words), holding one puzzle from spec 0002 and its answers. */
+.panelwrap {
+  position: fixed; inset: 0; z-index: 8;
+  display: flex; align-items: center; justify-content: center;
+  padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+  background: rgba(6, 8, 14, .55);
+}
+.panelwrap[hidden] { display: none; }
+.talk { max-width: 720px; max-height: 100%; overflow: auto; padding: 16px 22px 18px; display: grid; gap: 10px; }
+.quest-head { display: flex; align-items: center; gap: 12px; justify-content: center; }
+.quest-head[hidden] { display: none; }
+.quest-name { margin: 0; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 0 #000; }
+.speak-btn {
+  width: 44px; height: 44px; padding: 0;
+  font-size: 22px; line-height: 1;
+  background: #33333d; color: #fff;
+  border: 3px solid #14141a; border-radius: 4px;
+  box-shadow: 0 0 0 2px #55555f inset;
+  cursor: pointer; touch-action: manipulation;
+}
+.speak-btn:hover { background: #44444f; }
+.speak-btn[hidden] { display: none; }
+.quest-text { margin: 0; font-size: 26px; font-weight: bold; line-height: 1.3; text-shadow: 2px 2px 0 #000; }
+.quest-text:focus { outline: none; }
+.talk.message .quest-text { font-size: 30px; }
+.quest-sub { margin: 0; font-size: 20px; line-height: 1.4; }
+.quest-sub[hidden] { display: none; }
+.talk-body { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 14px; align-items: center; }
+.talk-body.nopic { grid-template-columns: minmax(0, 1fr); }
+.talk-body[hidden], .quest-visual[hidden] { display: none; }
+/* The question picture sits big, as BlockWords' quest picture does, on a light card so book pictures read well. */
+.quest-visual { background: #f4f1e8; border: 3px solid #14141a; border-radius: 4px; padding: 4px; color: #14213d; }
+.quest-visual .pic.small { min-height: 0; }
+.quest-visual .photo { margin: 0 auto; border-radius: 2px; max-height: min(160px, 34vh); }
+.answers { display: grid; gap: 8px; }
+/* Word answers: BlockWords' grey buttons, full width, with their number key. */
+.answer {
+  display: flex; align-items: center; gap: 10px; margin: 0;
+  min-height: 56px; padding: 6px 12px; text-align: left; font-size: 20px;
+}
+.key {
+  display: grid; place-items: center; flex: none; width: 30px; height: 30px;
+  background: #14141a; color: var(--gold); border-radius: 3px;
+  font: bold 17px/1 var(--font); text-shadow: none;
+}
+.thumb { display: grid; place-items: center; flex: none; width: 46px; height: 46px; object-fit: contain; background: #f4f1e8; border-radius: 3px; }
+.thumb .ico { width: 42px; height: 42px; }
+/* Picture answers: cards side by side. */
+.answers.cards { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+.answers.cards .answer { position: relative; flex-direction: column; justify-content: center; text-align: center; padding: 10px 8px 8px; }
+.answers.cards .key { position: absolute; top: 6px; left: 6px; }
+.answers.cards .thumb, .answers.cards .thumb .ico { width: min(100px, 20vh); height: min(100px, 20vh); }
+.answer.right { background: #4b8a3f; box-shadow: 0 0 0 3px var(--gold) inset, 0 4px 0 #2d5626; }
+.answer.right::after { content: "✔"; margin-left: auto; color: var(--gold); font-size: 24px; }
+.answer.wrong { background: #5a2f2f; box-shadow: 0 0 0 3px #c0392b inset, 0 4px 0 #2a1414; }
+.answer.wrong::after { content: "✗"; margin-left: auto; color: var(--bad); font-size: 24px; }
+.answers.cards .answer::after { position: absolute; top: 6px; right: 8px; }
+.answer:disabled { cursor: default; }
+.answer:disabled:not(.right) { opacity: .55; }
+.talk-foot { display: flex; align-items: center; gap: 14px; }
+.talk-foot:has(.result:empty):has(.talk-buttons:empty) { display: none; }
+.result { flex: 1; margin: 0; font-size: 19px; line-height: 1.35; text-align: left; text-shadow: 1px 1px 0 #000; }
+.result:empty, .talk-buttons:empty { display: none; }
+.result.right { color: var(--ok); }
+.result.wrong { color: var(--bad); }
+.result.tip { color: var(--gold); }
+.talk-buttons { display: flex; gap: 10px; margin-left: auto; }
+.talk-buttons .btn-big, .talk-buttons .btn-small { margin: 0; width: auto; min-width: 9rem; }
+.talk.message .talk-foot { justify-content: center; }
+.talk.message .talk-buttons { margin: 0 auto; flex-direction: column; }
+
+/* Phones on their side: tighter, so every screen and the whole talk box fit without scrolling. */
 @media (max-height: 460px) {
+  .panel { padding: 14px 18px; }
+  .talk { gap: 6px; padding: 10px 16px 12px; }
+  .quest-name { font-size: 20px; }
+  .speak-btn { width: 40px; height: 40px; font-size: 20px; }
+  .quest-text { font-size: 20px; line-height: 1.25; }
+  .talk-body { grid-template-columns: minmax(0, 12rem) minmax(0, 1fr); }
+  .quest-visual .photo { max-height: 124px; }
+  .answers { gap: 6px; }
+  .talk-buttons .btn-big { padding: 11px 14px; }
+  .screen[data-key="ready"] .panel-title, .screen[data-key="loading"] .panel-title { font-size: 30px; }
   .slot { width: 42px; height: 42px; }
   .slot img { width: 32px; height: 32px; }
   .counter p { font-size: 17px; }
   .hud { gap: 4px; }
 }
 
-/* The puzzle panel: a blocky wooden sign over the island. */
-.panelwrap {
-  position: fixed; inset: 0; z-index: 8;
-  display: grid; place-items: center;
-  padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
-  background: rgba(20, 33, 61, .35);
-}
-.panelwrap[hidden] { display: none; }
-.panel {
-  display: grid; gap: 10px;
-  width: min(46rem, 100%); max-height: 100%; overflow: auto;
-  padding: 14px 18px 16px;
-  background: var(--grain), var(--plank); color: var(--ink);
-  border: 4px solid var(--frame);
-  box-shadow: inset 0 0 0 3px #d9b77d, 0 6px 0 rgba(0, 0, 0, .3);
-}
-.phead { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.plabel {
-  margin: 0; padding: 4px 10px;
-  background: var(--frame); color: var(--gold);
-  font: 600 1.05rem/1.2 var(--pixel);
-}
-.plabel[hidden], .phear[hidden] { display: none; }
-.phear { min-height: 44px; padding: 6px 14px; font-size: 1.05rem; }
-.pq { margin: 0; font: 700 clamp(20px, 2.4vw, 26px)/1.3 var(--font); }
-.pq:focus { outline: none; }
-.panel.message .pq { font: 600 clamp(1.5rem, 4vw, 2rem)/1.15 var(--pixel); text-align: center; }
-.ptext { margin: 0; font: 400 1.25rem/1.4 var(--font); text-align: center; }
-.ptext[hidden] { display: none; }
-.pbody { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 12px; align-items: center; }
-.pbody.nopic { grid-template-columns: minmax(0, 1fr); }
-.pbody[hidden], .ppic[hidden] { display: none; }
-.ppic { background: var(--paper); border: 4px solid var(--frame); padding: 4px; }
-.ppic .pic.small { min-height: 0; }
-.ppic .photo { margin: 0 auto; border-radius: 0; max-height: min(150px, 34vh); }
-.pchoices { display: grid; gap: 8px; }
-.pchoice {
-  justify-content: flex-start; min-height: 56px; padding: 6px 12px; text-align: left;
-  background: var(--paper); box-shadow: inset 0 -5px 0 #d8c49a;
-}
-.pkey {
-  display: grid; place-items: center; flex: none; width: 28px; height: 28px;
-  background: var(--frame); color: var(--paper); font: 600 1rem/1 var(--pixel);
-}
-.pthumb { display: grid; place-items: center; flex: none; width: 44px; height: 44px; object-fit: contain; }
-.pthumb .ico { width: 44px; height: 44px; }
-.pword { font: 700 1.2rem/1.2 var(--font); }
-/* Picture choices with no main picture sit side by side, with bigger pictures. */
-.pbody.nopic .pchoices[data-look="pic"], .pbody.nopic .pchoices[data-look="icon"] { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
-.pbody.nopic [data-look="pic"] .pchoice, .pbody.nopic [data-look="icon"] .pchoice { position: relative; flex-direction: column; justify-content: center; text-align: center; padding: 8px; }
-.pbody.nopic [data-look="pic"] .pkey, .pbody.nopic [data-look="icon"] .pkey { position: absolute; top: 4px; left: 4px; }
-.pbody.nopic [data-look="pic"] .pthumb, .pbody.nopic [data-look="icon"] .pthumb,
-.pbody.nopic [data-look="icon"] .pthumb .ico { width: min(96px, 20vh); height: min(96px, 20vh); }
-.pbody.nopic [data-look="pic"] .pchoice::after, .pbody.nopic [data-look="icon"] .pchoice::after { position: absolute; top: 6px; right: 8px; }
-.pchoice.right { background: var(--gold); box-shadow: inset 0 -5px 0 #c99400; }
-.pchoice.right::after { content: "✓"; margin-left: auto; font: 700 1.5rem/1 var(--font); }
-.pchoice.wrong { border-color: var(--coral); box-shadow: inset 0 -5px 0 var(--coral); }
-.pchoice.wrong::after { content: "✗"; margin-left: auto; color: var(--coral); font: 700 1.5rem/1 var(--font); }
-.pchoice:disabled { cursor: default; }
-.pchoice:disabled:not(.right) { opacity: .6; }
-.pfoot { display: flex; align-items: center; gap: 12px; }
-.pline { flex: 1; margin: 0; font: 700 1.15rem/1.35 var(--font); }
-.pline:empty, .pbtns:empty { display: none; }
-.pline.right { color: #1d5e1d; }
-.pline.wrong { color: #8e2318; }
-.pbtns { display: flex; gap: 10px; margin-left: auto; }
-.panel.message .pfoot { justify-content: center; }
-.panel.message .pbtns { margin: 0 auto; }
-
-/* Phones on their side: tighter spacing so the whole sign fits without scrolling. */
-@media (max-height: 460px) {
-  .panel { gap: 6px; padding: 8px 14px 10px; }
-  .pq { font-size: 20px; line-height: 1.25; }
-  .phear { min-height: 40px; padding: 4px 12px; }
-  .pbody { grid-template-columns: minmax(0, 12rem) minmax(0, 1fr); }
-  .ppic .photo { max-height: 128px; }
-  .pchoices { gap: 6px; }
-  .pfoot .wbtn { min-height: 48px; padding: 6px 16px; }
-}
-
 /* Add &kit to the address to see this: the kit's sample puzzles, sounds and voices. */
 .kittoggle {
-  position: fixed; z-index: 7;
-  left: max(10px, env(safe-area-inset-left)); bottom: max(10px, env(safe-area-inset-bottom));
+  position: fixed; z-index: 7; width: auto; margin: 0;
+  right: max(10px, env(safe-area-inset-right)); top: max(10px, env(safe-area-inset-top));
 }
 .kitsheet {
   position: fixed; z-index: 7;
-  left: max(10px, env(safe-area-inset-left)); bottom: calc(max(10px, env(safe-area-inset-bottom)) + 62px);
-  top: calc(max(10px, env(safe-area-inset-top)) + 58px);
-  width: min(26rem, calc(100% - 20px)); overflow: auto;
-  padding: 10px 12px;
-  background: var(--grain), var(--plank); border: 4px solid var(--frame);
+  right: max(10px, env(safe-area-inset-right)); top: calc(max(10px, env(safe-area-inset-top)) + 54px);
+  bottom: calc(max(10px, env(safe-area-inset-bottom)) + 96px);
+  width: min(26rem, calc(100% - 20px)); max-width: none; overflow: auto;
+  padding: 10px 14px; text-align: left;
 }
 .kitsheet[hidden] { display: none; }
-.kitsheet h2 { margin: 4px 0 6px; font: 600 1.15rem/1.2 var(--pixel); }
+.kitsheet h2 { margin: 6px 0; font-size: 18px; text-shadow: 2px 2px 0 #000; }
 .kitrow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-.kitrow .wbtn { min-height: 44px; padding: 6px 12px; font-size: 1rem; }
-.kittiles { display: block; width: 192px; height: 192px; margin-bottom: 8px; image-rendering: pixelated; border: 4px solid var(--frame); background: #fff; }
-.kitnote { margin: 0; font: 400 .95rem/1.3 var(--font); }
+.kitrow .btn-small, .kitrow .btn-big { width: auto; margin: 0; padding: 8px 12px; font-size: 15px; }
+.kitnote { margin: 0; font-size: 14px; opacity: .85; }
 
 /* The teacher has paused the class (copied from Word Island). */
 .hush {
@@ -252,7 +260,7 @@ html, body {
 .hushbox svg { width: clamp(110px, 26vw, 170px); height: auto; animation: hushpulse 1.6s ease-in-out infinite; }
 .hushbox h2 { margin: 0; font-size: clamp(2rem, 7vw, 3.4rem); line-height: 1.05; }
 .hushbox h2:focus { outline: none; }
-.hushbox p { margin: 0; font-size: clamp(1.1rem, 3.6vw, 1.4rem); font-weight: 600; color: var(--gold); }
+.hushbox p { margin: 0; font-size: clamp(1.1rem, 3.6vw, 1.4rem); font-weight: 600; color: #ffe14a; }
 @keyframes hushpulse { 50% { transform: scale(1.08); } }
 @media (prefers-reduced-motion: reduce) {
   .hushbox svg { animation: none; }
@@ -268,7 +276,4 @@ html, body {
   pointer-events: none;
 }
 .debug[hidden] { display: none; }
-.noscript { position: fixed; inset: 0; margin: 0; padding: 24px; background: #fff; font-size: 1.2rem; }
-
-/* The Play card's button: big and easy to hit. */
-.btn.big { min-width: 10rem; min-height: 64px; font-size: 1.5rem; }
+.noscript { position: fixed; inset: 0; margin: 0; padding: 24px; background: #fff; color: #14213d; font-size: 1.2rem; }

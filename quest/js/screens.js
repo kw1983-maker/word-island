@@ -66,7 +66,8 @@ function esc(value) {
 }
 
 function buttonHtml(button) {
-  const cls = ["btn", button.gold && "gold", button.big && "big"].filter(Boolean).join(" ");
+  // BlockWords' buttons: the main one green, the others grey.
+  const cls = button.gold ? (button.big ? "btn-big play" : "btn-big") : "btn-small";
   return button.href
     ? `<a class="${cls}" href="${esc(button.href)}">${esc(button.label)}</a>`
     : `<button type="button" class="${cls}" data-act="${esc(button.act)}">${esc(button.label)}</button>`;
@@ -86,6 +87,7 @@ function render() {
   const key = state.hush ? null : cardKey();
   if (key !== shownKey) {
     shownKey = key;
+    el.screen.dataset.key = key || "";
     if (key) {
       const text = TEXT[key];
       el.title.textContent = text.title;

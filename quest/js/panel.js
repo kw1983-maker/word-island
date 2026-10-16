@@ -1,6 +1,6 @@
-// Treasure Quest · the puzzle panel: a wooden sign over the island that shows one puzzle from spec 0002,
-// its picture, 2 or 3 choices and a Hear it button. It only shows and reports: the calling feature
-// decides right or wrong and the coins, then tells the panel through result() (spec 0003).
+// Treasure Quest · the talk box: BlockWords' quest dialog over the island, showing one puzzle from
+// spec 0002, its picture, 2 or 3 answers and a speak button (Hear it). It only shows and reports: the
+// calling feature decides right or wrong and the coins, then tells it through result() (specs 0003, 0004).
 // Text is always set with textContent; only the shared picture drawer's own markup is used as HTML.
 import { sound } from "./sound.js";
 import { voice } from "./voice.js";
@@ -23,34 +23,37 @@ function make(tag, cls, text) {
 function build() {
   root = make("div", "panelwrap");
   root.hidden = true;
-  const panel = make("div", "panel");
+  const panel = make("div", "panel talk");
   panel.setAttribute("role", "dialog");
   panel.setAttribute("aria-modal", "true");
   panel.setAttribute("aria-labelledby", "panelq");
-  const head = make("div", "phead");
-  const label = make("p", "plabel");
+  const head = make("div", "quest-head");
+  const label = make("p", "quest-name");
   label.id = "panellabel";
-  const hear = make("button", "wbtn stone phear", "Hear it");
+  // BlockWords' speak button: a speaker you tap to hear it again.
+  const hear = make("button", "speak-btn", "🔊");
   hear.type = "button";
+  hear.title = "Hear it";
+  hear.setAttribute("aria-label", "Hear it");
   hear.setAttribute("aria-keyshortcuts", "H");
   head.append(label, hear);
-  const question = make("h2", "pq");
+  const question = make("h2", "quest-text");
   question.id = "panelq";
   question.tabIndex = -1;
-  const body = make("div", "pbody");
-  const pic = make("div", "ppic");
-  const choices = make("div", "pchoices");
+  const body = make("div", "talk-body");
+  const pic = make("div", "quest-visual");
+  const choices = make("div", "answers");
   body.append(pic, choices);
-  const text = make("p", "ptext");
-  const foot = make("div", "pfoot");
-  const line = make("p", "pline");
+  const text = make("p", "quest-sub");
+  const foot = make("div", "talk-foot");
+  const line = make("p", "result");
   line.setAttribute("role", "status");
-  const buttons = make("div", "pbtns");
+  const buttons = make("div", "talk-buttons");
   foot.append(line, buttons);
   panel.append(head, question, text, body, foot);
   root.append(panel);
   document.body.append(root);
-  el = { panel, label, hear, question, text, body, pic, choices, line, buttons };
+  el = { panel, head, label, hear, question, text, body, pic, choices, line, buttons };
 
   hear.addEventListener("click", () => {
     if (!current || !current.puzzle) return;
@@ -109,12 +112,12 @@ function onKey(event) {
 
 function setLine(text, kind) {
   el.line.textContent = text;
-  el.line.className = "pline" + (kind ? " " + kind : "");
+  el.line.className = "result" + (kind ? " " + kind : "");
 }
 
 function setButtons(list) {
   el.buttons.replaceChildren(...list.map((b, i) => {
-    const button = make("button", "wbtn " + (i === 0 ? "grass" : "stone"), b.label);
+    const button = make("button", i === 0 ? "btn-big" : "btn-small", b.label);
     button.type = "button";
     button.dataset.act = b.act;
     return button;
@@ -123,23 +126,23 @@ function setButtons(list) {
 
 // A picture choice uses the book picture; an icon choice uses the shared icon; a word choice has none.
 function choiceButton(choice, at, look, unit) {
-  const button = make("button", "wbtn wood pchoice");
+  const button = make("button", "btn-small answer");
   button.type = "button";
   button.dataset.at = String(at);
-  const key = make("span", "pkey", String(at + 1));
+  const key = make("span", "key", String(at + 1));
   key.setAttribute("aria-hidden", "true");
   button.append(key);
   if (look === "pic") {
-    const img = make("img", "pthumb");
+    const img = make("img", "thumb");
     img.alt = "";
     img.src = `../img/${unit}/${choice.value}.webp`;
     button.append(img);
   } else if (look === "icon" && typeof icon === "function") {
-    const box = make("span", "pthumb");
+    const box = make("span", "thumb");
     box.innerHTML = icon(choice.value); // a fixed drawing from shared/picture.js, never bank text
     button.append(box);
   }
-  button.append(make("span", "pword", choice.label));
+  button.append(make("span", "word", choice.label));
   return button;
 }
 
@@ -154,11 +157,10 @@ const panelApi = {
   open(puzzle, { unit, onChoose, onClose } = {}) {
     if (!root) build();
     current = { puzzle, unit, onChoose, onClose, chosen: null };
-    el.panel.className = "panel puzzle";
+    el.panel.className = "panel talk puzzle";
     const kind = puzzle.playAs || puzzle.type;
     el.label.textContent = puzzle.by || LABELS[kind] || LABELS.chest;
-    el.label.hidden = false;
-    el.hear.hidden = false;
+    el.head.hidden = false;
     el.question.textContent = puzzle.show;
     el.text.hidden = true;
     el.body.hidden = false;
@@ -167,7 +169,8 @@ const panelApi = {
     else el.pic.replaceChildren();
     el.body.classList.toggle("nopic", !puzzle.pic);
     el.choices.replaceChildren(...puzzle.choices.map((choice, at) => choiceButton(choice, at, puzzle.look, unit)));
-    el.choices.dataset.look = puzzle.look || "text";
+    // Picture answers are cards side by side; word answers are full width buttons.
+    el.choices.className = puzzle.look === "pic" || puzzle.look === "icon" ? "answers cards" : "answers";
     setLine("", "");
     setButtons([]);
     show();
@@ -203,14 +206,13 @@ const panelApi = {
     el.buttons.querySelector("button").focus({ preventScroll: true });
   },
 
-  // A plain wooden sign with buttons, for the island finish and other features.
+  // A plain talk box with buttons, for the island finish and other features.
   // onButton(act) runs when a button is tapped; the caller closes the panel.
   message({ title = "", text = "", buttons = [], onButton } = {}) {
     if (!root) build();
     current = { puzzle: null, onButton };
-    el.panel.className = "panel message";
-    el.label.hidden = true;
-    el.hear.hidden = true;
+    el.panel.className = "panel talk message";
+    el.head.hidden = true;
     el.question.textContent = title;
     el.text.textContent = text;
     el.text.hidden = !text;
