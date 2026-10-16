@@ -1,7 +1,7 @@
 # 0003. Make Treasure Quest's look and sound in code: pixel blocks, wooden panels, a synth and the browser voice
 
 **Date**: 2026-10-16
-**Status**: In Progress
+**Status**: Superseded by [0004](../0004-quest-blockwords-look/index.md)
 
 ## Summary
 

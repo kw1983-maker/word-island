@@ -80,14 +80,19 @@ One way to describe an island's puzzles (chests, riddles, listen and find, word 
 - [x] Verify it: `/check verify quest content model`
 Spec [0002](../specs/0002-quest-content-model/index.md) · code in `quest/islands/`, `quest/js/puzzles.js`, `quest/review.html`, `shared/picture.js`, `tools/check-quests.mjs`
 
-### 4. Retro look & sound kit · in-progress · needs a decision
+### 4. Retro look & sound kit · in-progress
 Make the island look and sound like BlockWords: its block textures, a sharp first person picture, sky and clouds, dark grey talk boxes with big green buttons, the hotbar, chiptune sounds and the browser voice reading every question.
 **Done when:** a test scene looks like BlockWords on phone and laptop, a talk box shows a real puzzle, music and sound effects play, and the voice reads a question aloud.
-The first build (spec 0003: chunky pixels, wooden signs, new textures) was turned down on 2026-10-16 as nothing like BlockWords. Its Play tap, sounds, voice, saved Sound and Music, and answer logic can carry over.
-- [ ] Redesign it to match BlockWords (spec): `/architect retro look & sound kit`
+The first build (spec 0003: chunky pixels, wooden signs, new textures) was turned down on 2026-10-16 as nothing like BlockWords; spec 0004 replaces it by reusing BlockWords' own code.
+- [x] Redesign it to match BlockWords (spec): `/architect retro look & sound kit`
 - [ ] Build it: `/develop retro look & sound kit`
+   - [ ] BlockWords world in first person: copied blocks, atlas, mesher, island world, sea, sunny sky, screen sharpness and the test beach (AC-2 to AC-6, AC-17)
+   - [ ] Hand, hotbar and coin counter (AC-7, AC-8)
+   - [ ] Talk box, screens, Play card, font and pause menu (AC-1, AC-9 to AC-12, AC-14, AC-16)
+   - [ ] BlockWords sounds and the `&kit` view (AC-13 to AC-15, AC-18, AC-21)
+   - [ ] Remove the spec 0003 look, then the budget and speed checks (AC-19 to AC-21)
 - [ ] Verify it: `/check verify retro look & sound kit`
-Spec [0003](../specs/0003-quest-look-sound-kit/index.md) · code in `quest/js/` (`sound.js`, `voice.js`, `panel.js`, `hud.js`, `blocks.js`, `kit.js`), `quest/quest.css`, `quest/fonts/`, `tools/make-pixel-font.py`
+Spec [0004](../specs/0004-quest-blockwords-look/index.md) (replaces [0003](../specs/0003-quest-look-sound-kit/index.md))
 
 ## Release 1: Beach treasure hunt (the first playable island)
 
