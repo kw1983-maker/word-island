@@ -1,7 +1,7 @@
 # 0004. Give Treasure Quest the BlockWords look and sound by reusing BlockWords' own code
 
 **Date**: 2026-10-16
-**Status**: In Progress
+**Status**: Accepted
 **Supersedes**: [0003](../0003-quest-look-sound-kit/index.md)
 
 ## Summary

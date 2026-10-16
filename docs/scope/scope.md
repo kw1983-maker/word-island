@@ -17,7 +17,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 1 | Project context & standards | Foundation | planned |
 | 2 | Game engine & page structure | Foundation | in-progress |
 | 3 | Quest content model | Foundation | done |
-| 4 | Retro look & sound kit | Foundation | in-progress |
+| 4 | Retro look & sound kit | Foundation | done |
 | 5 | Quest entry in Word Island | Release 1 | planned |
 | 6 | Movement & controls | Release 1 | planned |
 | 7 | Beach island (Unit 9) | Release 1 | planned |
@@ -80,7 +80,7 @@ One way to describe an island's puzzles (chests, riddles, listen and find, word 
 - [x] Verify it: `/check verify quest content model`
 Spec [0002](../specs/0002-quest-content-model/index.md) · code in `quest/islands/`, `quest/js/puzzles.js`, `quest/review.html`, `shared/picture.js`, `tools/check-quests.mjs`
 
-### 4. Retro look & sound kit · in-progress
+### 4. Retro look & sound kit · done
 Make the island look and sound like BlockWords: its block textures, a sharp first person picture, sky and clouds, dark grey talk boxes with big green buttons, the hotbar, chiptune sounds and the browser voice reading every question.
 **Done when:** a test scene looks like BlockWords on phone and laptop, a talk box shows a real puzzle, music and sound effects play, and the voice reads a question aloud.
 The first build (spec 0003: chunky pixels, wooden signs, new textures) was turned down on 2026-10-16 as nothing like BlockWords; spec 0004 replaces it by reusing BlockWords' own code.
@@ -91,7 +91,7 @@ The first build (spec 0003: chunky pixels, wooden signs, new textures) was turne
    - [x] Talk box, screens, Play card, font and pause menu (AC-1, AC-9 to AC-12, AC-14, AC-16)
    - [x] BlockWords sounds and the `&kit` view (AC-13 to AC-15, AC-18, AC-21)
    - [x] Remove the spec 0003 look, then the budget and speed checks (AC-19 to AC-21)
-- [ ] Verify it: `/check verify retro look & sound kit`
+- [x] Verify it: `/check verify retro look & sound kit` (26 of 28 steps passed in a browser on 2026-10-17; the real iPhone and budget Android check was skipped for now, to run once walking is built)
 Spec [0004](../specs/0004-quest-blockwords-look/index.md) (replaces [0003](../specs/0003-quest-look-sound-kit/index.md)) · code in `quest/js/bw/` (copied BlockWords code), `quest/js/` (`hand.js`, `hud.js`, `look.js`, `pause.js`, `panel.js`, `sound.js`, `kit.js`, `testscene.js`), `quest/quest.css`
 
 ## Release 1: Beach treasure hunt (the first playable island)
