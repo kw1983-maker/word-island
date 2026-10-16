@@ -164,8 +164,8 @@ async function boot() {
     return;
   }
   wireEngine(engine);
-  const island = buildTestScene(engine.camera);
-  engine.start(island.scene, island.update);
+  const test = buildTestScene(engine.camera);
+  engine.start(test.scene, test.update);
   screens.setBase("running");
   if (quest.debug) {
     const { showDebug } = await import("./debug.js");
