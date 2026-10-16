@@ -16,7 +16,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | B | Class settings, results page and leaderboards | Existing | existing |
 | 1 | Project context & standards | Foundation | planned |
 | 2 | Game engine & page structure | Foundation | in-progress |
-| 3 | Quest content model | Foundation | in-progress |
+| 3 | Quest content model | Foundation | done |
 | 4 | Retro look & sound kit | Foundation | planned |
 | 5 | Quest entry in Word Island | Release 1 | planned |
 | 6 | Movement & controls | Release 1 | planned |
@@ -65,7 +65,7 @@ How a 3D game sits inside a plain HTML site that must load fast on cheap phones,
 - [ ] Verify it: `/check verify game engine & page structure`
 Spec [0001](../specs/0001-quest-engine-page-structure/index.md) · code in `quest/`, `shared/`
 
-### 3. Quest content model · in-progress
+### 3. Quest content model · done
 One way to describe an island's puzzles (chests, riddles, listen and find, word blocks) that reuses the existing unit questions and pictures, with easier settings for Year 1.
 **Done when:** all four puzzle types and the Unit 9 content can be written in the one shape, and adding a unit means adding data, not code.
 - [x] Design it (spec): `/architect quest content model`

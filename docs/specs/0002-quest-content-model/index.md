@@ -1,7 +1,7 @@
 # 0002. Describe each Treasure Quest island in one data file that reuses the unit question banks
 
 **Date**: 2026-10-16
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
