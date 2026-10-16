@@ -128,6 +128,22 @@ WORD_ISLAND_UNITS.u7 = (() => {
     hear("u7p-leather", "materials", "You can wear leather shoes.", ["m-shoes", "m-socks", "m-tshirt"], { pics: true, alts: ["leather shoes", "woollen socks", "a cotton T-shirt"] })
   ];
 
+  // Game 4: listen, then run through the right gate.
+  const RUNNER = [
+    hear("u7r-jacket", "clothes", "Put on your jacket.", ["c-jacket", "c-tshirt", "c-socks"], { pics: true, alts: ["jacket", "T-shirt", "socks"] }),
+    hear("u7r-jeans", "clothes", "Put on your jeans.", ["c-jeans", "c-trousers", "m-shorts"], { pics: true, alts: ["jeans", "trousers", "shorts"] }),
+    hear("u7r-boots", "clothes", "Put on your boots.", ["l-boots", "c-shoes", "c-socks"], { pics: true, alts: ["boots", "shoes", "socks"] }),
+    hear("u7r-gloves", "clothes", "Put on your gloves.", ["m-gloves", "m-socks", "m-belt"], { pics: true, alts: ["gloves", "socks", "belt"], challenge: true }),
+    hear("u7r-likejacket", "like", "Do you like this jacket?", ["l-jacket", "l-hat", "l-trousers"], { pics: true, alts: ["jacket", "white hat", "trousers"] }),
+    hear("u7r-likeno", "like", "Do you like these boots? No, I don't.", ["No, I don't.", "Yes, I do.", "No, they aren't."], { challenge: true }),
+    hear("u7r-wearing", "wearing", "Is she wearing a red skirt? No, she isn't.", ["No, she isn't.", "No, he isn't.", "Yes, she is."], { challenge: true }),
+    hear("u7r-stop", "story", "Stop! That's my cap, Gary.", ["Stop! That's my cap, Gary.", "No problem.", "I'm very sorry, Gary."]),
+    hear("u7r-stairs", "phonics", "stairs", ["stairs", "chairs", "stars"]),
+    hear("u7r-stop2", "phonics", "stop", ["stop", "step", "top"], { challenge: true }),
+    hear("u7r-woolhat", "materials", "You can wear a woolly hat.", ["m-woolhat", "m-tshirt", "m-shorts"], { pics: true, alts: ["a woolly hat", "a cotton T-shirt", "shorts"] }),
+    hear("u7r-leatherboots", "materials", "You can wear leather boots.", ["m-boots", "m-socks", "m-tshirt"], { pics: true, alts: ["leather boots", "woollen socks", "a cotton T-shirt"], challenge: true })
+  ];
+
   // Teacher explain page: a hint per topic to give before the answer.
   const HINTS = {
     clothes: "Say the chant: T-shirt, trousers, sweater, shoes, socks and cap. Do the clothes rap!",
@@ -179,6 +195,6 @@ WORD_ISLAND_UNITS.u7 = (() => {
     topics: TOPICS,
     hints: HINTS,
     notes: NOTES,
-    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, runner: RUNNER, planes: PLANES }
   };
 })();

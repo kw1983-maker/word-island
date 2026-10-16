@@ -134,6 +134,25 @@ WORD_ISLAND_UNITS.u3 = (() => {
     hear("u3p-logs", "camouflage", "logs", ["logs", "trees", "leaves"], { pics: true, alts: ["logs", "trees", "leaves"], challenge: true })
   ];
 
+  // Game 4: listen, then run through the right gate.
+  const RUNNER = [
+    hear("u3r-cats", "pets", "cats", ["s-cats", "s-dogs", "s-ducks"], { pics: true, alts: ["cats", "dogs", "ducks"] }),
+    hear("u3r-dogs", "pets", "dogs", ["s-dogs", "s-rats", "s-lizards"], { pics: true, alts: ["dogs", "rats", "lizards"] }),
+    hear("u3r-spiders", "pets", "spiders", ["s-spiders", "s-frogs", "s-elephants"], { pics: true, alts: ["spiders", "frogs", "elephants"], challenge: true }),
+    hear("u3r-cat-on", "where", "The cat is on the book.", ["cat-on-book", "cat-under-desk", "q-cat-bag"], { pics: true, alts: ["cat on the book", "cat under the desk", "cat in the bag"] }),
+    hear("u3r-rat-on", "where", "The rat is on the book.", ["rat-on-book", "rat-under-desk", "cat-on-book"], { pics: true, alts: ["rat on the book", "rat under the desk", "cat on the book"] }),
+    hear("u3r-spider-under", "where", "The spider is under the book.", ["spider-under-book", "spider-in-case", "s-spiders"], { pics: true, alts: ["spider under the book", "spider in the pencil case", "spiders on the pencil case"] }),
+    hear("u3r-frog-under", "where", "The frog is under the pencil case.", ["frog-under-case", "frog-on-bag", "frog-in-bag"], { pics: true, alts: ["frog under the pencil case", "frog on the bag", "frog in the bag"], challenge: true }),
+    hear("u3r-likedogs", "like", "I like dogs.", ["I like dogs.", "I don't like dogs.", "I like logs."]),
+    hear("u3r-dontlikerats", "like", "I don't like rats.", ["I don't like rats.", "I like rats.", "I don't like cats."], { challenge: true }),
+    hear("u3r-clever", "story", "He's clever.", ["He's clever.", "They're great.", "Oh no!"]),
+    hear("u3r-kim", "phonics", "Tim's silly sister is Kim.", ["Kim", "Jim", "Tim"], { challenge: true }),
+    hear("u3r-tiger", "camouflage", "a tiger", ["tiger", "giraffe", "snake"], { pics: true, alts: ["a tiger", "a giraffe", "a snake"] }),
+    hear("u3r-bird", "camouflage", "a bird", ["bird", "butterfly", "crocodile"], { pics: true, alts: ["a bird", "a butterfly", "a crocodile"] }),
+    hear("u3r-crocodile", "camouflage", "a crocodile", ["crocodile", "snake", "tiger"], { pics: true, alts: ["a crocodile", "a snake", "a tiger"] }),
+    hear("u3r-leaves", "camouflage", "leaves", ["leaves", "logs", "grass"], { pics: true, alts: ["leaves", "logs", "tall grass"], challenge: true })
+  ];
+
   // Teacher explain page: a hint per topic to give before the answer.
   const HINTS = {
     pets: "Say the animals: elephant, rat, lizard, frog, spider, duck, dog, cat.",
@@ -183,6 +202,6 @@ WORD_ISLAND_UNITS.u3 = (() => {
     topics: TOPICS,
     hints: HINTS,
     notes: NOTES,
-    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, runner: RUNNER, planes: PLANES }
   };
 })();

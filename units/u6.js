@@ -135,6 +135,25 @@ WORD_ISLAND_UNITS.u6 = (() => {
     hear("u6p-mountains", "habitats", "mountains", ["mountains", "polar", "jungle"], { pics: true, alts: ["mountains", "polar region", "jungle"], challenge: true })
   ];
 
+  // Game 4: listen, then run through the right gate.
+  const RUNNER = [
+    hear("u6r-bathroom", "rooms", "the bathroom", ["room-bathroom", "room-kitchen", "room-bedroom"], { pics: true, alts: ["bathroom", "kitchen", "bedroom"] }),
+    hear("u6r-living", "rooms", "the living room", ["room-living", "room-hall", "room-dining"], { pics: true, alts: ["living room", "hall", "dining room"] }),
+    hear("u6r-stairs", "rooms", "the stairs", ["room-stairs", "room-cellar", "room-hall"], { pics: true, alts: ["stairs", "cellar", "hall"], challenge: true }),
+    hear("u6r-car", "isthere", "Is there a car?", ["car", "kite", "plane"], { pics: true, alts: ["a car", "a kite", "a plane"] }),
+    hear("u6r-kite", "isthere", "Is there a kite?", ["kite", "bike", "gokart"], { pics: true, alts: ["a kite", "a bike", "a go-kart"] }),
+    hear("u6r-cakes", "isthere", "Are there any cakes?", ["cake", "pears", "rat"], { pics: true, alts: ["cakes", "pears", "rats"], challenge: true }),
+    hear("u6r-fourcats", "there", "There are four cats.", ["There are four cats.", "There's a cat.", "There are four rats."]),
+    hear("u6r-lizard", "song", "There's a lizard in the bedroom.", ["s-lizard", "s-cat", "s-spider"], { pics: true, alts: ["a lizard in the bedroom", "a cat in the living room", "a spider in the kitchen"] }),
+    hear("u6r-cat", "song", "There's a cat in the living room.", ["s-cat", "s-snake", "s-crocodiles"], { pics: true, alts: ["a cat in the living room", "a snake in the cellar", "crocodiles in the bathroom"], challenge: true }),
+    hear("u6r-here", "story", "Here I am.", ["Here I am.", "Go in? No way!", "Yuck! Big spiders!"]),
+    hear("u6r-hat", "phonics", "hat", ["hat", "cat", "mat"]),
+    hear("u6r-hall", "phonics", "hall", ["hall", "ball", "wall"], { challenge: true }),
+    hear("u6r-camel", "habitats", "a camel", ["camel", "goat", "penguin"], { pics: true, alts: ["a camel", "a goat", "a penguin"] }),
+    hear("u6r-shark", "habitats", "a shark", ["shark", "jellyfish", "parrot"], { pics: true, alts: ["a shark", "a jellyfish", "a parrot"] }),
+    hear("u6r-jungle", "habitats", "You find parrots in the jungle.", ["jungle", "desert", "ocean"], { pics: true, alts: ["the jungle", "the desert", "the ocean"], challenge: true })
+  ];
+
   // Teacher explain page: a hint per topic to give before the answer.
   const HINTS = {
     rooms: "Look for the furniture: a bed, a bath, a cooker, a table, a sofa …",
@@ -196,6 +215,6 @@ WORD_ISLAND_UNITS.u6 = (() => {
     topics: TOPICS,
     hints: HINTS,
     notes: NOTES,
-    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, runner: RUNNER, planes: PLANES }
   };
 })();

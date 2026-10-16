@@ -40,6 +40,7 @@
   body[data-screen="maze"] { background-color: #e7f6ef; }
   body[data-screen="moles"] { background-color: #e5f4ee; }
   body[data-screen="hangman"] { background-color: #f8f1e4; }
+  body[data-screen="runner"] { background-color: #efe3fb; }
   body[data-screen="planes"] { background-color: #d7eefe; }
   button, input { font: inherit; color: inherit; }
   button { cursor: pointer; }
@@ -150,6 +151,13 @@
       linear-gradient(#14213d, #14213d) 58% 70% / 10px 16px no-repeat,
       radial-gradient(circle at 22% 28%, #fff 0 7px, transparent 8px),
       linear-gradient(#7ec8f8, #d4efff);
+  }
+  .scene-runner {
+    background:
+      linear-gradient(#00eaff, #00eaff) 50% 100% / 3px 46% no-repeat,
+      linear-gradient(#2f6fed, #2f6fed) 50% 70% / 14px 22px no-repeat,
+      radial-gradient(circle at 50% 38%, #ffe14a 0 14px, #ff2d95 15px, transparent 16px),
+      linear-gradient(#2a0a52 0 38%, #14003a 38%);
   }
   .partner { margin: 14px 0 0; }
   .linkish { background: none; border: 0; box-shadow: none; padding: 0; font-weight: 700; text-decoration: underline; }
@@ -431,6 +439,20 @@
   body[data-screen="planes"] #feedback.tip { color: #e8f4ff; }
   body[data-screen="planes"] .sky.still { background: linear-gradient(#070b1a, #10203a); border-color: #00b4d8; }
   body[data-screen="planes"] .bandit span { color: var(--ink); }
+  body[data-screen="runner"] { background: #0c0222; color: #f0e6ff; }
+  body[data-screen="runner"] .ghost { color: #f0e6ff; border-color: #ff2d95; box-shadow: 0 4px 0 rgba(255, 45, 149, .25); }
+  body[data-screen="runner"] .ghost[aria-pressed="true"], body[data-screen="runner"] .btn { color: var(--ink); }
+  body[data-screen="runner"] .stage { background: #140432; border-color: #ff2d95; box-shadow: 0 0 30px rgba(255, 45, 149, .2); }
+  body[data-screen="runner"] .pips i { background: #1c0a3a; border-color: #ff2d95; }
+  body[data-screen="runner"] .pips i.did { background: #00c389; }
+  body[data-screen="runner"] .pips i.now { background: var(--gold); }
+  body[data-screen="runner"] #feedback.ok { color: #4cffb0; }
+  body[data-screen="runner"] #feedback.tip { color: #f0e6ff; }
+  body[data-screen="runner"] .skywrap { border-color: #ff2d95; }
+  body[data-screen="runner"] .skyover { background: rgba(12, 2, 34, .86); color: #f0e6ff; }
+  body[data-screen="runner"] .skytitle { background: linear-gradient(#ffe14a, #ff2d95); -webkit-background-clip: text; background-clip: text; }
+  body[data-screen="runner"] .pickbtn { border-color: #ff2d95; background: #1c0a3a; color: #f0e6ff; }
+  .runcanvas { cursor: pointer; }
   body[data-screen="planes"] .ear rect, body[data-screen="planes"] .ear polygon { fill: #e8f4ff; }
   .skywrap {
     position: relative; height: min(560px, 68dvh); min-height: 340px; margin-top: 8px;
@@ -687,7 +709,8 @@ const CAPTION = {
   maze: "Game 1. Look at the picture. At the star door, choose the answer.",
   moles: "Game 2. Read the question. Hit the mole when the right answer pops up.",
   hangman: "Game 3. Look and listen. Spell the word. Save the balloons.",
-  planes: "Game 4. Listen. Move the plane. Hold to shoot the right one.",
+  runner: "Game 4. Listen. Swipe to change lane. Swipe up to jump. Run through the right gate.",
+  planes: "Game 5. Listen. Move the plane. Hold to shoot the right one.",
   results: "A wrong answer is fine. Read the tip. Try that one again.",
   teacher: "Teacher only. Ask the class first, then show the hint, then the answer."
 };
@@ -696,17 +719,19 @@ const GATES = [
   { id: "maze", n: "01", title: "Word maze", line: "Look at the picture. Choose the answer.", need: "This game is open." },
   { id: "moles", n: "02", title: "Answer moles", line: "Read the question. Hit the right answer.", need: "Finish the maze first." },
   { id: "hangman", n: "03", title: "Spelling balloons", line: "Spell the word. Save the balloons.", need: "Finish the moles first." },
-  { id: "planes", n: "04", title: "Listen and shoot", line: "Listen. Shoot the right plane.", need: "Finish the spelling first." }
+  { id: "runner", n: "04", title: "Run and pick", line: "Listen. Run through the right gate.", need: "Finish the spelling first." },
+  { id: "planes", n: "05", title: "Listen and shoot", line: "Listen. Shoot the right plane.", need: "Finish Run and pick first." }
 ];
 
 const GAME = {
   maze: "Game 1 · Word maze",
   moles: "Game 2 · Answer moles",
   hangman: "Game 3 · Spelling balloons",
-  planes: "Game 4 · Listen and shoot"
+  runner: "Game 4 · Run and pick",
+  planes: "Game 5 · Listen and shoot"
 };
 
-const BADGE = { maze: "Maze badge", moles: "Mole badge", hangman: "Balloon badge", planes: "Plane badge" };
+const BADGE = { maze: "Maze badge", moles: "Mole badge", hangman: "Balloon badge", runner: "Robot badge", planes: "Plane badge" };
 
 const HEX = {
   red: "#d62828", yellow: "#ffd60a", orange: "#f77f00", purple: "#7b2cbf",
@@ -755,8 +780,12 @@ const WORD_ISLAND_UNITS = {};
 <script src="units/u8.js"></script>
 <script src="units/u9.js"></script>
 <script src="sky.js"></script>
+<script src="run.js"></script>
 <script>
-const GAME_IDS = ["maze", "moles", "hangman", "planes"];
+const GAME_IDS = ["maze", "moles", "hangman", "runner", "planes"];
+// Run and pick and Listen and shoot both read the word out, then the pupil picks a gate or a plane.
+const LISTEN_GAMES = ["runner", "planes"];
+const listens = (game) => LISTEN_GAMES.includes(game);
 const ROUND = 10;
 const UNITS = WORD_ISLAND_UNITS;
 const UNIT_IDS = Object.keys(UNITS).sort((a, b) => UNITS[a].number - UNITS[b].number);
@@ -802,9 +831,9 @@ function fresh() {
     sound: true,
     name: "",
     cls: "",
-    best: { maze: 0, moles: 0, hangman: 0, planes: 0 },
-    done: { maze: false, moles: false, hangman: false, planes: false },
-    missed: { maze: [], moles: [], hangman: [], planes: [] }
+    best: { maze: 0, moles: 0, hangman: 0, runner: 0, planes: 0 },
+    done: { maze: false, moles: false, hangman: false, runner: false, planes: false },
+    missed: { maze: [], moles: [], hangman: [], runner: [], planes: [] }
   };
 }
 
@@ -944,7 +973,8 @@ function unlocked(id) {
   if (openAll || id === "maze" || id === forcedGame) return true;
   if (id === "moles") return !!state.done.maze;
   if (id === "hangman") return !!state.done.moles;
-  return !!state.done.hangman;
+  if (id === "runner") return !!state.done.hangman;
+  return !!state.done.runner;
 }
 
 function setFeedback(text, kind) {
@@ -968,7 +998,7 @@ function updateChrome() {
   } else {
     const n = totalStars();
     stars.textContent = "★ " + n;
-    stars.setAttribute("aria-label", n + " stars in all, out of 40");
+    stars.setAttribute("aria-label", n + " stars in all, out of 50");
   }
 }
 
@@ -1006,7 +1036,7 @@ function gameOf(item) {
 function spoken(item) {
   if (!item) return "";
   const game = gameOf(item);
-  if (game === "planes") return item.say;
+  if (listens(game)) return item.say;
   if (game === "hangman") return item.word;
   return item.speakQ || item.q;
 }
@@ -1028,7 +1058,7 @@ function answerText(item) {
 
 function questionText(item) {
   const game = gameOf(item);
-  if (game === "planes") return "Listen: " + listenText(item);
+  if (listens(game)) return "Listen: " + listenText(item);
   if (game === "hangman") return "Spell it: " + item.word;
   if (item.pic && item.pic.quote) return `“${item.pic.quote}” ${item.q}`;
   return item.q;
@@ -1059,7 +1089,13 @@ function stopMoles() {
 // The sky keeps flying from question to question, and stops when the round ends or the pupil leaves.
 function stopSky() {
   window.SkyGame.stop();
+  window.RunGame.stop();
   if (play) play.skyHost = null;
+}
+
+// The canvas game for the current gate: the road in Run and pick, the sky in Listen and shoot.
+function flyer() {
+  return play.gate === "runner" ? window.RunGame : window.SkyGame;
 }
 
 function moleButtons() {
@@ -1323,9 +1359,9 @@ function showHub() {
   resetScreen();
   setCaption(U.lede);
   const doneCount = GAME_IDS.filter((id) => state.done[id]).length;
-  const banner = doneCount === 4
-    ? `<p class="ladder">You finished Word Island. ${totalStars()} / 40 stars. Play again for new questions.</p>`
-    : `<p class="ladder">Four games. Ten questions each. New questions every time.</p>`;
+  const banner = doneCount === GAME_IDS.length
+    ? `<p class="ladder">You finished Word Island. ${totalStars()} / 50 stars. Play again for new questions.</p>`
+    : `<p class="ladder">Five games. Ten questions each. New questions every time.</p>`;
   const more = unitsForClass().length > 1
     ? ` · <button type="button" class="linkish" data-act="units">Other unit</button>`
     : "";
@@ -1394,11 +1430,12 @@ function start(gate, mode) {
     gate, mode, items, index: 0, stars: 0, missed: [], log: [],
     tried: false, locked: false, step: 0, left: false, finished: false, moving: false
   };
-  // Listen and shoot keeps a score, combo and power-ups across the round; a full round starts on the Engage screen.
-  if (gate === "planes" && !reduceMotion) {
-    play.sky = window.SkyGame.newRound();
+  // Listen and shoot and Run and pick keep a score and combo across the round (Listen and shoot adds
+  // power-ups); a full round starts on the Engage screen.
+  if (listens(gate) && !reduceMotion) {
+    play.sky = flyer().newRound();
     play.engage = mode === "full";
-    if (!play.engage) window.SkyGame.unlockSound();
+    if (!play.engage) flyer().unlockSound();
   }
   renderPlay();
 }
@@ -1419,11 +1456,13 @@ function renderPlay() {
   setCaption(CAPTION[play.gate]);
   const hint = play.gate === "hangman"
     ? "Guess a letter."
-    : play.gate === "planes"
-      ? (reduceMotion ? "Tap the plane with the right answer." : "Move the plane. Hold to shoot.")
-      : play.gate === "moles"
-        ? "Hit the right mole when it pops up."
-        : "Read it. Then choose.";
+    : play.gate === "runner"
+      ? (reduceMotion ? "Choose the answer you heard." : "Swipe to change lane. Swipe up to jump.")
+      : play.gate === "planes"
+        ? (reduceMotion ? "Tap the plane with the right answer." : "Move the plane. Hold to shoot.")
+        : play.gate === "moles"
+          ? "Hit the right mole when it pops up."
+          : "Read it. Then choose.";
   setFeedback(hint, "tip");
   const pips = play.items.map((_, i) => {
     const cls = i < play.index ? "did" : (i === play.index ? "now" : "");
@@ -1446,13 +1485,14 @@ function renderPlay() {
   const title = document.getElementById("qtitle");
   if (title) title.focus({ preventScroll: true });
   if (play.gate === "moles") startMoleLoop();
-  if (play.gate === "planes" && !reduceMotion) placeSky();
+  if (listens(play.gate) && !reduceMotion) placeSky();
   if (!play.engage) speak(spoken(item), false);
 }
 
-// Without sound, "Listen and shoot" shows the word to shoot instead.
+// Without sound, "Listen and shoot" shows the word to shoot instead; "Run and pick" shows the word to run to.
 function planeTitle(item) {
   const silent = !state.sound || !canSpeak();
+  if (play.gate === "runner") return silent ? `Run to: “${esc(listenText(item))}”` : "Listen. Run to it.";
   return silent ? `Shoot: “${esc(listenText(item))}”` : "Listen. Shoot it.";
 }
 
@@ -1487,7 +1527,18 @@ function stageInner(item) {
       </div>
     `;
   }
-  if (play.gate === "planes" && !reduceMotion) {
+  if (play.gate === "runner" && reduceMotion) {
+    return `
+      <div class="qrow">
+        <h2 id="qtitle" tabindex="-1">${chip}<span id="planetitle">${planeTitle(item)}</span></h2>
+        <button type="button" class="ghost" data-act="hear">Hear it</button>
+      </div>
+      <div class="choices">
+        ${choicePairs(item).map((pair) => `<button type="button" class="choice" data-act="pick" data-ok="${pair.ok ? "1" : "0"}">${esc(choiceText(item, pair.text))}</button>`).join("")}
+      </div>
+    `;
+  }
+  if (listens(play.gate) && !reduceMotion) {
     play.pairs = choicePairs(item);
     return `
       <div class="qrow">
@@ -1495,7 +1546,7 @@ function stageInner(item) {
         <button type="button" class="ghost" data-act="hear">Hear it</button>
       </div>
       <div id="skyslot"></div>
-      <div class="pickrow" role="group" aria-label="Or pick a plane">
+      <div class="pickrow" role="group" aria-label="${play.gate === "runner" ? "Or pick a gate" : "Or pick a plane"}">
         ${play.pairs.map((pair, index) => `<button type="button" class="pickbtn" data-act="shoot" data-lane="${index}" data-ok="${pair.ok ? "1" : "0"}">${index + 1}. ${esc(choiceText(item, pair.text))}</button>`).join("")}
       </div>
     `;
@@ -1625,9 +1676,9 @@ function grade(ok, el) {
   if (!play || play.locked || play.left || play.finished) return;
   if (play.gate === "moles" && el && !el.classList.contains("up")) return;
   const planes = play.gate === "planes";
-  // With planes flying, a keyboard pick counts like shooting that plane down.
-  if (planes && !reduceMotion) {
-    if (el && !play.resolving && !play.engage && !play.paused) window.SkyGame.pick(Number(el.dataset.lane));
+  // With planes flying, a keyboard pick counts like shooting that plane down; on the road it runs to that lane.
+  if (listens(play.gate) && !reduceMotion) {
+    if (el && !play.resolving && !play.engage && !play.paused) flyer().pick(Number(el.dataset.lane));
     return;
   }
   if (!planes) stopMoles();
@@ -1674,12 +1725,12 @@ function parkAnswer() {
   el.classList.add("show-right");
 }
 
-// "Listen and shoot": the canvas game in sky.js flies the planes and calls these when something happens.
+// "Listen and shoot" and "Run and pick": the canvas games in sky.js and run.js call these when something happens.
 const skyHooks = {
-  isPaused: () => !play || play.gate !== "planes" || play.paused || play.engage || play.finished || play.left,
+  isPaused: () => !play || !listens(play.gate) || play.paused || play.engage || play.finished || play.left,
   soundOn: () => state.sound,
-  // Without sound, the word to shoot is shown at the top of the sky.
-  target: () => (play && play.gate === "planes" && (!state.sound || !canSpeak()) ? listenText(current()) : null),
+  // Without sound, the word to pick is shown at the top of the game.
+  target: () => (play && listens(play.gate) && (!state.sound || !canSpeak()) ? listenText(current()) : null),
   onRight() {
     const first = !play.tried;
     play.resolving = true;
@@ -1688,14 +1739,14 @@ const skyHooks = {
     updateChrome();
     setFeedback(first ? "Yes! A star." : "That's right.", "ok");
     speak(current().say, false);
-    later(next, 1100);
+    later(next, play.gate === "runner" ? 700 : 1100);
   },
   onWrong() {
     if (!play.tried) {
       play.tried = true;
       play.missed.push(missedRecord(current()));
     }
-    setFeedback("Not this one. Keep flying.", "tip");
+    setFeedback(play.gate === "runner" ? "Not this one. Keep running." : "Not this one. Keep flying.", "tip");
   },
   onEscape() {
     play.resolving = true;
@@ -1716,11 +1767,13 @@ function iconUrl(name) {
 // Send this question's planes into the sky, in lane order.
 function askPlanes() {
   const item = current();
-  window.SkyGame.ask(play.pairs.map((pair) => ({
+  flyer().ask(play.pairs.map((pair) => ({
     ok: pair.ok,
     big: Boolean(item.big),
     text: item.pics || item.icons ? "" : pair.text,
-    img: item.pics ? `img/${item.unit}/${pair.text}.webp` : item.icons ? iconUrl(pair.text) : null
+    img: item.pics ? `img/${item.unit}/${pair.text}.webp` : item.icons ? iconUrl(pair.text) : null,
+    // The road shows this word on a picture gate until its picture has loaded, or if it never does.
+    label: choiceText(item, pair.text)
   })), play.index);
 }
 
@@ -1733,7 +1786,7 @@ function placeSky() {
     host.className = "skywrap";
     slot.replaceWith(host);
     play.skyHost = host;
-    window.SkyGame.mount(host, play.sky, skyHooks);
+    flyer().mount(host, play.sky, skyHooks);
     if (play.engage) showEngage(host);
   } else {
     slot.replaceWith(play.skyHost);
@@ -1746,7 +1799,14 @@ function placeSky() {
 function showEngage(host) {
   const box = document.createElement("div");
   box.className = "skyover";
-  box.innerHTML = `
+  box.innerHTML = play.gate === "runner"
+    ? `
+    <p class="skytitle">Run &amp; Pick</p>
+    <p>Listen to the word. Run through the gate that matches. Jump over the red hurdles. A wrong gate or a hurdle costs a heart.</p>
+    <p class="skyhow">Change lane: swipe, tap a lane, or arrow keys · Jump: swipe up, tap your lane, or Up / Space</p>
+    <button type="button" class="btn gold engage" data-act="engage">Run!</button>
+  `
+    : `
     <p class="skytitle">Listen &amp; Shoot</p>
     <p>Listen to the word. Shoot the plane that matches. Planes fly faster, and they drop red shots. Dodge them.</p>
     <p class="skyhow">Move: mouse, finger or arrow keys · Shoot: hold down, or Space</p>
@@ -1755,7 +1815,7 @@ function showEngage(host) {
     <button type="button" class="btn gold engage" data-act="engage">Engage!</button>
   `;
   host.appendChild(box);
-  fillBoard(box.querySelector("#engageboard"), null);
+  if (play.gate === "planes") fillBoard(box.querySelector("#engageboard"), null);
   box.querySelector(".engage").focus({ preventScroll: true });
 }
 
@@ -1764,7 +1824,7 @@ function engage() {
   play.engage = false;
   const box = play.skyHost && play.skyHost.querySelector(".skyover");
   if (box) box.remove();
-  window.SkyGame.unlockSound();
+  flyer().unlockSound();
   askPlanes();
   speak(spoken(current()), false);
   const title = document.getElementById("qtitle");
@@ -1849,7 +1909,8 @@ function finish() {
   if (!reduceMotion && (perfect || firstClear)) burst();
   setSendNote("Sending your stars to your teacher…", "");
   // A full round of Listen and shoot also puts the pupil's score on the class leaderboard.
-  const score = play.sky && play.mode === "full" ? play.sky.score : null;
+  // Run and pick shows its score on the results page only, so it never mixes into that board.
+  const score = play.gate === "planes" && play.sky && play.mode === "full" ? play.sky.score : null;
   sendRun({
     unit: U.id,
     name: state.name,
@@ -1878,7 +1939,9 @@ function renderResults() {
     ? `You spelled ${play.stars} / ${total} words.`
     : play.gate === "planes"
       ? `You hit ${play.stars} / ${total} planes.`
-      : `You got ${play.stars} / ${total} stars on the first try.`;
+      : play.gate === "runner"
+        ? `You ran through ${play.stars} / ${total} right gates first.`
+        : `You got ${play.stars} / ${total} stars on the first try.`;
   if (play.mode === "retry") scoreLine = `You got ${play.stars} / ${total} this time.`;
   const badgeLine = play.mode === "retry" ? "" : `<p>${esc(BADGE[play.gate])} collected.</p>`;
   const tips = play.missed.map((row) => `
@@ -1896,7 +1959,7 @@ function renderResults() {
         <p><span>Score</span> <b>${play.sky.score}</b></p>
         <p><span>Best combo</span> <b>x${play.sky.bestCombo}</b></p>
       </div>
-      ${play.mode === "full" ? `<p class="boardtitle">Top pilots · ${esc(state.cls || "your class")} · Unit ${U.number}</p>
+      ${play.mode === "full" && play.gate === "planes" ? `<p class="boardtitle">Top pilots · ${esc(state.cls || "your class")} · Unit ${U.number}</p>
       <ol class="board light" id="resultboard"><li>Saving your score…</li></ol>` : ""}`
     : "";
   view.innerHTML = `
@@ -1908,7 +1971,7 @@ function renderResults() {
       ${badgeLine}
       ${perfect && play.mode === "full" ? "<p>Every one was right on the first try.</p>" : ""}
       <div class="report">
-        <p><b>${esc(state.name)}</b>${state.cls ? ` · ${esc(state.cls)}` : ""} · ★ ${totalStars()} / 40</p>
+        <p><b>${esc(state.name)}</b>${state.cls ? ` · ${esc(state.cls)}` : ""} · ★ ${totalStars()} / 50</p>
         <ul class="bests">${bests}</ul>
         <p class="sendnote" id="sendnote" role="status"></p>
       </div>
@@ -2286,9 +2349,9 @@ function explainCard(unit, list, item) {
   const stat = teacherStats()[item.id];
   const answered = teacher.step >= 2;
   let title = esc(item.q || "");
-  if (game === "planes") title = answered ? `Listen: “${esc(listenText(item))}”` : "Listen. Which one?";
+  if (listens(game)) title = answered ? `Listen: “${esc(listenText(item))}”` : "Listen. Which one?";
   if (game === "hangman") title = "Spell it.";
-  if (item.pic && item.pic.quote && game !== "planes") title = esc(item.q);
+  if (item.pic && item.pic.quote && !listens(game)) title = esc(item.q);
   const body = game === "hangman"
     ? `<div class="blanks" aria-label="Word to spell">${item.word.split("").map((ch) => ch === " "
         ? `<span class="blank gap"></span>`
@@ -2519,7 +2582,7 @@ document.addEventListener("keydown", (event) => {
   }
   if (play.locked) return;
   if (event.target && event.target.closest && event.target.closest("button") && event.key === "Enter") return;
-  if (play.gate === "planes") {
+  if (listens(play.gate)) {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
       event.preventDefault();
     } else if (event.key === "1" || event.key === "2" || event.key === "3") {

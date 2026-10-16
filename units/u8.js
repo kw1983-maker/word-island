@@ -137,6 +137,22 @@ WORD_ISLAND_UNITS.u8 = (() => {
     hear("u8p-crocodile", "skeleton", "a crocodile", ["crocodile", "giraffe", "frog"], { pics: true, alts: ["a crocodile", "a giraffe", "a frog"] })
   ];
 
+  // Game 4: listen, then run through the right gate.
+  const RUNNER = [
+    hear("u8r-arm", "body", "an arm", ["b-arm", "b-head", "b-knee"], { pics: true, alts: ["arm", "head", "knee"] }),
+    hear("u8r-knee", "body", "a knee", ["b-knee", "b-foot", "b-arm"], { pics: true, alts: ["knee", "foot", "arm"] }),
+    hear("u8r-skip", "can", "I can't skip.", ["skip", "toes", "oneleg"], { pics: true, alts: ["can't skip", "can't touch his toes", "can't stand on one leg"], challenge: true }),
+    hear("u8r-kangaroo", "song", "Who am I? I can jump.", ["s-kangaroo", "s-lizard", "s-dolphin"], { pics: true, alts: ["Kate Kangaroo", "Larry Lizard", "Dan Dolphin"] }),
+    hear("u8r-guitar", "canyou", "Can you play the guitar?", ["c-guitar", "a-piano", "a-tennis"], { pics: true, alts: ["play the guitar", "play the piano", "play tennis"] }),
+    hear("u8r-swim", "canyou", "Can you swim?", ["a-swim", "a-bike", "a-horse"], { pics: true, alts: ["swim", "ride a bike", "ride a horse"] }),
+    hear("u8r-spanish", "canyou", "Can you speak Spanish?", ["c-spanish", "a-dance", "a-bike"], { pics: true, alts: ["speak Spanish", "dance", "ride a bike"], challenge: true }),
+    hear("u8r-thanks", "story", "Thank you, Misty.", ["Thank you, Misty.", "Well done, Misty.", "Here you are, Misty."]),
+    hear("u8r-bag", "phonics", "bag", ["bag", "big", "bug"], { challenge: true }),
+    hear("u8r-giraffe", "skeleton", "a giraffe", ["giraffe", "monkey", "frog"], { pics: true, alts: ["a giraffe", "a monkey", "a frog"] }),
+    hear("u8r-frog", "skeleton", "a frog", ["frog", "rat", "crocodile"], { pics: true, alts: ["a frog", "a rat", "a crocodile"] }),
+    hear("u8r-rat", "skeleton", "a rat", ["rat", "monkey", "giraffe"], { pics: true, alts: ["a rat", "a monkey", "a giraffe"], challenge: true })
+  ];
+
   // Teacher explain page: a hint per topic to give before the answer.
   const HINTS = {
     body: "Touch and say: head, arm, hand, fingers, leg, knee, foot, toes.",
@@ -186,6 +202,6 @@ WORD_ISLAND_UNITS.u8 = (() => {
     topics: TOPICS,
     hints: HINTS,
     notes: NOTES,
-    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, runner: RUNNER, planes: PLANES }
   };
 })();

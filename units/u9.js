@@ -135,6 +135,27 @@ WORD_ISLAND_UNITS.u9 = (() => {
     hear("u9p-beachcard", "weather", "It's hot here. Very hot. It's sunny.", ["p-beach", "p-snow", "p-japan"], { pics: true, alts: ["a sunny beach", "snow", "rain"] })
   ];
 
+  // Game 4: listen, then run through the right gate.
+  const RUNNER = [
+    hear("u9r-paint", "beach", "paint a picture", ["paint", "book", "fish"], { pics: true, alts: ["paint a picture", "read a book", "catch a fish"] }),
+    hear("u9r-shells", "beach", "look for shells", ["shells", "music", "photo"], { pics: true, alts: ["look for shells", "listen to music", "take a photo"] }),
+    hear("u9r-book", "beach", "read a book", ["book", "fish", "paint"], { pics: true, alts: ["read a book", "catch a fish", "paint a picture"], challenge: true }),
+    hear("u9r-guitar", "lets", "Let's play the guitar.", ["guitar", "icecream", "football"], { pics: true, alts: ["guitar", "ice cream", "football"] }),
+    hear("u9r-notsure", "lets", "I'm not sure.", ["I'm not sure.", "Good idea.", "Sorry, I don't want to."], { challenge: true }),
+    hear("u9r-sand", "song", "Let's play in the sand.", ["s-sand", "s-swim", "s-photo"], { pics: true, alts: ["play in the sand", "swim in the sea", "take a photo"] }),
+    hear("u9r-songshells", "song", "Let's look for shells.", ["s-shells", "s-fish", "s-hands"], { pics: true, alts: ["look for shells", "catch a fish", "run hand in hand"] }),
+    hear("u9r-shellnext", "where", "Where's the shell? It's next to the sandcastle.", ["shell-next", "shell-on", "kites-blue"], { pics: true, alts: ["shell next to the sandcastle", "shell on the sandcastle", "kites in the blue and yellow box"] }),
+    hear("u9r-kitesred", "where", "Where are the kites? They're in the red toy box.", ["kites-red", "kites-blue", "shell-on"], { pics: true, alts: ["kites in the red box", "kites in the blue and yellow box", "a shell on the sandcastle"], challenge: true }),
+    hear("u9r-fun", "story", "That's more fun!", ["That's more fun!", "Just wait and see.", "Oh no!"]),
+    hear("u9r-feet", "phonics", "feet", ["feet", "fat", "fit"]),
+    hear("u9r-clean", "phonics", "clean", ["clean", "clan", "clone"], { challenge: true }),
+    hear("u9r-uk", "places", "the UK", ["flag-uk", "flag-ca", "flag-au"], { pics: true, alts: ["the UK", "Canada", "Australia"] }),
+    hear("u9r-koala", "places", "a koala", ["koala", "fish", "castle"], { pics: true, alts: ["a koala", "a fish", "a castle"] }),
+    hear("u9r-raining", "weather", "It's raining.", ["w-raining", "w-snowing", "w-sunny"], { pics: true, alts: ["raining", "snowing", "sunny"] }),
+    hear("u9r-sunny", "weather", "It's sunny.", ["w-sunny", "w-cold", "w-cloudy"], { pics: true, alts: ["sunny", "cold", "cloudy"] }),
+    hear("u9r-cold", "weather", "It's cold.", ["w-cold", "w-hot", "w-raining"], { pics: true, alts: ["cold", "hot", "raining"], challenge: true })
+  ];
+
   // Teacher explain page: a hint per topic to give before the answer.
   const HINTS = {
     beach: "Say the chant: eat ice cream, take photos, catch fish, make castles, look for shells.",
@@ -187,6 +208,6 @@ WORD_ISLAND_UNITS.u9 = (() => {
     topics: TOPICS,
     hints: HINTS,
     notes: NOTES,
-    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, runner: RUNNER, planes: PLANES }
   };
 })();

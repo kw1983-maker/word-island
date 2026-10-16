@@ -136,6 +136,32 @@ WORD_ISLAND_UNITS.u1 = (() => {
     hear("p-rat", "phonics", "A fat rat in a black bag.", ["a fat rat in a black bag", "a fat cat in a black bag", "a fat rat in a red bag"], { challenge: true })
   ];
 
+  // Game 4: listen, then run through the right gate. Pictures, words and sentences, with different
+  // choices from Listen and shoot.
+  const RUNNER = [
+    hear("r-red", "colours", "red", ["red", "green", "purple"]),
+    hear("r-blue", "colours", "blue", ["blue", "yellow", "orange"]),
+    hear("r-green", "colours", "green", ["green", "red", "blue"]),
+    hear("r-orange", "colours", "orange", ["orange", "yellow", "red"], { challenge: true }),
+    hear("r-white", "colours", "white", ["white", "black", "blue"]),
+    hear("r-misty", "friends", "Hi, I'm Misty.", ["misty", "whisper", "tabby"], { pics: true, alts: ["Misty", "Whisper", "Tabby the cat"] }),
+    hear("r-flash", "friends", "Hi, I'm Flash.", ["flash", "thunder", "misty"], { pics: true, alts: ["Flash", "Thunder", "Misty"] }),
+    hear("r-tabby", "friends", "Meow! I'm Tabby the cat.", ["tabby", "flash", "whisper"], { pics: true, alts: ["Tabby the cat", "Flash", "Whisper"], challenge: true }),
+    hear("r-pen", "things", "a pen", ["pen", "pencil", "ruler"], { icons: true }),
+    hear("r-book", "things", "a book", ["book", "notebook", "bag"], { icons: true }),
+    hear("r-bag", "things", "a bag", ["bag", "desk", "pen"], { icons: true }),
+    hear("r-pencil", "things", "a pencil", ["pencil", "pen", "pencilcase"], { icons: true, challenge: true }),
+    hear("r-one", "numbers", "one", ["1", "7", "2"], { big: true }),
+    hear("r-four", "numbers", "four", ["4", "6", "9"], { big: true }),
+    hear("r-eight", "numbers", "eight", ["8", "3", "6"], { big: true, challenge: true }),
+    hear("r-a", "alphabet", "A.", ["A", "E", "H"], { big: true, show: "A" }),
+    hear("r-k", "alphabet", "K.", ["K", "C", "X"], { big: true, show: "K" }),
+    hear("r-s", "alphabet", "S.", ["S", "F", "Z"], { big: true, show: "S", challenge: true }),
+    hear("r-open", "classroom", "Open your book, please.", ["Open your book.", "Close your book.", "Sit at your desk."]),
+    hear("r-standup", "classroom", "Stand up.", ["Stand up.", "Turn around.", "Stretch."]),
+    hear("r-stretch", "classroom", "Stretch.", ["Stretch.", "Stand up.", "Turn around."], { challenge: true })
+  ];
+
   // Teacher explain page: a hint per topic to give before the answer.
   const HINTS = {
     friends: "Remember the Super Friends: Whisper, Thunder, Misty, Flash and Tabby the cat.",
@@ -208,6 +234,6 @@ WORD_ISLAND_UNITS.u1 = (() => {
     topics: TOPICS,
     hints: HINTS,
     notes: NOTES,
-    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, runner: RUNNER, planes: PLANES }
   };
 })();

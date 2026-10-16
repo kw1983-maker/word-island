@@ -129,6 +129,24 @@ WORD_ISLAND_UNITS.u2 = (() => {
     hear("u2p-rectangle", "shapes", "a rectangle", ["rectangle", "square", "parallelogram"], { pics: true, alts: ["a rectangle", "a square", "a parallelogram"], challenge: true })
   ];
 
+  // Game 4: listen, then run through the right gate.
+  const RUNNER = [
+    hear("u2r-ball", "toys", "a ball", ["ball", "car", "game"], { pics: true, alts: ["a ball", "a car", "a computer game"] }),
+    hear("u2r-kite", "toys", "a kite", ["kite", "doll", "bike"], { pics: true, alts: ["a kite", "a doll", "a bike"] }),
+    hear("u2r-bike", "toys", "a bike", ["bike", "train", "plane"], { pics: true, alts: ["a bike", "a train", "a plane"] }),
+    hear("u2r-car", "toys", "a car", ["car", "gokart", "kite"], { pics: true, alts: ["a car", "a go-kart", "a kite"], challenge: true }),
+    hear("u2r-bigball", "adjectives", "a big green ball", ["a-bigball", "a-smallball", "ball"], { pics: true, alts: ["a big green ball", "a small yellow ball", "a beach ball"] }),
+    hear("u2r-shorttrain", "adjectives", "a short red train", ["a-shorttrain", "a-longtrain", "r-shorttrain"], { pics: true, alts: ["a short red train", "a long blue train", "a short purple train"] }),
+    hear("u2r-newgokart", "adjectives", "a new pink go-kart", ["a-newgokart", "a-oldgokart", "car"], { pics: true, alts: ["a new pink go-kart", "an old black go-kart", "a blue car"] }),
+    hear("u2r-ugly", "adjectives", "an ugly purple monster", ["a-uglymonster", "a-beautifulmonster", "yellowmonster"], { pics: true, alts: ["an ugly purple monster", "a beautiful orange monster", "a yellow monster"], challenge: true }),
+    hear("u2r-lisa", "hisher", "Her name's Lisa.", ["Her name's Lisa.", "His name's Lisa.", "Her name's Ben."]),
+    hear("u2r-mike", "favourite", "Mike's favourite number's eight.", ["8", "5", "3"], { big: true, show: "Mike's favourite number's eight." }),
+    hear("u2r-go", "story", "One, two, three, go!", ["One, two, three, go!", "That isn't fair!", "Hold on, Misty!"]),
+    hear("u2r-tenpens", "phonics", "Ken has got ten pens.", ["ten", "two", "eight"], { challenge: true }),
+    hear("u2r-square", "shapes", "a square", ["square", "triangle", "circle"], { pics: true, alts: ["a square", "a triangle", "a circle"] }),
+    hear("u2r-parallelogram", "shapes", "a parallelogram", ["parallelogram", "rectangle", "square"], { pics: true, alts: ["a parallelogram", "a rectangle", "a square"], challenge: true })
+  ];
+
   // Teacher explain page: a hint per topic to give before the answer.
   const HINTS = {
     toys: "Say the toys from the chant: a doll, a car, a bike, a go-kart, a train, a ball, a computer game, a monster, a plane, a kite.",
@@ -185,6 +203,6 @@ WORD_ISLAND_UNITS.u2 = (() => {
     topics: TOPICS,
     hints: HINTS,
     notes: NOTES,
-    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, runner: RUNNER, planes: PLANES }
   };
 })();

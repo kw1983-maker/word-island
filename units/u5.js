@@ -123,6 +123,25 @@ WORD_ISLAND_UNITS.u5 = (() => {
     hear("u5p-mud", "phonics", "Mum jumps in the mud with the ducks.", ["Mum jumps in the mud with the ducks.", "Mum runs in the mud with the ducks.", "Mum jumps in the lake with the ducks."], { challenge: true })
   ];
 
+  // Game 4: listen, then run through the right gate.
+  const RUNNER = [
+    hear("u5r-sat", "days", "Saturday", ["Saturday", "Sunday", "Tuesday"]),
+    hear("u5r-wed", "days", "Wednesday", ["Wednesday", "Thursday", "Tuesday"]),
+    hear("u5r-fri", "days", "Friday", ["Friday", "Monday", "Thursday"]),
+    hear("u5r-sun", "days", "Sunday", ["Sunday", "Saturday", "Wednesday"], { challenge: true }),
+    hear("u5r-hide", "free", "We play hide-and-seek.", ["hideseek", "sing", "swim"], { pics: true, alts: ["play hide-and-seek", "sing", "go swimming"] }),
+    hear("u5r-friends", "free", "I play with my friends.", ["friends", "toys", "sleep"], { pics: true, alts: ["play with friends", "play with toys", "sleep"] }),
+    hear("u5r-sing", "free", "We sing.", ["sing", "bike", "games"], { pics: true, alts: ["sing", "ride a bike", "play computer games"] }),
+    hear("u5r-games", "free", "I play computer games.", ["games", "hideseek", "bike"], { pics: true, alts: ["play computer games", "play hide-and-seek", "ride a bike"], challenge: true }),
+    hear("u5r-tv-yes", "doyou", "Do you watch TV at the weekend? Yes, I do.", ["tv-yes", "tv-no", "games-no"], { pics: true, alts: ["Yes, I watch TV.", "No, I don't watch TV.", "No, I don't play computer games."] }),
+    hear("u5r-sport", "healthy", "Play sport. It's healthy.", ["h-sport", "h-sweets", "h-tvnight"], { pics: true, alts: ["play sport", "eat sweets", "watch TV at night"] }),
+    hear("u5r-fruit", "healthy", "Eat fruit.", ["h-fruit", "h-sweets", "h-late"], { pics: true, alts: ["eat fruit", "eat sweets", "awake at twelve o'clock"], challenge: true }),
+    hear("u5r-play", "piano", "Start playing the piano.", ["p-play", "p-sit", "p-floor"], { pics: true, alts: ["Start playing the piano.", "Sit down at the piano.", "Put it on the floor."] }),
+    hear("u5r-comewith", "story", "Come with me.", ["Come with me.", "Thank you very much.", "Watch out!"]),
+    hear("u5r-watchout", "story", "Watch out!", ["Watch out!", "We're lost!", "Yippee!"], { challenge: true }),
+    hear("u5r-mud", "phonics", "mud", ["mud", "mad", "mid"])
+  ];
+
   // Teacher explain page: a hint per topic to give before the answer.
   const HINTS = {
     days: "Say the days in order: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.",
@@ -185,6 +204,6 @@ WORD_ISLAND_UNITS.u5 = (() => {
     topics: TOPICS,
     hints: HINTS,
     notes: NOTES,
-    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, runner: RUNNER, planes: PLANES }
   };
 })();

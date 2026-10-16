@@ -133,6 +133,28 @@ WORD_ISLAND_UNITS.u4 = (() => {
     hear("u4p-corn", "fruitveg", "corn", ["corn", "greenbeans", "onion"], { pics: true, alts: ["corn", "green beans", "an onion"] })
   ];
 
+  // Game 4: listen, then run through the right gate.
+  const RUNNER = [
+    hear("u4r-milk", "food", "milk", ["milk", "juice", "cheese"], { pics: true, alts: ["milk", "juice", "cheese"] }),
+    hear("u4r-sandwich", "food", "a sandwich", ["sandwich", "pizza", "cake"], { pics: true, alts: ["a sandwich", "pizza", "cake"] }),
+    hear("u4r-orange", "food", "an orange", ["orange", "apples", "banana"], { pics: true, alts: ["an orange", "apples", "a banana"] }),
+    hear("u4r-carrots", "food", "carrots", ["carrots", "peas", "greenbeans"], { pics: true, alts: ["carrots", "peas", "green beans"], challenge: true }),
+    hear("u4r-box1", "ivegot", "I've got a sandwich and an apple.", ["box-sandwich-apple", "box-sandwich-banana", "box-apple-pizza"], { pics: true, alts: ["sandwich and apple", "sandwich and banana", "pizza and apple"] }),
+    hear("u4r-box2", "ivegot", "I've got pizza and a banana.", ["box-pizza-banana", "box-sandwich-banana", "box-apple-pizza"], { pics: true, alts: ["pizza and banana", "sandwich and banana", "pizza and apple"] }),
+    hear("u4r-havent", "ivegot", "I haven't got an apple.", ["I haven't got an apple.", "I've got an apple.", "I haven't got a banana."], { challenge: true }),
+    hear("u4r-juice-no", "haveany", "Have we got any juice? No, we haven't.", ["No, we haven't.", "Yes, we have.", "No, I don't."]),
+    hear("u4r-milk-yes", "haveany", "Have we got any milk? Yes, we have.", ["Yes, we have.", "No, we haven't.", "Yes, I do."]),
+    hear("u4r-hot", "phonics", "hot", ["hot", "hat", "hit"]),
+    hear("u4r-dog", "phonics", "dog", ["dog", "dig", "dug"]),
+    hear("u4r-pot", "phonics", "pot", ["pot", "pat", "pit"], { challenge: true }),
+    hear("u4r-n11", "numbers", "eleven", ["11", "1", "10"], { big: true, show: "eleven" }),
+    hear("u4r-n14", "numbers", "fourteen", ["14", "40", "4"], { big: true, show: "fourteen" }),
+    hear("u4r-n16", "numbers", "sixteen", ["16", "60", "6"], { big: true, show: "sixteen" }),
+    hear("u4r-n18", "numbers", "eighteen", ["18", "80", "8"], { big: true, show: "eighteen", challenge: true }),
+    hear("u4r-beans", "fruitveg", "Beans grow on plants.", ["beanplant", "ground", "palmtree"], { pics: true, alts: ["bean plants", "in the ground", "on a palm tree"] }),
+    hear("u4r-onion", "fruitveg", "an onion", ["onion", "corn", "greenbeans"], { pics: true, alts: ["an onion", "corn", "green beans"], challenge: true })
+  ];
+
   // Teacher explain page: a hint per topic to give before the answer.
   const HINTS = {
     food: "Say the lunch words: banana, cake, cheese sandwich, apple, pizza, sausage, chicken, steak, peas, carrots.",
@@ -181,6 +203,6 @@ WORD_ISLAND_UNITS.u4 = (() => {
     topics: TOPICS,
     hints: HINTS,
     notes: NOTES,
-    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, planes: PLANES }
+    banks: { maze: MAZE, moles: MOLES, hangman: HANGMAN, runner: RUNNER, planes: PLANES }
   };
 })();
