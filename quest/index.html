@@ -14,6 +14,7 @@ if (!location.pathname.endsWith("/")) location.replace(location.pathname + "/" +
 { "imports": { "three": "./vendor/three.module.min.js" } }
 </script>
 <link rel="stylesheet" href="quest.css">
+<link rel="stylesheet" href="../shared/picture.css">
 </head>
 <body>
 <canvas id="world" aria-label="Treasure Quest island"></canvas>
@@ -64,6 +65,7 @@ window.QUEST_PROBE = (() => {
 </script>
 <script src="../shared/bank.js"></script>
 <script src="../shared/settings.js"></script>
+<script src="../shared/picture.js"></script>
 <script type="module" src="../shared/firebase.js"></script>
 <script type="module" src="js/main.js"></script>
 </body>

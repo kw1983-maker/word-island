@@ -222,53 +222,10 @@
     display: grid; place-items: center;
     font-weight: 700;
   }
-  .pic { display: grid; place-items: center; min-height: 150px; }
-  .pic.small { min-height: 96px; }
-  .ico { width: 128px; height: 128px; }
-  .pic.small .ico { width: 88px; height: 88px; }
-  .photo { display: block; max-width: 100%; max-height: 170px; border-radius: 12px; }
-  .pic.small .photo { max-height: 120px; }
-  .tally { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; max-width: 280px; }
-  .tally .ico { width: 44px; height: 44px; }
-  .pic.small .tally .ico { width: 40px; height: 40px; }
-  .balloon { width: 96px; height: 128px; }
-  .pic.small .balloon { width: 70px; height: 94px; }
-  .mix { display: flex; align-items: center; gap: 8px; font-size: 2rem; font-weight: 700; }
-  .blob { width: 64px; height: 64px; border-radius: 50% 46% 52% 44%; border: 3px solid var(--ink); display: inline-block; }
-  .mix .q, .tile.q { background: #fff; border: 3px dashed var(--ink); }
-  .mix .q { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; }
-  .letters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 100%; }
-  .tile {
-    width: 56px; height: 64px; display: grid; place-items: center;
-    border: 3px solid var(--ink); border-radius: 12px; background: #fff;
-    font-family: Fraunces, Palatino, Georgia, serif; font-size: 2.2rem; font-weight: 700;
-  }
-  .numbadge {
-    width: 110px; height: 110px; border-radius: 50%; display: grid; place-items: center;
-    background: var(--gold); border: 4px solid var(--ink);
-    font-family: Fraunces, Palatino, Georgia, serif; font-size: 3.6rem; font-weight: 700;
-  }
-  .pic.small .numbadge { width: 84px; height: 84px; font-size: 2.8rem; }
-  .quote {
-    position: relative; background: #fff; border: 3px solid var(--ink); border-radius: 22px;
-    padding: 14px 22px; font-family: Fraunces, Palatino, Georgia, serif; font-size: clamp(1.4rem, 3.4vw, 2rem); font-weight: 600;
-  }
-  .pic .quote { margin-bottom: 18px; }
-  .quote::after {
-    content: ""; position: absolute; left: 28px; bottom: -14px; width: 20px; height: 20px;
-    background: #fff; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
-    transform: rotate(45deg) skew(10deg, 10deg);
-  }
-  .ear { width: 110px; height: 110px; }
-  .tile.word { width: auto; height: 52px; padding: 0 10px; font-size: clamp(1rem, 3vw, 1.4rem); }
-  .letters .tile.word ~ .tile.q { height: 52px; }
-  .cal {
-    width: 120px; height: 110px; border: 4px solid var(--ink); border-radius: 14px; background: #fff;
-    display: grid; place-items: center; padding-top: 22px; position: relative; overflow: hidden;
-    font-family: Fraunces, Palatino, Georgia, serif; font-size: 2.2rem; font-weight: 700;
-  }
-  .cal i { position: absolute; left: 0; right: 0; top: 0; height: 26px; background: #d62828; }
-  .pic.small .cal { width: 96px; height: 90px; font-size: 1.8rem; }
+</style>
+<!-- The question pictures, shared with Treasure Quest. Kept at this point so the styles above and below cascade as before. -->
+<link rel="stylesheet" href="shared/picture.css">
+<style>
   .classes { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .classes legend { font-weight: 700; margin-bottom: 6px; padding: 0; }
   .classpick input { position: absolute; opacity: 0; pointer-events: none; }
@@ -705,6 +662,7 @@
 <noscript><p>This page needs JavaScript. Turn it on, then open Word Island again.</p></noscript>
 <script src="shared/bank.js"></script>
 <script src="shared/settings.js"></script>
+<script src="shared/picture.js"></script>
 <script>
 const CAPTION = {
   name: "Write your name. Your teacher will see your stars.",
@@ -738,15 +696,6 @@ const BADGE = { maze: "Maze badge", moles: "Mole badge", hangman: "Balloon badge
 // The class leaderboards: one for Run and pick, one for Listen and shoot.
 const BOARD = { runner: "Top runners", planes: "Top pilots" };
 
-const HEX = {
-  red: "#d62828", yellow: "#ffd60a", orange: "#f77f00", purple: "#7b2cbf",
-  blue: "#1d6fe0", green: "#2a9d3a", black: "#1b1b1b", white: "#ffffff"
-};
-const THING = {
-  pen: "a pen", pencil: "a pencil", ruler: "a ruler", rubber: "a rubber", book: "a book",
-  notebook: "a notebook", bag: "a bag", desk: "a desk", pencilcase: "a pencil case"
-};
-
 </script>
 <script src="units/u1.js"></script>
 <script src="units/u2.js"></script>
@@ -779,18 +728,6 @@ const params = new URLSearchParams(location.search);
 const openAll = params.get("open") === "all";
 const forcedGame = GAME_IDS.includes(params.get("game")) ? params.get("game") : null;
 const teacherMode = params.has("teacher");
-
-const ICONS = {
-  pen: '<rect x="28" y="10" width="24" height="40" rx="6" fill="#2f6fed"/><rect x="28" y="10" width="24" height="10" rx="4" fill="#14213d"/><rect x="46" y="18" width="6" height="22" rx="2" fill="#9db7f5"/><polygon points="28,50 52,50 40,70" fill="#d5deee"/><circle cx="40" cy="66" r="2.5" fill="#14213d"/>',
-  pencil: '<rect x="30" y="4" width="20" height="12" rx="2" fill="#f2a7b8"/><rect x="30" y="16" width="20" height="6" fill="#9aa3ad"/><rect x="30" y="22" width="20" height="30" fill="#ffe14a"/><polygon points="30,52 50,52 40,74" fill="#e7c39a"/><polygon points="35,58 45,58 40,74" fill="#2a2a2a"/>',
-  ruler: '<rect x="8" y="32" width="64" height="16" rx="3" fill="#e7b15a" stroke="#8a5a20" stroke-width="2"/><path d="M16 32 v8 M26 32 v5 M36 32 v8 M46 32 v5 M56 32 v8 M66 32 v5" stroke="#8a5a20" stroke-width="2"/>',
-  book: '<path d="M14 16 h24 v48 h-24 z" fill="#c81e1e"/><path d="M42 16 h24 v48 h-24 z" fill="#157a3a"/><path d="M38 16 h4 v48 h-4 z" fill="#f3eee4"/>',
-  bag: '<rect x="18" y="30" width="44" height="36" rx="10" fill="#157a3a"/><path d="M30 30 v-6 a10 10 0 0 1 20 0 v6" fill="none" stroke="#0e4a24" stroke-width="4"/>',
-  notebook: '<rect x="18" y="12" width="46" height="56" rx="4" fill="#2f6fed"/><rect x="28" y="12" width="36" height="56" fill="#f7fbff"/><circle cx="24" cy="24" r="3" fill="#d5e1f2"/><circle cx="24" cy="36" r="3" fill="#d5e1f2"/><circle cx="24" cy="48" r="3" fill="#d5e1f2"/><circle cx="24" cy="60" r="3" fill="#d5e1f2"/><path d="M34 26 h24 M34 36 h24 M34 46 h24" stroke="#9db4d6" stroke-width="2"/>',
-  desk: '<rect x="8" y="28" width="64" height="12" rx="2" fill="#c4843c"/><rect x="16" y="40" width="8" height="26" fill="#8a5a20"/><rect x="56" y="40" width="8" height="26" fill="#8a5a20"/>',
-  rubber: '<rect x="16" y="30" width="48" height="22" rx="4" fill="#f2a7b8"/><rect x="16" y="30" width="16" height="22" rx="4" fill="#7eb6e6"/>',
-  pencilcase: '<rect x="8" y="28" width="64" height="28" rx="14" fill="#5b3fb5"/><path d="M16 30 h48" stroke="#c81e1e" stroke-width="3"/><rect x="44" y="24" width="6" height="10" rx="2" fill="#c9ced6"/><rect x="58" y="14" width="5" height="18" fill="#ffe14a"/><rect x="64" y="17" width="5" height="15" fill="#2a9d3a"/>'
-};
 
 let U = null;
 let classes = null;
@@ -856,59 +793,6 @@ function useUnit(id) {
   U = UNITS[id];
   state = load();
   document.title = `Word Island · Unit ${U.number}`;
-}
-
-function esc(value) {
-  return String(value).replace(/[&<>"']/g, (ch) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  }[ch]));
-}
-
-function icon(name) {
-  return `<svg class="ico" viewBox="0 0 80 80" aria-hidden="true">${ICONS[name] || ""}</svg>`;
-}
-
-function balloonSvg(colour, cls) {
-  const fill = HEX[colour] || colour;
-  return `<svg class="${cls || "balloon"}" viewBox="0 0 60 88" aria-hidden="true">
-    <path d="M30 60 q-4 10 2 26" fill="none" stroke="#14213d" stroke-width="2"/>
-    <ellipse cx="30" cy="30" rx="24" ry="28" fill="${fill}" stroke="#14213d" stroke-width="3"/>
-    <polygon points="26,58 34,58 30,64" fill="${fill}" stroke="#14213d" stroke-width="2"/>
-    <ellipse cx="21" cy="19" rx="5" ry="8" fill="#fff" opacity=".45"/>
-  </svg>`;
-}
-
-const EAR = '<svg class="ear" viewBox="0 0 80 80" aria-hidden="true"><rect x="12" y="28" width="16" height="24" rx="3" fill="#14213d"/><polygon points="28,28 46,14 46,66 28,52" fill="#14213d"/><path d="M54 30 q8 10 0 20 M60 22 q16 18 0 36" fill="none" stroke="#2f6fed" stroke-width="5" stroke-linecap="round"/></svg>';
-
-function picture(item, small) {
-  const pic = item.pic;
-  let inner = "";
-  let alt = item.alt || "";
-  if (!pic) {
-    inner = EAR;
-    alt = "Listen";
-  } else if (pic.img) {
-    inner = `<img class="photo" src="img/${item.unit}/${pic.img}.webp" alt="">`;
-  } else if (pic.i) {
-    inner = icon(pic.i);
-  } else if (pic.balloon) {
-    inner = balloonSvg(pic.balloon);
-  } else if (pic.count) {
-    inner = `<span class="tally">${Array.from({ length: pic.count }, () => icon("pencil")).join("")}</span>`;
-  } else if (pic.mix) {
-    inner = `<span class="mix"><span class="blob" style="background:${HEX[pic.mix[0]]}"></span>+<span class="blob" style="background:${HEX[pic.mix[1]]}"></span>=<span class="q">?</span></span>`;
-  } else if (pic.abc) {
-    inner = `<span class="letters">${pic.abc.split(" ").map((l) => `<span class="tile">${l}</span>`).join("")}<span class="tile q">?</span></span>`;
-  } else if (pic.num != null) {
-    inner = `<span class="numbadge">${pic.num}</span>`;
-  } else if (pic.quote) {
-    inner = `<span class="quote">“${esc(pic.quote)}”</span>`;
-  } else if (pic.days) {
-    inner = `<span class="letters">${pic.days.map((d) => `<span class="tile word">${esc(d)}</span>`).join("")}<span class="tile q">?</span></span>`;
-  } else if (pic.cal) {
-    inner = `<span class="cal"><i></i>${esc(pic.cal)}</span>`;
-  }
-  return `<div class="pic${small ? " small" : ""}" role="img" aria-label="${esc(alt)}">${inner}</div>`;
 }
 
 function shuffle(list) {
@@ -1022,16 +906,6 @@ function spoken(item) {
 // In "Listen and shoot", pupils without sound read the word instead.
 function listenText(item) {
   return item.show || item.say;
-}
-
-function choiceText(item, choice) {
-  if (item.pics) return item.alts[item.choices.indexOf(choice)];
-  return item.icons ? THING[choice] : choice;
-}
-
-function answerText(item) {
-  if (item.word) return item.word;
-  return choiceText(item, item.choices[0]);
 }
 
 function questionText(item) {

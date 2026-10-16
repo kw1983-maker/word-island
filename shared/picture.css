@@ -1,0 +1,50 @@
+/* Word Island · shared picture styles: the question pictures drawn by shared/picture.js.
+   Used by Word Island and Treasure Quest. The colours fall back to Word Island's own,
+   because the quest page does not define Word Island's colour names. */
+.pic { display: grid; place-items: center; min-height: 150px; }
+.pic.small { min-height: 96px; }
+.ico { width: 128px; height: 128px; }
+.pic.small .ico { width: 88px; height: 88px; }
+.photo { display: block; max-width: 100%; max-height: 170px; border-radius: 12px; }
+.pic.small .photo { max-height: 120px; }
+.tally { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; max-width: 280px; }
+.tally .ico { width: 44px; height: 44px; }
+.pic.small .tally .ico { width: 40px; height: 40px; }
+.balloon { width: 96px; height: 128px; }
+.pic.small .balloon { width: 70px; height: 94px; }
+.mix { display: flex; align-items: center; gap: 8px; font-size: 2rem; font-weight: 700; }
+.blob { width: 64px; height: 64px; border-radius: 50% 46% 52% 44%; border: 3px solid var(--ink, #14213d); display: inline-block; }
+.mix .q, .tile.q { background: #fff; border: 3px dashed var(--ink, #14213d); }
+.mix .q { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; }
+.letters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 100%; }
+.tile {
+  width: 56px; height: 64px; display: grid; place-items: center;
+  border: 3px solid var(--ink, #14213d); border-radius: 12px; background: #fff;
+  font-family: Fraunces, Palatino, Georgia, serif; font-size: 2.2rem; font-weight: 700;
+}
+.numbadge {
+  width: 110px; height: 110px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--gold, #ffe14a); border: 4px solid var(--ink, #14213d);
+  font-family: Fraunces, Palatino, Georgia, serif; font-size: 3.6rem; font-weight: 700;
+}
+.pic.small .numbadge { width: 84px; height: 84px; font-size: 2.8rem; }
+.quote {
+  position: relative; background: #fff; border: 3px solid var(--ink, #14213d); border-radius: 22px;
+  padding: 14px 22px; font-family: Fraunces, Palatino, Georgia, serif; font-size: clamp(1.4rem, 3.4vw, 2rem); font-weight: 600;
+}
+.pic .quote { margin-bottom: 18px; }
+.quote::after {
+  content: ""; position: absolute; left: 28px; bottom: -14px; width: 20px; height: 20px;
+  background: #fff; border-right: 3px solid var(--ink, #14213d); border-bottom: 3px solid var(--ink, #14213d);
+  transform: rotate(45deg) skew(10deg, 10deg);
+}
+.ear { width: 110px; height: 110px; }
+.tile.word { width: auto; height: 52px; padding: 0 10px; font-size: clamp(1rem, 3vw, 1.4rem); }
+.letters .tile.word ~ .tile.q { height: 52px; }
+.cal {
+  width: 120px; height: 110px; border: 4px solid var(--ink, #14213d); border-radius: 14px; background: #fff;
+  display: grid; place-items: center; padding-top: 22px; position: relative; overflow: hidden;
+  font-family: Fraunces, Palatino, Georgia, serif; font-size: 2.2rem; font-weight: 700;
+}
+.cal i { position: absolute; left: 0; right: 0; top: 0; height: 26px; background: #d62828; }
+.pic.small .cal { width: 96px; height: 90px; font-size: 1.8rem; }
