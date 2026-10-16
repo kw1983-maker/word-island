@@ -3,6 +3,7 @@
 A blocky, retro 3D treasure hunt inside Word Island. Pupils pick a hero, walk around an island built on one Super Minds unit, open chests and solve riddles to score marks. Year 1 plays Units 1 to 4, Year 2 plays Units 5 to 9.
 
 **Build approach:** Skateboard (ship the smallest island pupils can really play, then grow it release by release).
+**Look:** Minecraft style, made from our own blocky textures, characters and sounds (never Minecraft's own art or name). Chests are blocky wooden chests, riddles come from villager style characters, find pictures hang in item frames or on signs, and word blocks are broken then placed (spec 0002).
 **Workflow:** Alpha (after `/develop`, `/check verify` plays it in a real browser at phone and laptop size). The project default level of rigor. `/architect` is the recommended first stop for a feature with a real decision, but skippable when you already know the build. Any feature can carry its own tag (e.g. `· Beta`) to do more or less.
 
 _These are recommendations to keep your build orderly, not requirements. Skip anything that does not fit: if you already know how to build a feature, use `/develop` and skip `/architect`. You decide when a feature is `done`._
@@ -15,7 +16,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | B | Class settings, results page and leaderboards | Existing | existing |
 | 1 | Project context & standards | Foundation | planned |
 | 2 | Game engine & page structure | Foundation | in-progress |
-| 3 | Quest content model | Foundation | planned |
+| 3 | Quest content model | Foundation | in-progress |
 | 4 | Retro look & sound kit | Foundation | planned |
 | 5 | Quest entry in Word Island | Release 1 | planned |
 | 6 | Movement & controls | Release 1 | planned |
@@ -64,10 +65,18 @@ How a 3D game sits inside a plain HTML site that must load fast on cheap phones,
 - [ ] Verify it: `/check verify game engine & page structure`
 Spec [0001](../specs/0001-quest-engine-page-structure/index.md) · code in `quest/`, `shared/`
 
-### 3. Quest content model · needs a decision
+### 3. Quest content model · in-progress
 One way to describe an island's puzzles (chests, riddles, listen and find, word blocks) that reuses the existing unit questions and pictures, with easier settings for Year 1.
 **Done when:** all four puzzle types and the Unit 9 content can be written in the one shape, and adding a unit means adding data, not code.
-- [ ] Design it (spec): `/architect quest content model`
+- [x] Design it (spec): `/architect quest content model`
+- [ ] Build it: `/develop quest content model`
+   - [ ] Shared picture drawer lifted out of `index.html`, Word Island unchanged (AC-8)
+   - [ ] Unit 9 island file and the chest draw with Year rules, seeds and coins (AC-1 to AC-7, AC-12)
+   - [ ] Island loading in the quest, the drawn plan in the debug view (AC-11)
+   - [ ] Riddle, find and word block drawing ready for Release 3 (AC-2, AC-4)
+   - [ ] Island checker and review page (AC-9, AC-10)
+- [ ] Verify it: `/check verify quest content model`
+Spec [0002](../specs/0002-quest-content-model/index.md)
 
 ### 4. Retro look & sound kit · needs a decision
 The blocky pixel palette and textures, chunky pixel screen, big pupil friendly buttons and text, chiptune music and beeps, and the browser voice that reads every question.
