@@ -69,14 +69,14 @@ Spec [0001](../specs/0001-quest-engine-page-structure/index.md) · code in `ques
 One way to describe an island's puzzles (chests, riddles, listen and find, word blocks) that reuses the existing unit questions and pictures, with easier settings for Year 1.
 **Done when:** all four puzzle types and the Unit 9 content can be written in the one shape, and adding a unit means adding data, not code.
 - [x] Design it (spec): `/architect quest content model`
-- [ ] Build it: `/develop quest content model`
-   - [ ] Shared picture drawer lifted out of `index.html`, Word Island unchanged (AC-8)
-   - [ ] Unit 9 island file and the chest draw with Year rules, seeds and coins (AC-1 to AC-7, AC-12)
-   - [ ] Island loading in the quest, the drawn plan in the debug view (AC-11)
-   - [ ] Riddle, find and word block drawing ready for Release 3 (AC-2, AC-4)
-   - [ ] Island checker and review page (AC-9, AC-10)
+- [x] Build it: `/develop quest content model`
+   - [x] Shared picture drawer lifted out of `index.html`, Word Island unchanged (AC-8)
+   - [x] Unit 9 island file and the chest draw with Year rules, seeds and coins (AC-1 to AC-7, AC-12)
+   - [x] Island loading in the quest, the drawn plan in the debug view (AC-11)
+   - [x] Riddle, find and word block drawing ready for Release 3 (AC-2, AC-4)
+   - [x] Island checker and review page (AC-9, AC-10)
 - [ ] Verify it: `/check verify quest content model`
-Spec [0002](../specs/0002-quest-content-model/index.md)
+Spec [0002](../specs/0002-quest-content-model/index.md) · code in `quest/islands/`, `quest/js/puzzles.js`, `quest/review.html`, `shared/picture.js`, `tools/check-quests.mjs`
 
 ### 4. Retro look & sound kit · needs a decision
 The blocky pixel palette and textures, chunky pixel screen, big pupil friendly buttons and text, chiptune music and beeps, and the browser voice that reads every question.
