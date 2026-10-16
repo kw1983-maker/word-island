@@ -3,7 +3,7 @@
 A blocky, retro 3D treasure hunt inside Word Island. Pupils pick a hero, walk around an island built on one Super Minds unit, open chests and solve riddles to score marks. Year 1 plays Units 1 to 4, Year 2 plays Units 5 to 9.
 
 **Build approach:** Skateboard (ship the smallest island pupils can really play, then grow it release by release).
-**Look:** Minecraft style, made from our own blocky textures, characters and sounds (never Minecraft's own art or name). Chests are blocky wooden chests, riddles come from villager style characters, find pictures hang in item frames or on signs, and word blocks are broken then placed (spec 0002).
+**Look:** looks and feels like your own BlockWords game (`C:/Users/User/Documents/Claude/Minecraft`): first person, a sharp full screen picture, its blocky textures, sky and clouds, villagers, dark grey talk boxes and hotbar, reusing its code (ours, MIT licence; never Minecraft's own art or name). Treasure Quest stays a separate, simpler island game inside Word Island: pupils mine and craft too, but nothing can hurt them (no hearts, no hunger) and only puzzles give coins. Chests are blocky wooden chests, riddles come from villager style characters, find pictures hang in item frames or on signs, and word blocks are broken then placed (spec 0002).
 **Workflow:** Alpha (after `/develop`, `/check verify` plays it in a real browser at phone and laptop size). The project default level of rigor. `/architect` is the recommended first stop for a feature with a real decision, but skippable when you already know the build. Any feature can carry its own tag (e.g. `· Beta`) to do more or less.
 
 _These are recommendations to keep your build orderly, not requirements. Skip anything that does not fit: if you already know how to build a feature, use `/develop` and skip `/architect`. You decide when a feature is `done`._
@@ -23,19 +23,21 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 7 | Beach island (Unit 9) | Release 1 | planned |
 | 8 | Treasure chests | Release 1 | planned |
 | 9 | Island finish & score | Release 1 | planned |
-| 10 | Scores to your results page | Release 2 | planned |
-| 11 | Riddle characters | Release 3 | planned |
-| 12 | Listen and find | Release 3 | planned |
-| 13 | Word blocks | Release 3 | planned |
-| 14 | Pick your hero | Release 3 | planned |
-| 15 | Free time island (Unit 5) | Release 4 | planned |
-| 16 | Old house island (Unit 6) | Release 4 | planned |
-| 17 | Get dressed island (Unit 7) | Release 4 | planned |
-| 18 | Robot island (Unit 8) | Release 4 | planned |
-| 19 | School island (Unit 1) | Release 5 | planned |
-| 20 | Let's play island (Unit 2) | Release 5 | planned |
-| 21 | Pet show island (Unit 3) | Release 5 | planned |
-| 22 | Lunchtime island (Unit 4) | Release 5 | planned |
+| 23 | Mining | Release 2 | planned |
+| 24 | Crafting unit things | Release 2 | planned |
+| 10 | Scores to your results page | Release 3 | planned |
+| 11 | Riddle characters | Release 4 | planned |
+| 12 | Listen and find | Release 4 | planned |
+| 13 | Word blocks | Release 4 | planned |
+| 14 | Pick your hero | Release 4 | planned |
+| 15 | Free time island (Unit 5) | Release 5 | planned |
+| 16 | Old house island (Unit 6) | Release 5 | planned |
+| 17 | Get dressed island (Unit 7) | Release 5 | planned |
+| 18 | Robot island (Unit 8) | Release 5 | planned |
+| 19 | School island (Unit 1) | Release 6 | planned |
+| 20 | Let's play island (Unit 2) | Release 6 | planned |
+| 21 | Pet show island (Unit 3) | Release 6 | planned |
+| 22 | Lunchtime island (Unit 4) | Release 6 | planned |
 
 ## Already built (for context)
 
@@ -78,15 +80,12 @@ One way to describe an island's puzzles (chests, riddles, listen and find, word 
 - [x] Verify it: `/check verify quest content model`
 Spec [0002](../specs/0002-quest-content-model/index.md) · code in `quest/islands/`, `quest/js/puzzles.js`, `quest/review.html`, `shared/picture.js`, `tools/check-quests.mjs`
 
-### 4. Retro look & sound kit · in-progress
-The blocky pixel palette and textures, chunky pixel screen, big pupil friendly buttons and text, chiptune music and beeps, and the browser voice that reads every question.
-**Done when:** a test scene shows the block set and on screen panel, music and sound effects play, and the voice reads a question aloud on phone and laptop.
-- [x] Design it (spec): `/architect retro look & sound kit`
-- [x] Build it: `/develop retro look & sound kit`
-   - [x] Play button, sound effects, saved Sound and Music, and the voice (AC-1, AC-9, AC-11, AC-12, AC-16)
-   - [x] Pixel font, wooden sign panels, top bar and the `&kit` sample puzzles (AC-5 to AC-8, AC-13, AC-14)
-   - [x] Pixel blocks, the rebuilt test island and the chunky screen (AC-2, AC-3, AC-4, AC-14)
-   - [x] Music, the sound and voice boards, and the budget and failure checks (AC-10, AC-14, AC-15, AC-16)
+### 4. Retro look & sound kit · in-progress · needs a decision
+Make the island look and sound like BlockWords: its block textures, a sharp first person picture, sky and clouds, dark grey talk boxes with big green buttons, the hotbar, chiptune sounds and the browser voice reading every question.
+**Done when:** a test scene looks like BlockWords on phone and laptop, a talk box shows a real puzzle, music and sound effects play, and the voice reads a question aloud.
+The first build (spec 0003: chunky pixels, wooden signs, new textures) was turned down on 2026-10-16 as nothing like BlockWords. Its Play tap, sounds, voice, saved Sound and Music, and answer logic can carry over.
+- [ ] Redesign it to match BlockWords (spec): `/architect retro look & sound kit`
+- [ ] Build it: `/develop retro look & sound kit`
 - [ ] Verify it: `/check verify retro look & sound kit`
 Spec [0003](../specs/0003-quest-look-sound-kit/index.md) · code in `quest/js/` (`sound.js`, `voice.js`, `panel.js`, `hud.js`, `blocks.js`, `kit.js`), `quest/quest.css`, `quest/fonts/`, `tools/make-pixel-font.py`
 
@@ -98,7 +97,7 @@ A Treasure Quest button on Word Island that opens only the islands the pupil's c
 - [ ] Build it: `/develop quest entry in Word Island`
 
 ### 6. Movement & controls · needs a decision
-Walk, turn and jump with a camera behind the hero; touch joystick on phones, arrows and WASD on laptops; pupils can never fall off or get stuck.
+Walk, look around and jump like in BlockWords (first person, or a camera behind the hero: to decide); touch controls on phones, mouse and keys on laptops; nothing can hurt you, and pupils can never fall off or get stuck.
 **Done when:** a 7 year old can walk around the island on a phone and a laptop without help, and falling into the sea puts them back on land.
 - [ ] Design it (spec): `/architect movement & controls`
 
@@ -117,14 +116,28 @@ When all puzzles are done, a treasure ending shows the score and stars, with pla
 **Done when:** finishing the island always shows the ending with the right score and stars, and both buttons work.
 - [ ] Build it: `/develop island finish & score`
 
-## Release 2: Scores reach you
+## Release 2: Mine and craft
+
+Mining and crafting follow BlockWords but stay simple, and the island content stays as planned: only puzzles give coins.
+
+### 23. Mining · needs a decision
+Break blocks on the island and collect them in a hotbar, as in BlockWords; every block says its name when you collect it.
+**Done when:** pupils can break and collect blocks on a phone and a laptop, each block's name shows and is read aloud, and puzzle spots, chests and villagers can never be broken away.
+- [ ] Design it (spec): `/architect mining`
+
+### 24. Crafting unit things · needs a decision
+Make things from the unit's words out of collected blocks (on the beach: a bucket, a spade, a sandcastle, a fishing rod); each thing is named and read aloud.
+**Done when:** a pupil can craft every unit thing on the island on a phone and a laptop, sees and hears its name, and crafting never changes the coins.
+- [ ] Design it (spec): `/architect crafting unit things`
+
+## Release 3: Scores reach you
 
 ### 10. Scores to your results page · needs a decision
 Each finished island sends name, class, unit and score to your Teacher results page, with a per class, per unit leaderboard; impossible scores are rejected.
 **Done when:** a finished island appears on the results page and leaderboard, the rules refuse a score above the island's maximum, and it is proven on the emulator before the real project.
 - [ ] Design it (spec): `/architect scores to your results page`
 
-## Release 3: More puzzles and heroes
+## Release 4: More puzzles and heroes
 
 ### 11. Riddle characters
 Characters on the island read a riddle aloud ("I am yellow and you build castles with me") and the pupil picks the answer.
@@ -146,7 +159,7 @@ Choose Ming, Mei, Jie, Flash or Robo as a blocky character before playing.
 **Done when:** all five heroes look right in the pixel style, the choice is remembered, and the chosen hero is the one that walks.
 - [ ] Build it: `/develop pick your hero`
 
-## Release 4: Year 2 islands
+## Release 5: Year 2 islands
 
 ### 15. Free time island (Unit 5)
 A park and playground island for days of the week and free time activities.
@@ -168,7 +181,7 @@ A toy workshop island for robot body parts and actions.
 **Done when:** the island plays end to end with Unit 8 content and scores reach the results page.
 - [ ] Build it: `/develop robot island`
 
-## Release 5: Year 1 islands
+## Release 6: Year 1 islands
 
 Year 1 islands lean on pictures and listening, with shorter words and fewer letters per word block.
 
