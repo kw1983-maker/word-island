@@ -1,12 +1,12 @@
 // Treasure Quest · the &kit view: everything the look and sound kit makes, in one place, so it can be
-// seen and heard before the real islands use it. Sample panels hold real puzzles from this island's draw.
-// Loaded with import() only when the address has &kit (spec 0003, AC-14).
+// seen and heard before the real islands use it (spec 0004, AC-18). Sample talk boxes hold real
+// puzzles from this island's draw. Loaded with import() only when the address has &kit.
 import { drawIsland, TYPES, islandMax, coinsFor } from "./puzzles.js";
 import { panel } from "./panel.js";
 import { hud } from "./hud.js";
 import { sound, EFFECTS } from "./sound.js";
 import { voice, CAST } from "./voice.js";
-import { blockTiles } from "./blocks.js";
+import { atlasCanvas } from "./bw/atlas.js";
 
 const VOICE_LINES = [
   { by: "", line: "Hello! I am the narrator. Let's find the treasure." },
@@ -17,6 +17,13 @@ const VOICE_LINES = [
   { by: "Flash", line: "Hello! I am Flash. I am fast!" }
 ];
 
+// Blocks for the sample hotbar, so the hand has something to hold.
+const SAMPLE_HOTBAR = [
+  { item: "sand", count: 12 }, { item: "oak_log", count: 4 }, { item: "oak_planks", count: 16 },
+  { item: "cobblestone", count: 8 }, { item: "glass", count: 3 }, { item: "red_wool", count: 5 },
+  { item: "rose", count: 1 }, { item: "chest", count: 1 }, null
+];
+
 function make(tag, cls, text) {
   const node = document.createElement(tag);
   if (cls) node.className = cls;
@@ -24,7 +31,7 @@ function make(tag, cls, text) {
   return node;
 }
 
-function button(label, onClick, cls = "wbtn stone") {
+function button(label, onClick, cls = "btn-small") {
   const b = make("button", cls, label);
   b.type = "button";
   b.addEventListener("click", onClick);
@@ -37,15 +44,33 @@ export function showKit(quest) {
   const max = islandMax(quest.island);
   let coins = 0;
   let left = quest.island.spots.length;
-  hud.show();
   hud.setCoins(coins, max);
   hud.setLeft(left);
+  hud.setHotbar(SAMPLE_HOTBAR);
+
+  const sheet = make("section", "panel kitsheet");
+  sheet.id = "kitsheet";
+  sheet.setAttribute("aria-label", "Look and sound kit");
+  sheet.hidden = true;
+
+  const note = make("p", "kitnote", `Voice: ${voice.name()} · cast: ${Object.keys(CAST).join(", ")}`);
+  const toggle = button("Kit", () => {
+    sheet.hidden = !sheet.hidden;
+    toggle.setAttribute("aria-expanded", String(!sheet.hidden));
+    if (!sheet.hidden) note.textContent = `Voice: ${voice.name()}`;
+  }, "btn-small kittoggle");
+  toggle.setAttribute("aria-controls", "kitsheet");
+  toggle.setAttribute("aria-expanded", "false");
+
+  const closeSheet = () => {
+    sheet.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+  };
 
   // A sample puzzle plays as a feature would: 10 coins first time, 5 after one miss, shown after two.
   function play(puzzle) {
     let tries = 0;
-    sheet.hidden = true;
-    toggleBtn.setAttribute("aria-expanded", "false");
+    closeSheet();
     panel.open(puzzle, {
       unit: quest.unit.id,
       onChoose(choice) {
@@ -68,18 +93,13 @@ export function showKit(quest) {
     });
   }
 
-  const sheet = make("section", "kitsheet");
-  sheet.id = "kitsheet";
-  sheet.setAttribute("aria-label", "Look and sound kit");
-  sheet.hidden = true;
-
   const puzzles = make("div", "kitrow");
   samples.forEach((puzzle) => {
     const name = { chest: "Chest", riddle: "Riddle", find: "Find" }[puzzle.playAs];
-    puzzles.append(button(name, () => play(puzzle), "wbtn grass"));
+    puzzles.append(button(name, () => play(puzzle), "btn-big"));
   });
   puzzles.append(button("Message", () => {
-    sheet.hidden = true;
+    closeSheet();
     panel.message({
       title: "Island finished!",
       text: `You found ${coins} coins.`,
@@ -89,10 +109,18 @@ export function showKit(quest) {
     sound.play("fanfare");
   }));
 
+  // The block picture sheet, drawn bigger with sharp pixels.
+  const tiles = make("canvas", "kittiles");
+  tiles.width = atlasCanvas.width;
+  tiles.height = atlasCanvas.height;
+  tiles.getContext("2d").drawImage(atlasCanvas, 0, 0);
+  tiles.setAttribute("role", "img");
+  tiles.setAttribute("aria-label", "The block pictures");
+
   const effects = make("div", "kitrow");
-  Object.keys(EFFECTS).forEach((name) => effects.append(button(name, () => sound.play(name))));
-  // The tune button works like the top bar's Music button.
-  effects.append(button("tune", () => sound.setMusic(!sound.state().music), "wbtn grass"));
+  EFFECTS.forEach((name) => effects.append(button(name, () => sound.play(name, { block: "grass_block" }))));
+  // The music button works like Music in the pause menu.
+  effects.append(button("music", () => sound.setMusic(!sound.state().music), "btn-big"));
 
   const voices = make("div", "kitrow");
   VOICE_LINES.forEach(({ by, line }) => {
@@ -100,31 +128,13 @@ export function showKit(quest) {
       if (!voice.say(line, { by, fromButton: true })) note.textContent = "Read the words on the screen.";
     }));
   });
-  const note = make("p", "kitnote", `Voice: ${voice.name()} · cast: ${Object.keys(CAST).join(", ")}`);
-
-  // The block picture sheet, drawn bigger with sharp pixels.
-  const tiles = blockTiles();
-  const tileView = make("canvas", "kittiles");
-  tileView.width = tiles.width;
-  tileView.height = tiles.height;
-  tileView.getContext("2d").drawImage(tiles, 0, 0);
-  tileView.setAttribute("aria-label", "The block pictures");
-  tileView.setAttribute("role", "img");
 
   sheet.append(
     make("h2", "", "Puzzles"), puzzles,
-    make("h2", "", "Blocks"), tileView,
+    make("h2", "", "Blocks"), tiles,
     make("h2", "", "Sounds"), effects,
     make("h2", "", "Voices"), voices, note
   );
-
-  const toggleBtn = button("Kit", () => {
-    sheet.hidden = !sheet.hidden;
-    toggleBtn.setAttribute("aria-expanded", String(!sheet.hidden));
-    if (!sheet.hidden) note.textContent = `Voice: ${voice.name()}`;
-  }, "wbtn grass kittoggle");
-  toggleBtn.setAttribute("aria-controls", "kitsheet");
-  toggleBtn.setAttribute("aria-expanded", "false");
-  document.body.append(toggleBtn, sheet);
-  return { sheet, toggle: toggleBtn };
+  document.body.append(toggle, sheet);
+  return { sheet, toggle };
 }

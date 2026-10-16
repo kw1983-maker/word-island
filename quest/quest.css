@@ -247,6 +247,7 @@ html, body {
 .kitsheet h2 { margin: 6px 0; font-size: 18px; text-shadow: 2px 2px 0 #000; }
 .kitrow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .kitrow .btn-small, .kitrow .btn-big { width: auto; margin: 0; padding: 8px 12px; font-size: 15px; }
+.kittiles { display: block; width: 256px; max-width: 100%; margin-bottom: 8px; image-rendering: pixelated; border: 3px solid #14141a; background: #fff; }
 .kitnote { margin: 0; font-size: 14px; opacity: .85; }
 
 /* The teacher has paused the class (copied from Word Island). */
