@@ -74,11 +74,29 @@ export const EFFECTS = {
   ]
 };
 
+// The quiet looping tune: 8 bars of eighth notes (C, Am, F, G, C, Am, F G, C), a square lead over a
+// triangle bass. A token is a note, "-" to hold the one before, or "." for a rest.
+export const TUNE = {
+  tempo: 112,
+  lead: [
+    "E5 . G5 . C6 - G5 .", "A5 . G5 . E5 - . .", "F5 . A5 . C6 - A5 .", "G5 - D5 . G5 . B4 .",
+    "E5 . G5 . C6 . E6 .", "D6 . C6 . A5 - . .", "F5 . A5 . G5 . B5 .", "C6 - - . G5 . E5 ."
+  ],
+  bass: [
+    "C3 . G3 . C3 . G3 .", "A2 . E3 . A2 . E3 .", "F2 . C3 . F2 . C3 .", "G2 . D3 . G2 . D3 .",
+    "C3 . G3 . C3 . G3 .", "A2 . E3 . A2 . E3 .", "F2 . C3 . G2 . D3 .", "C3 . G3 . C3 . . ."
+  ]
+};
+const MUSIC_LEVEL = 0.5;
+const LOOK_AHEAD = 0.2; // seconds of tune scheduled ahead of time
+
 let ctx = null;     // the AudioContext, made inside the Play tap
 let out = null;     // everything goes through here, so speech can duck it
 let fx = null;      // the effects bus
 let noise = null;   // one second of white noise, shared by every noise note
+let music = null;   // the tune's bus
 let paused = false;
+const tune = { timer: 0, step: 0, next: 0, notes: null };
 const listeners = [];
 
 function readJson(key) {
@@ -156,6 +174,61 @@ function playNote(note, at, bus) {
   source.stop(end + 0.02);
 }
 
+const NAMES = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+
+function frequency(note) {
+  const midi = 12 * (Number(note.slice(1)) + 1) + NAMES[note[0]];
+  return 440 * 2 ** ((midi - 69) / 12);
+}
+
+// Turns a part's rows into one list of { f, steps } (or null for a rest) per eighth note.
+function readPart(rows) {
+  const tokens = rows.join(" ").split(/\s+/);
+  return tokens.map((token, i) => {
+    if (token === "." || token === "-") return null;
+    let steps = 1;
+    while (tokens[i + steps] === "-") steps += 1;
+    return { f: frequency(token), steps };
+  });
+}
+
+// Schedules the next few notes; called every 50 ms while the tune plays.
+function scheduleTune() {
+  if (!tune.notes) tune.notes = { lead: readPart(TUNE.lead), bass: readPart(TUNE.bass) };
+  const step = 60 / TUNE.tempo / 2;
+  const total = tune.notes.lead.length;
+  while (tune.next < ctx.currentTime + LOOK_AHEAD) {
+    const lead = tune.notes.lead[tune.step];
+    const bass = tune.notes.bass[tune.step];
+    if (lead) playNote({ w: "square", f: lead.f, t: 0, d: lead.steps * step * 0.9, v: 0.07 }, tune.next, music);
+    if (bass) playNote({ w: "triangle", f: bass.f, t: 0, d: bass.steps * step * 0.9, v: 0.2 }, tune.next, music);
+    tune.next += step;
+    tune.step = (tune.step + 1) % total;
+  }
+}
+
+// The tune plays only after Play, with Sound and Music both on, while the game is not paused.
+// Stopping keeps its place, so it carries on from there.
+function updateMusic() {
+  const want = Boolean(ctx) && settings.sound && settings.music && !paused;
+  if (want && !tune.timer) {
+    music.gain.cancelScheduledValues(ctx.currentTime);
+    music.gain.setValueAtTime(MUSIC_LEVEL, ctx.currentTime);
+    tune.next = Math.max(tune.next, ctx.currentTime + 0.05);
+    try {
+      scheduleTune();
+      tune.timer = setInterval(scheduleTune, 50);
+    } catch (err) {
+      console.warn("Treasure Quest: the tune did not play.", err);
+    }
+  } else if (!want && tune.timer) {
+    clearInterval(tune.timer);
+    tune.timer = 0;
+    // Silence the notes already scheduled ahead.
+    if (ctx) music.gain.setTargetAtTime(0, ctx.currentTime, 0.02);
+  }
+}
+
 // While the voice speaks, everything else is quieter, so the words stay clear.
 function watchSpeech() {
   const synth = "speechSynthesis" in window ? window.speechSynthesis : null;
@@ -182,6 +255,9 @@ export const sound = {
       fx = ctx.createGain();
       fx.gain.value = 0.6;
       fx.connect(out);
+      music = ctx.createGain();
+      music.gain.value = MUSIC_LEVEL;
+      music.connect(out);
       noise = makeNoise();
       // iPhone Safari also wants a sound to start inside the tap.
       const silent = ctx.createBufferSource();
@@ -194,6 +270,7 @@ export const sound = {
       console.warn("Treasure Quest: no Web Audio, playing without sound.", err);
       ctx = null;
     }
+    if (ctx) updateMusic();
     emit();
   },
 
@@ -216,12 +293,14 @@ export const sound = {
   setSound(on) {
     settings.sound = Boolean(on);
     save();
+    updateMusic();
     emit();
   },
 
   setMusic(on) {
     settings.music = Boolean(on);
     save();
+    updateMusic();
     emit();
   },
 
@@ -229,6 +308,7 @@ export const sound = {
   pause() {
     if (paused) return;
     paused = true;
+    updateMusic();
     if (ctx) ctx.suspend().catch(() => {});
     emit();
   },
@@ -236,6 +316,7 @@ export const sound = {
     if (!paused) return;
     paused = false;
     if (ctx) ctx.resume().catch(() => {});
+    updateMusic();
     emit();
   },
 
@@ -245,6 +326,7 @@ export const sound = {
     context: ctx ? ctx.state : "none",
     sound: settings.sound,
     music: settings.music,
+    tune: Boolean(tune.timer),
     paused
   })
 };

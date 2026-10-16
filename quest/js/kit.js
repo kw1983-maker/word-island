@@ -91,6 +91,8 @@ export function showKit(quest) {
 
   const effects = make("div", "kitrow");
   Object.keys(EFFECTS).forEach((name) => effects.append(button(name, () => sound.play(name))));
+  // The tune button works like the top bar's Music button.
+  effects.append(button("tune", () => sound.setMusic(!sound.state().music), "wbtn grass"));
 
   const voices = make("div", "kitrow");
   VOICE_LINES.forEach(({ by, line }) => {
