@@ -56,13 +56,13 @@ How a 3D game sits inside a plain HTML site that must load fast on cheap phones,
 **Done when:** an empty blocky scene opens from Word Island on a phone and a laptop, runs smoothly, and can read a unit's existing questions.
 - [x] Design it (spec): `/architect game engine & page structure`
 - [ ] Build it: `/develop game engine & page structure`
-   - [ ] Shared files lifted out of `index.html`, Word Island unchanged (AC-10)
-   - [ ] Three.js r184 vendored, quest page, engine loop and test scene (AC-1, AC-6, AC-9)
-   - [ ] Boot checks, unit loading, class check and every overlay screen (AC-2, AC-3, AC-4)
-   - [ ] Pause, turn your phone, Back button, quality watch and debug view (AC-5, AC-7, AC-8, AC-12, AC-13)
-   - [ ] Quiz copy, `.vercelignore`, preview deploy and download check (AC-9, AC-11)
+   - [x] Shared files lifted out of `index.html`, Word Island unchanged (AC-10)
+   - [x] Three.js r184 vendored, quest page, engine loop and test scene (AC-1, AC-6, AC-9)
+   - [x] Boot checks, unit loading, class check and every overlay screen (AC-2, AC-3, AC-4)
+   - [x] Pause, turn your phone, Back button, quality watch and debug view (AC-5, AC-7, AC-8, AC-12, AC-13)
+   - [ ] Quiz copy, `.vercelignore`, preview deploy and download check (AC-9, AC-11): all done locally; the Vercel preview and quiz deploy wait for your go ahead
 - [ ] Verify it: `/check verify game engine & page structure`
-Spec [0001](../specs/0001-quest-engine-page-structure/index.md)
+Spec [0001](../specs/0001-quest-engine-page-structure/index.md) · code in `quest/`, `shared/`
 
 ### 3. Quest content model · needs a decision
 One way to describe an island's puzzles (chests, riddles, listen and find, word blocks) that reuses the existing unit questions and pictures, with easier settings for Year 1.
