@@ -90,3 +90,6 @@ html, body {
 }
 .debug[hidden] { display: none; }
 .noscript { position: fixed; inset: 0; margin: 0; padding: 24px; background: #fff; font-size: 1.2rem; }
+
+/* The Play card's button: big and easy to hit. */
+.btn.big { min-width: 10rem; min-height: 64px; font-size: 1.5rem; }

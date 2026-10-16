@@ -1,12 +1,14 @@
 // Treasure Quest · the screens over the island. One shows at a time:
 // Stop and listen first, then a screen that ends the visit (not open, can't run…), then turn your phone,
-// then the leave box, then loading. While any shows, the game is paused.
+// then the leave box, then loading or the Play card. While any shows, the game is paused.
 
 const HOME = "../";
 
 // The exact words for each screen (spec 0001).
 const TEXT = {
   loading: { title: "Treasure Quest", body: "Getting the island ready…", buttons: [] },
+  // Phones only allow sound after a tap, so the island waits for this one (spec 0003).
+  ready: { title: "Treasure Quest", body: "The island is ready.", buttons: [{ label: "Play", act: "play", gold: true, big: true }] },
   needsPupil: {
     title: "Start in Word Island first",
     body: "Open Word Island, type your name and tap your class. Then come back to the quest.",
@@ -57,13 +59,14 @@ const el = {
 const state = { base: window.QUEST_PROBE === false ? "unsupported" : "loading", hush: false, portrait: false, leave: false };
 let shownKey = null;
 const listeners = [];
+let playHandler = null;
 
 function esc(value) {
   return String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 function buttonHtml(button) {
-  const cls = button.gold ? "btn gold" : "btn";
+  const cls = ["btn", button.gold && "gold", button.big && "big"].filter(Boolean).join(" ");
   return button.href
     ? `<a class="${cls}" href="${esc(button.href)}">${esc(button.label)}</a>`
     : `<button type="button" class="${cls}" data-act="${esc(button.act)}">${esc(button.label)}</button>`;
@@ -74,7 +77,7 @@ function cardKey() {
   if (END_SCREENS.includes(state.base)) return state.base;
   if (state.portrait) return "turn";
   if (state.leave) return "leave";
-  if (state.base === "loading") return "loading";
+  if (state.base === "loading" || state.base === "ready") return state.base;
   return null;
 }
 
@@ -107,6 +110,7 @@ el.buttons.addEventListener("click", (event) => {
   if (!button) return;
   if (button.dataset.act === "reload") location.reload();
   if (button.dataset.act === "stay") screens.setLeave(false);
+  if (button.dataset.act === "play" && playHandler) playHandler();
 });
 el.back.addEventListener("click", () => screens.setLeave(true));
 
@@ -118,7 +122,7 @@ window.addEventListener("keydown", (event) => {
 }, true);
 
 export const screens = {
-  // base: loading, running, or an end screen (needsPupil, notOpen, unsupported, slow, lost).
+  // base: loading, ready (the Play card), running, or an end screen (needsPupil, notOpen, unsupported, slow, lost).
   setBase(base) {
     if (END_SCREENS.includes(state.base)) return; // an end screen stays
     state.base = base;
@@ -143,6 +147,8 @@ export const screens = {
     if (!on && !el.back.hidden) el.back.focus({ preventScroll: true });
   },
   onChange: (fn) => listeners.push(fn),
+  // Runs inside the Play tap, so it may start sound and speech.
+  onPlay: (fn) => { playHandler = fn; },
   get state() {
     return { ...state };
   }

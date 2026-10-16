@@ -3,6 +3,8 @@
 // screen never spends mobile data on it.
 import { screens } from "./screens.js";
 import { drawIsland, randomSeed, tagUnit } from "./puzzles.js";
+import { sound } from "./sound.js";
+import { voice } from "./voice.js";
 
 const UNIT_IDS = ["u1", "u2", "u3", "u4", "u5", "u6", "u7", "u8", "u9"];
 const WAIT = 8000; // ms for the class list and the unit file, the same patience Word Island has
@@ -166,7 +168,14 @@ async function boot() {
   wireEngine(engine);
   const test = buildTestScene(engine.camera);
   engine.start(test.scene, test.update);
-  screens.setBase("running");
+  // The island waits behind the Play card; the tap itself switches on sound and voice.
+  screens.onPlay(() => {
+    sound.unlock();
+    voice.unlock();
+    sound.play("click");
+    screens.setBase("running");
+  });
+  screens.setBase("ready");
   if (quest.debug) {
     const { showDebug } = await import("./debug.js");
     showDebug(engine, quest);
@@ -184,7 +193,7 @@ function wireEngine(engine) {
   window.addEventListener("orientationchange", follow);
   follow();
   const sync = (s) => {
-    (s.base === "loading" ? engine.pause : engine.resume)("loading");
+    (s.base === "running" ? engine.resume : engine.pause)("loading");
     (s.hush ? engine.pause : engine.resume)("hush");
     (s.portrait ? engine.pause : engine.resume)("portrait");
     (s.leave ? engine.pause : engine.resume)("ask");
@@ -192,9 +201,14 @@ function wireEngine(engine) {
   screens.onChange(sync);
   sync(screens.state);
   engine.onFail((kind) => screens.setBase(kind));
-  // Later features stop their sound here; speech is stopped for them.
+  // Nothing plays or speaks while the game is paused (teacher Pause, hidden tab, turn your phone, Leave box).
   engine.onPause(() => {
-    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    sound.pause();
+    voice.pause();
+  });
+  engine.onResume(() => {
+    sound.resume();
+    voice.resume();
   });
 }
 
