@@ -1,7 +1,7 @@
 # 0001. Build Treasure Quest on Three.js in its own quest/ page that shares Word Island's data
 
 **Date**: 2026-10-16
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 
