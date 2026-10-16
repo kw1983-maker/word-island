@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Teacher only: this page shows the answers, so search engines must not list it, and nothing links here. -->
+<meta name="robots" content="noindex, nofollow">
+<title>Island review · Treasure Quest</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%227%22 fill=%22%23ffe14a%22/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../shared/picture.css">
+<style>
+  :root {
+    --ink: #14213d; --paper: #f3eee4; --card: #fffdf8; --gold: #ffe14a;
+    --leaf: #157a3a; --leaf-soft: #d9f3e4; --line: #e4d8c4; --muted: #5b6478;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px 48px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink); background: var(--paper); line-height: 1.45;
+  }
+  main { max-width: 1040px; margin: 0 auto; }
+  h1 { margin: 0 0 4px; font-size: 1.7rem; }
+  h2 { margin: 32px 0 12px; font-size: 1.25rem; }
+  .lede { margin: 0; color: var(--muted); }
+  .note { background: var(--card); border: 2px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+  table { border-collapse: collapse; width: 100%; background: var(--card); border-radius: 12px; overflow: hidden; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: #efe6d6; font-size: .9rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 0 0 4px; font-size: 1rem; }
+  .meta { margin: 0 0 8px; color: var(--muted); font-size: .85rem; }
+  .riddle { margin: 0 0 10px; font-size: 1.05rem; }
+  .choices { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .choices li {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    border: 2px solid var(--line); border-radius: 10px; padding: 6px 10px; background: #fff; font-size: .9rem;
+  }
+  .choices li.ok { border-color: var(--leaf); background: var(--leaf-soft); font-weight: 700; }
+  .choices li.ok::after { content: "✓ right answer"; font-size: .75rem; color: var(--leaf); }
+  .choices img { width: 96px; height: 72px; object-fit: contain; }
+  .choices .ico { width: 56px; height: 56px; }
+  .pieces { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; padding: 0; list-style: none; }
+  .pieces li { border: 2px solid var(--ink); border-radius: 6px; padding: 4px 8px; background: #fff; font-weight: 700; }
+  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; font-size: .92rem; }
+  dt { font-weight: 700; }
+  dd { margin: 0; }
+  .star { color: #b07d00; font-weight: 700; }
+  .seed { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0 0; }
+  .seed a { color: var(--ink); font-weight: 700; }
+  .card .pic { min-height: 0; margin-bottom: 8px; }
+  .problem { border-color: #c0392b; background: #fff1ef; }
+</style>
+</head>
+<body>
+<main id="page">
+  <h1>Island review</h1>
+  <p class="lede">Loading…</p>
+</main>
+<script src="../shared/bank.js"></script>
+<script src="../shared/picture.js"></script>
+<script type="module">
+// Shows everything an island will ask pupils, with the answers, so the teacher can check the new
+// riddles and sentences before an island goes live. It uses the game's own puzzle drawing.
+import { TYPES, SUPPORTED, drawIsland, islandMax, poolSizes, randomSeed, tagUnit } from "./js/puzzles.js";
+
+const page = document.getElementById("page");
+const params = new URLSearchParams(location.search);
+const unitId = (params.get("unit") || "").trim().toLowerCase();
+const seedParam = Number.parseInt(params.get("seed") || "", 10);
+const seed = seedParam > 0 ? seedParam : randomSeed();
+
+function fail(text) {
+  page.innerHTML = `<h1>Island review</h1><p class="note problem">${esc(text)}</p>`;
+}
+
+function loadUnit(id) {
+  return new Promise((resolve) => {
+    const tag = document.createElement("script");
+    tag.src = `../units/${id}.js`;
+    tag.onload = () => resolve(WORD_ISLAND_UNITS[id] || null);
+    tag.onerror = () => resolve(null);
+    document.body.appendChild(tag);
+  });
+}
+
+function choiceHtml(choice, look, unit) {
+  let art = "";
+  if (look === "pic") art = `<img src="../img/${unit}/${encodeURIComponent(choice.value)}.webp" alt="">`;
+  else if (look === "icon") art = icon(choice.value);
+  return `<li class="${choice.ok ? "ok" : ""}">${art}<span>${esc(choice.label)}</span></li>`;
+}
+
+function choicesHtml(choices, look, unit) {
+  return `<ul class="choices">${choices.map((c) => choiceHtml(c, look, unit)).join("")}</ul>`;
+}
+
+function riddleCard(riddle, unit) {
+  const look = riddle.pics ? "pic" : "text";
+  const choices = riddle.choices.map((value, i) => ({ value, label: riddle.pics ? riddle.alts[i] : value, ok: i === 0 }));
+  return `<article class="card">
+    <h3>${esc(riddle.id)}</h3>
+    <p class="meta">Topic: ${esc(unit.topics[riddle.topic] || riddle.topic)}${riddle.by ? ` · said by ${esc(riddle.by)}` : ""}</p>
+    <p class="riddle">${riddle.lines.map(esc).join("<br>")}</p>
+    ${choicesHtml(choices, look, unit.id)}
+    <dl><dt>Hint</dt><dd>${esc(riddle.hint)}</dd><dt>Why</dt><dd>${esc(riddle.why)}</dd></dl>
+  </article>`;
+}
+
+function puzzleCard(p, unit) {
+  const as = p.playAs === p.type ? p.type : `${p.type}, played as ${p.playAs}`;
+  let body = `<p class="riddle">${esc(p.show)}</p>`;
+  if (p.pic) body = picture(p.pic, true, "../img/") + body;
+  if (p.choices) body += choicesHtml(p.choices, p.look, unit.id);
+  if (p.pieces) body += `<ul class="pieces" aria-label="Blocks in the right order">${p.pieces.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
+  return `<article class="card">
+    <h3>${esc(p.spot)} · ${esc(as)}${p.challenge ? ' <span class="star">★ challenge</span>' : ""}</h3>
+    <p class="meta">At ${esc(p.anchor)} · ${esc(p.id)}${p.by ? ` · said by ${esc(p.by)}` : ""}</p>
+    ${body}
+    <dl><dt>Spoken</dt><dd>${esc(p.say)}</dd><dt>Answer</dt><dd>${esc(p.answer)}</dd><dt>Hint</dt><dd>${esc(p.hint)}</dd><dt>Why</dt><dd>${esc(p.why)}</dd></dl>
+  </article>`;
+}
+
+async function show() {
+  if (!/^u[1-9]$/.test(unitId)) return fail("Add ?unit=u9 (or another unit) to the address.");
+  const [unit, island] = await Promise.all([
+    loadUnit(unitId),
+    import(`./islands/${unitId}.js`).then((m) => m.default, () => null)
+  ]);
+  if (!unit) return fail(`units/${unitId}.js did not load.`);
+  if (!island) return fail(`There is no island file for Unit ${unitId.slice(1)} yet (quest/islands/${unitId}.js).`);
+  tagUnit(unit);
+
+  let plan;
+  try {
+    plan = drawIsland(island, unit, seed, TYPES);
+  } catch (err) {
+    return fail(`The island's puzzles could not be drawn: ${err.message} Run node tools/check-quests.mjs ${unitId}.`);
+  }
+  const pools = poolSizes(island, unit);
+  const here = (n) => `?unit=${unitId}&seed=${n}`;
+
+  page.innerHTML = `
+    <h1>Island review · Unit ${unit.number}: ${esc(unit.title)}</h1>
+    <p class="lede">Year ${island.year} · ${island.spots.length} spots · up to ${islandMax(island)} coins. Teacher only: this page shows the answers.</p>
+
+    <h2>Spots</h2>
+    <table>
+      <thead><tr><th>Spot</th><th>Puzzle</th><th>Place on the island</th></tr></thead>
+      <tbody>${island.spots.map((s) => `<tr><td>${esc(s.id)}</td><td>${esc(s.type)}${SUPPORTED.includes(s.type) ? "" : " (a chest for now)"}</td><td>${esc(s.anchor)}</td></tr>`).join("")}</tbody>
+    </table>
+
+    <h2>Riddles (${island.riddles.length})</h2>
+    <div class="grid">${island.riddles.map((r) => riddleCard(r, unit)).join("")}</div>
+
+    <h2>Sentences (${island.sentences.length})</h2>
+    ${island.sentences.length ? `<table>
+      <thead><tr><th>Sentence</th><th>Topic</th><th>Id</th></tr></thead>
+      <tbody>${island.sentences.map((s) => `<tr><td>${esc(s.text)}</td><td>${esc(unit.topics[s.topic] || s.topic)}</td><td>${esc(s.id)}</td></tr>`).join("")}</tbody>
+    </table>` : `<p class="note">Year 1 islands have no sentences.</p>`}
+
+    <h2>How many puzzles each type can draw</h2>
+    <table>
+      <thead><tr><th>Chest</th><th>Riddle</th><th>Listen and find</th><th>Spelling word</th><th>Sentence</th></tr></thead>
+      <tbody><tr><td>${pools.chest}</td><td>${pools.riddle}</td><td>${pools.find}</td><td>${pools.spelling}</td><td>${pools.sentence}</td></tr></tbody>
+    </table>
+
+    <h2>One sample play (seed ${seed})</h2>
+    <p class="note">This is the full mix, as pupils will see it once riddles, listen and find and word blocks are built.
+      For now the game plays the spots marked “a chest for now” as chests.</p>
+    <p class="seed"><a href="${here(seed)}">Link to this play</a><a href="${here(seed + 1)}">Next sample</a></p>
+    <div class="grid">${plan.map((p) => puzzleCard(p, unit)).join("")}</div>`;
+  document.title = `Unit ${unit.number} island review · Treasure Quest`;
+}
+
+show();
+</script>
+</body>
+</html>
