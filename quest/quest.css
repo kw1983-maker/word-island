@@ -1,9 +1,20 @@
-/* Treasure Quest: the frame around the 3D island. The retro look itself comes with the look and sound kit. */
+/* Treasure Quest: the frame around the 3D island and the retro look and sound kit's panels (spec 0003). */
+
+/* Pixelify Sans (SIL Open Font License, fonts/OFL.txt), kept here so no font server is called.
+   Cut down to Basic Latin plus · … “ ” ‘ ’ at weight 600; the device font fills in if it fails. */
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("fonts/pixelify-sans.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 :root {
   --ink: #14213d;
   --gold: #ffe14a;
   --card: #fffdf8;
   --sky: #8fd3ff;
+  --pixel: "Pixelify Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 * { box-sizing: border-box; }
@@ -28,7 +39,7 @@ html, body {
   display: inline-block; min-height: 48px; padding: 12px 22px;
   border: 3px solid var(--ink); border-radius: 14px;
   background: #fff; color: var(--ink);
-  font: 700 1.05rem/1.2 var(--font); text-decoration: none; cursor: pointer;
+  font: 600 1.15rem/1.2 var(--pixel); text-decoration: none; cursor: pointer;
 }
 .btn.gold { background: var(--gold); }
 .btn:focus-visible, .back:focus-visible { outline: 4px solid #2f6fed; outline-offset: 3px; }
@@ -45,7 +56,7 @@ html, body {
   max-width: 30rem; padding: 22px 24px; text-align: center;
   background: var(--card); border: 3px solid var(--ink); border-radius: 18px;
 }
-.card h1 { margin: 0 0 8px; font-size: clamp(1.4rem, 5vw, 2rem); line-height: 1.15; }
+.card h1 { margin: 0 0 8px; font-family: var(--pixel); font-weight: 600; font-size: clamp(1.4rem, 5vw, 2rem); line-height: 1.15; }
 .card h1:focus { outline: none; }
 .card p { margin: 0; font-size: 1.1rem; line-height: 1.4; }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
@@ -58,7 +69,7 @@ html, body {
   min-height: 44px; padding: 8px 16px;
   border: 3px solid var(--ink); border-radius: 12px;
   background: rgba(255, 255, 255, .92); color: var(--ink);
-  font: 700 1rem/1 var(--font); cursor: pointer;
+  font: 600 1.1rem/1 var(--pixel); cursor: pointer;
 }
 .back[hidden] { display: none; }
 
