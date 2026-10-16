@@ -17,7 +17,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 1 | Project context & standards | Foundation | planned |
 | 2 | Game engine & page structure | Foundation | in-progress |
 | 3 | Quest content model | Foundation | done |
-| 4 | Retro look & sound kit | Foundation | planned |
+| 4 | Retro look & sound kit | Foundation | in-progress |
 | 5 | Quest entry in Word Island | Release 1 | planned |
 | 6 | Movement & controls | Release 1 | planned |
 | 7 | Beach island (Unit 9) | Release 1 | planned |
@@ -78,10 +78,17 @@ One way to describe an island's puzzles (chests, riddles, listen and find, word 
 - [x] Verify it: `/check verify quest content model`
 Spec [0002](../specs/0002-quest-content-model/index.md) · code in `quest/islands/`, `quest/js/puzzles.js`, `quest/review.html`, `shared/picture.js`, `tools/check-quests.mjs`
 
-### 4. Retro look & sound kit · needs a decision
+### 4. Retro look & sound kit · in-progress
 The blocky pixel palette and textures, chunky pixel screen, big pupil friendly buttons and text, chiptune music and beeps, and the browser voice that reads every question.
 **Done when:** a test scene shows the block set and on screen panel, music and sound effects play, and the voice reads a question aloud on phone and laptop.
-- [ ] Design it (spec): `/architect retro look & sound kit`
+- [x] Design it (spec): `/architect retro look & sound kit`
+- [ ] Build it: `/develop retro look & sound kit`
+   - [ ] Play button, sound effects, saved Sound and Music, and the voice (AC-1, AC-9, AC-11, AC-12, AC-16)
+   - [ ] Pixel font, wooden sign panels, top bar and the `&kit` sample puzzles (AC-5 to AC-8, AC-13, AC-14)
+   - [ ] Pixel blocks, the rebuilt test island and the chunky screen (AC-2, AC-3, AC-4, AC-14)
+   - [ ] Music, the sound and voice boards, and the budget and failure checks (AC-10, AC-14, AC-15, AC-16)
+- [ ] Verify it: `/check verify retro look & sound kit`
+Spec [0003](../specs/0003-quest-look-sound-kit/index.md)
 
 ## Release 1: Beach treasure hunt (the first playable island)
 
