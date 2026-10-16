@@ -20,7 +20,7 @@ function seedFromAddress() {
 }
 
 // What later features read: the loaded unit bank, its island file, this play's puzzles and the pupil.
-export const quest = { unit: null, island: null, plan: null, world: null, seed: seedFromAddress(), pupil: null, debug: params.has("debug") };
+export const quest = { unit: null, island: null, plan: null, world: null, test: null, seed: seedFromAddress(), pupil: null, debug: params.has("debug") };
 
 function readJson(key) {
   try {
@@ -124,7 +124,7 @@ async function boot() {
     return;
   }
 
-  const enginePart = Promise.all([import("./engine.js"), import("./testscene.js"), import("./hand.js")]).catch((err) => {
+  const enginePart = Promise.all([import("./engine.js"), import("./testscene.js"), import("./hand.js"), import("./walk.js")]).catch((err) => {
     console.warn("Treasure Quest: Three.js did not load.", err);
     return null;
   });
@@ -163,15 +163,23 @@ async function boot() {
     screens.setBase("unsupported");
     return;
   }
-  const [{ engine }, { buildTestScene }, { hand }] = parts;
+  const [{ engine }, { buildTestScene }, { hand }, { walk }] = parts;
   if (!engine.init(document.getElementById("world"))) {
     screens.setBase("unsupported");
     return;
   }
   wireEngine(engine);
-  const test = buildTestScene(engine.camera, document.getElementById("world"));
+  const test = buildTestScene(engine.camera);
   quest.world = test.world;
-  engine.start(test.scene, test.update, { overlay: hand });
+  quest.test = test;
+  // The pupil walks from the island's start point (spec 0005); the sky follows the camera.
+  walk.start(test.world, test.start, engine.camera);
+  const update = (dt) => {
+    walk.update(dt);
+    test.update(dt);
+  };
+  update(0);
+  engine.start(test.scene, update, { overlay: hand });
   // The hotbar and the hand: the selected slot is what the hand holds.
   hud.onSelect((item) => hand.setItem(item));
   hud.blockWhile(() => screens.state.covered || panel.isOpen());

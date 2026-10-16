@@ -1,6 +1,6 @@
 // Treasure Quest · a small BlockWords style test beach, so the look can be judged before the real
 // beach island (feature 7) replaces it (spec 0004): sand, sea, grass, an oak tree, a village house,
-// a chest, a villager, and one row showing every block. You stand on it in first person.
+// a chest, a villager, and one row showing every block. You start on its path and walk it (spec 0005).
 import * as THREE from "three";
 import { BLOCKS } from "./bw/blocks.js";
 import { buildAtlas, atlasCanvas, validateTiles, TILE, COLS, TILE_INDEX } from "./bw/atlas.js";
@@ -8,10 +8,8 @@ import { makeMaterials } from "./bw/chunk.js";
 import { IslandWorld, ISLAND_SIZE, buildSea } from "./bw/world.js";
 import { Sky } from "./bw/sky.js";
 import { villagerModel } from "./bw/villager.js";
-import { attachLook } from "./look.js";
 
 const SEA_LEVEL = 6;
-const EYE = 1.62;          // BlockWords' eye height above the feet
 const MID = ISLAND_SIZE / 2;
 
 // Sharp square pixels, as BlockWords makes its atlas texture.
@@ -115,7 +113,7 @@ function beachBlocks() {
   return placed;
 }
 
-export function buildTestScene(camera, canvas) {
+export function buildTestScene(camera) {
   const scene = new THREE.Scene();
   buildAtlas();
   validateTiles();
@@ -134,16 +132,12 @@ export function buildTestScene(camera, canvas) {
   villager.rotation.y = Math.PI;
   scene.add(villager);
 
-  // You stand on the path, looking up it at the house and the tree.
-  const start = { x: 32.5, y: 9, z: 41.5, yaw: 0 };
-  camera.position.set(start.x, start.y + EYE, start.z);
-  const look = attachLook(camera, canvas, { yaw: start.yaw, pitch: -0.12 });
+  // You start on the path, looking up it at the house and the tree (feet on the grass at y 9).
+  const start = { x: 32.5, y: 9, z: 41.5, yaw: 0, pitch: -0.12 };
 
   function update(dt) {
-    look.update(dt);
     sky.update(dt, camera);
   }
-  sky.update(0, camera);
 
-  return { scene, update, world, start };
+  return { scene, update, world, start, villager, chest: { x: 34, y: 9, z: 36 } };
 }
