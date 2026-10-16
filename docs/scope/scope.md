@@ -85,14 +85,14 @@ Make the island look and sound like BlockWords: its block textures, a sharp firs
 **Done when:** a test scene looks like BlockWords on phone and laptop, a talk box shows a real puzzle, music and sound effects play, and the voice reads a question aloud.
 The first build (spec 0003: chunky pixels, wooden signs, new textures) was turned down on 2026-10-16 as nothing like BlockWords; spec 0004 replaces it by reusing BlockWords' own code.
 - [x] Redesign it to match BlockWords (spec): `/architect retro look & sound kit`
-- [ ] Build it: `/develop retro look & sound kit`
-   - [ ] BlockWords world in first person: copied blocks, atlas, mesher, island world, sea, sunny sky, screen sharpness and the test beach (AC-2 to AC-6, AC-17)
-   - [ ] Hand, hotbar and coin counter (AC-7, AC-8)
-   - [ ] Talk box, screens, Play card, font and pause menu (AC-1, AC-9 to AC-12, AC-14, AC-16)
-   - [ ] BlockWords sounds and the `&kit` view (AC-13 to AC-15, AC-18, AC-21)
-   - [ ] Remove the spec 0003 look, then the budget and speed checks (AC-19 to AC-21)
+- [x] Build it: `/develop retro look & sound kit`
+   - [x] BlockWords world in first person: copied blocks, atlas, mesher, island world, sea, sunny sky, screen sharpness and the test beach (AC-2 to AC-6, AC-17)
+   - [x] Hand, hotbar and coin counter (AC-7, AC-8)
+   - [x] Talk box, screens, Play card, font and pause menu (AC-1, AC-9 to AC-12, AC-14, AC-16)
+   - [x] BlockWords sounds and the `&kit` view (AC-13 to AC-15, AC-18, AC-21)
+   - [x] Remove the spec 0003 look, then the budget and speed checks (AC-19 to AC-21)
 - [ ] Verify it: `/check verify retro look & sound kit`
-Spec [0004](../specs/0004-quest-blockwords-look/index.md) (replaces [0003](../specs/0003-quest-look-sound-kit/index.md))
+Spec [0004](../specs/0004-quest-blockwords-look/index.md) (replaces [0003](../specs/0003-quest-look-sound-kit/index.md)) · code in `quest/js/bw/` (copied BlockWords code), `quest/js/` (`hand.js`, `hud.js`, `look.js`, `pause.js`, `panel.js`, `sound.js`, `kit.js`, `testscene.js`), `quest/quest.css`
 
 ## Release 1: Beach treasure hunt (the first playable island)
 
