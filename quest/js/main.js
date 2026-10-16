@@ -7,6 +7,7 @@ import { sound } from "./sound.js";
 import { voice } from "./voice.js";
 import { hud } from "./hud.js";
 import { panel } from "./panel.js";
+import "./pause.js";
 
 const UNIT_IDS = ["u1", "u2", "u3", "u4", "u5", "u6", "u7", "u8", "u9"];
 const WAIT = 8000; // ms for the class list and the unit file, the same patience Word Island has
@@ -208,7 +209,7 @@ function wireEngine(engine) {
     (s.base === "running" ? engine.resume : engine.pause)("loading");
     (s.hush ? engine.pause : engine.resume)("hush");
     (s.portrait ? engine.pause : engine.resume)("portrait");
-    (s.leave ? engine.pause : engine.resume)("ask");
+    (s.pause ? engine.pause : engine.resume)("ask");
   };
   screens.onChange(sync);
   // The kit's top bar, panels and &kit sheet can't be reached while a screen covers the game.

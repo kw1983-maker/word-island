@@ -1,6 +1,6 @@
 // Treasure Quest · the screens over the island. One shows at a time:
 // Stop and listen first, then a screen that ends the visit (not open, can't run…), then turn your phone,
-// then the leave box, then loading or the Play card. While any shows, the game is paused.
+// then the pause menu, then loading or the Play card. While any shows, the game is paused.
 
 const HOME = "../";
 
@@ -35,11 +35,8 @@ const TEXT = {
     buttons: [{ label: "Try again", act: "reload", gold: true }, { label: "Play other games", href: HOME }]
   },
   turn: { title: "Turn your phone sideways", body: "The island needs a wide screen.", buttons: [] },
-  leave: {
-    title: "Leave the quest?",
-    body: "",
-    buttons: [{ label: "Yes, leave", href: HOME, gold: true }, { label: "No, keep playing", act: "stay" }]
-  }
+  // BlockWords' pause menu (spec 0004); pause.js fills in its buttons, which show Music and Sound on or off.
+  pause: { title: "Paused", body: "", buttons: () => [{ label: "Carry on", act: "stay", gold: true }] }
 };
 
 const END_SCREENS = ["needsPupil", "notOpen", "unsupported", "slow", "lost"];
@@ -56,10 +53,14 @@ const el = {
 };
 
 // The probe in index.html may already have found that this browser can't run the quest.
-const state = { base: window.QUEST_PROBE === false ? "unsupported" : "loading", hush: false, portrait: false, leave: false };
+const state = { base: window.QUEST_PROBE === false ? "unsupported" : "loading", hush: false, portrait: false, pause: false };
 let shownKey = null;
 const listeners = [];
-let playHandler = null;
+const acts = {
+  reload: () => location.reload(),
+  stay: () => screens.setPause(false),
+  play: () => {}
+};
 
 function esc(value) {
   return String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -77,9 +78,15 @@ function buttonHtml(button) {
 function cardKey() {
   if (END_SCREENS.includes(state.base)) return state.base;
   if (state.portrait) return "turn";
-  if (state.leave) return "leave";
+  if (state.pause) return "pause";
   if (state.base === "loading" || state.base === "ready") return state.base;
   return null;
+}
+
+function paintButtons() {
+  const text = TEXT[shownKey];
+  const list = typeof text.buttons === "function" ? text.buttons() : text.buttons;
+  el.buttons.innerHTML = list.map(buttonHtml).join("");
 }
 
 function render() {
@@ -93,7 +100,7 @@ function render() {
       el.title.textContent = text.title;
       el.text.textContent = text.body;
       el.text.hidden = !text.body;
-      el.buttons.innerHTML = text.buttons.map(buttonHtml).join("");
+      paintButtons();
       const first = el.buttons.querySelector("a, button");
       (first || el.title).focus({ preventScroll: true });
     }
@@ -109,12 +116,10 @@ function render() {
 
 el.buttons.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-act]");
-  if (!button) return;
-  if (button.dataset.act === "reload") location.reload();
-  if (button.dataset.act === "stay") screens.setLeave(false);
-  if (button.dataset.act === "play" && playHandler) playHandler();
+  if (!button || !acts[button.dataset.act]) return;
+  acts[button.dataset.act]();
 });
-el.back.addEventListener("click", () => screens.setLeave(true));
+el.back.addEventListener("click", () => screens.setPause(true));
 
 // While the teacher has paused the class, no key reaches the game.
 window.addEventListener("keydown", (event) => {
@@ -128,7 +133,7 @@ export const screens = {
   setBase(base) {
     if (END_SCREENS.includes(state.base)) return; // an end screen stays
     state.base = base;
-    if (base !== "running") state.leave = false;
+    if (base !== "running") state.pause = false;
     render();
   },
   setHush(on) {
@@ -142,15 +147,28 @@ export const screens = {
     state.portrait = on;
     render();
   },
-  setLeave(on) {
+  setPause(on) {
     if (on && state.base !== "running") return;
-    state.leave = on;
+    if (on === state.pause) return;
+    state.pause = on;
     render();
     if (!on && !el.back.hidden) el.back.focus({ preventScroll: true });
   },
+  // Paints the shown card's buttons again (the pause menu after Music or Sound changes), keeping focus in place.
+  refresh() {
+    if (!shownKey) return;
+    const at = [...el.buttons.children].indexOf(document.activeElement);
+    paintButtons();
+    const again = el.buttons.children[at];
+    if (again) again.focus({ preventScroll: true });
+  },
+  // pause.js gives the pause menu its buttons (a function, so they are read fresh each time).
+  setPauseButtons: (fn) => { TEXT.pause.buttons = fn; },
+  // A card button with data-act="name" runs fn (pause.js adds music and sound).
+  onAct: (name, fn) => { acts[name] = fn; },
   onChange: (fn) => listeners.push(fn),
   // Runs inside the Play tap, so it may start sound and speech.
-  onPlay: (fn) => { playHandler = fn; },
+  onPlay: (fn) => { acts.play = fn; },
   get state() {
     return { ...state, covered: state.hush || Boolean(cardKey()) };
   }
