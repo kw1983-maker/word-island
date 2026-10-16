@@ -1,42 +1,67 @@
-// Treasure Quest · a temporary test island: grass and sand blocks with a few towers, so the engine has
-// something to draw. The real islands (quest content model and the beach island) replace it.
+// Treasure Quest · a temporary test island built from the kit's 12 blocks, so the engine and the look
+// can be judged before the real beach island (feature 7) replaces it. One row shows every block.
 import * as THREE from "three";
+import { BLOCKS, buildBlocks } from "./blocks.js";
 
 const SIZE = 24;
-const COLOURS = { grass: 0x5cb85c, grassDark: 0x4ea84e, sand: 0xf2d16b, stone: 0x9a9a9a, water: 0x3c8dde };
+const SKY = 0x8fd3ff;
 
-export function buildTestScene(camera) {
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x8fd3ff);
-  scene.fog = new THREE.Fog(0x8fd3ff, 30, 70);
-
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x557755, 1.6));
-  const sun = new THREE.DirectionalLight(0xffffff, 1.4);
-  sun.position.set(10, 20, 6);
-  scene.add(sun);
-
-  // One instanced mesh draws every block in a single call, which keeps budget phones fast.
+function islandBlocks() {
   const blocks = [];
+  const add = (x, y, z, kind, tint) => blocks.push({ x, y, z, kind, tint });
+
+  // Sea round the edge, then wet sand, sand and grass, with a cobble path across.
   for (let x = 0; x < SIZE; x += 1) {
     for (let z = 0; z < SIZE; z += 1) {
       const edge = Math.min(x, z, SIZE - 1 - x, SIZE - 1 - z);
-      const kind = edge === 0 ? "water" : edge < 3 ? "sand" : (x + z) % 2 ? "grass" : "grassDark";
-      blocks.push({ x, y: kind === "water" ? -1 : 0, z, kind });
+      if (edge < 2) add(x, -1, z, "water");
+      else if (edge === 2) add(x, -1, z, "wetsand");
+      else if (edge < 5) add(x, 0, z, "sand");
+      else add(x, 0, z, z === 12 && x > 4 && x < 19 ? "cobble" : "grass");
     }
   }
-  [[6, 6, 3], [17, 8, 5], [9, 16, 2], [15, 15, 4]].forEach(([x, z, height]) => {
-    for (let y = 1; y <= height; y += 1) blocks.push({ x, y, z, kind: "stone" });
-  });
 
-  const mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial(), blocks.length);
-  const place = new THREE.Matrix4();
-  const colour = new THREE.Color();
-  blocks.forEach((block, i) => {
-    place.makeTranslation(block.x - SIZE / 2 + 0.5, block.y, block.z - SIZE / 2 + 0.5);
-    mesh.setMatrixAt(i, place);
-    mesh.setColorAt(i, colour.setHex(COLOURS[block.kind]));
-  });
-  scene.add(mesh);
+  // A tree: a log with leaves round the top.
+  for (let y = 1; y <= 3; y += 1) add(6, y, 6, "log");
+  for (let y = 3; y <= 4; y += 1) {
+    for (let dx = -1; dx <= 1; dx += 1) {
+      for (let dz = -1; dz <= 1; dz += 1) if (dx || dz) add(6 + dx, y, 6 + dz, "leaves");
+    }
+  }
+  add(6, 5, 6, "leaves");
+
+  // A small plank hut with a glass window and a doorway.
+  for (let y = 1; y <= 2; y += 1) {
+    for (let x = 15; x <= 18; x += 1) {
+      for (let z = 14; z <= 17; z += 1) {
+        const wall = x === 15 || x === 18 || z === 14 || z === 17;
+        const door = x === 16 && z === 14;
+        const window = y === 2 && x === 18 && z === 15;
+        if (wall && !door) add(x, y, z, window ? "glass" : "planks");
+      }
+    }
+  }
+  // A stone tower with a cobble top, and coloured wool.
+  for (let y = 1; y <= 3; y += 1) add(17, y, 6, "stone");
+  add(17, 4, 6, "cobble");
+  add(9, 1, 16, "wool", 0xd62828);
+  add(10, 1, 16, "wool", 0xffd60a);
+  add(11, 1, 16, "wool", 0x1d6fe0);
+
+  // The kit row: every block once, the wool one red.
+  Object.keys(BLOCKS).forEach((kind, i) => add(6 + i, 1, 19, kind, kind === "wool" ? 0xd62828 : undefined));
+  return blocks;
+}
+
+export function buildTestScene(camera) {
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(SKY);
+  scene.fog = new THREE.Fog(SKY, 30, 70);
+
+  const blocks = islandBlocks();
+  const island = buildBlocks(blocks);
+  island.position.set(-SIZE / 2 + 0.5, 0, -SIZE / 2 + 0.5);
+  scene.add(island);
 
   // The camera circles the island slowly, so the frame rate can be judged on a moving picture.
   let angle = 0;
@@ -44,6 +69,7 @@ export function buildTestScene(camera) {
     angle += dt * 0.25;
     camera.position.set(Math.cos(angle) * 22, 14, Math.sin(angle) * 22);
     camera.lookAt(0, 0, 0);
+    island.userData.tick(dt);
   }
   update(0);
 

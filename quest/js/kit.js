@@ -6,6 +6,7 @@ import { panel } from "./panel.js";
 import { hud } from "./hud.js";
 import { sound, EFFECTS } from "./sound.js";
 import { voice, CAST } from "./voice.js";
+import { blockTiles } from "./blocks.js";
 
 const VOICE_LINES = [
   { by: "", line: "Hello! I am the narrator. Let's find the treasure." },
@@ -99,8 +100,18 @@ export function showKit(quest) {
   });
   const note = make("p", "kitnote", `Voice: ${voice.name()} · cast: ${Object.keys(CAST).join(", ")}`);
 
+  // The block picture sheet, drawn bigger with sharp pixels.
+  const tiles = blockTiles();
+  const tileView = make("canvas", "kittiles");
+  tileView.width = tiles.width;
+  tileView.height = tiles.height;
+  tileView.getContext("2d").drawImage(tiles, 0, 0);
+  tileView.setAttribute("aria-label", "The block pictures");
+  tileView.setAttribute("role", "img");
+
   sheet.append(
     make("h2", "", "Puzzles"), puzzles,
+    make("h2", "", "Blocks"), tileView,
     make("h2", "", "Sounds"), effects,
     make("h2", "", "Voices"), voices, note
   );
