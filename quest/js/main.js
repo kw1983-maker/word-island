@@ -2,13 +2,20 @@
 // Three.js is only downloaded once the pupil and the island check out, so a pupil on a "not open"
 // screen never spends mobile data on it.
 import { screens } from "./screens.js";
+import { drawIsland, randomSeed, tagUnit } from "./puzzles.js";
 
 const UNIT_IDS = ["u1", "u2", "u3", "u4", "u5", "u6", "u7", "u8", "u9"];
 const WAIT = 8000; // ms for the class list and the unit file, the same patience Word Island has
 const params = new URLSearchParams(location.search);
 
-// What later features read: the loaded unit bank and the pupil.
-export const quest = { unit: null, pupil: null, debug: params.has("debug") };
+// &seed= fixes the puzzles for testing; otherwise every play draws fresh ones.
+function seedFromAddress() {
+  const seed = Number.parseInt(params.get("seed") || "", 10);
+  return seed > 0 ? seed : randomSeed();
+}
+
+// What later features read: the loaded unit bank, its island file, this play's puzzles and the pupil.
+export const quest = { unit: null, island: null, plan: null, seed: seedFromAddress(), pupil: null, debug: params.has("debug") };
 
 function readJson(key) {
   try {
@@ -46,6 +53,12 @@ function loadUnit(id) {
     tag.onerror = () => resolve(null);
     document.body.appendChild(tag);
   });
+  return Promise.race([loaded, later(WAIT, null)]);
+}
+
+// A unit without an island file (quest/islands/uN.js) is not open in the quest yet.
+function loadIsland(id) {
+  const loaded = import(`../islands/${id}.js`).then((mod) => mod.default || null, () => null);
   return Promise.race([loaded, later(WAIT, null)]);
 }
 
@@ -110,13 +123,29 @@ async function boot() {
     console.warn("Treasure Quest: Three.js did not load.", err);
     return null;
   });
+  const islandPart = loadIsland(unitId);
   const unit = await loadUnit(unitId);
   if (!unit) {
     console.warn(`Treasure Quest: units/${unitId}.js did not load.`);
     screens.setBase("notOpen");
     return;
   }
-  quest.unit = unit;
+  quest.unit = tagUnit(unit);
+  const island = await islandPart;
+  if (!island) {
+    console.warn(`Treasure Quest: quest/islands/${unitId}.js did not load.`);
+    screens.setBase("notOpen");
+    return;
+  }
+  quest.island = island;
+  try {
+    quest.plan = drawIsland(island, unit, quest.seed);
+  } catch (err) {
+    // tools/check-quests.mjs stops this before an island goes live; never show pupils a broken island.
+    console.warn("Treasure Quest: the island's puzzles could not be drawn.", err);
+    screens.setBase("notOpen");
+    return;
+  }
   const { classes } = await settings;
   const access = classCheck(classes, pupil.cls, unitId);
   if (access !== "open") {
