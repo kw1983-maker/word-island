@@ -17,7 +17,7 @@ function seedFromAddress() {
 }
 
 // What later features read: the loaded unit bank, its island file, this play's puzzles and the pupil.
-export const quest = { unit: null, island: null, plan: null, seed: seedFromAddress(), pupil: null, debug: params.has("debug") };
+export const quest = { unit: null, island: null, plan: null, world: null, seed: seedFromAddress(), pupil: null, debug: params.has("debug") };
 
 function readJson(key) {
   try {
@@ -166,7 +166,8 @@ async function boot() {
     return;
   }
   wireEngine(engine);
-  const test = buildTestScene(engine.camera);
+  const test = buildTestScene(engine.camera, document.getElementById("world"));
+  quest.world = test.world;
   engine.start(test.scene, test.update);
   const kit = params.has("kit") ? await import("./kit.js") : null;
   // The island waits behind the Play card; the tap itself switches on sound and voice.

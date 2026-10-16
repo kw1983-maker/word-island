@@ -1,77 +1,149 @@
-// Treasure Quest · a temporary test island built from the kit's 12 blocks, so the engine and the look
-// can be judged before the real beach island (feature 7) replaces it. One row shows every block.
+// Treasure Quest · a small BlockWords style test beach, so the look can be judged before the real
+// beach island (feature 7) replaces it (spec 0004): sand, sea, grass, an oak tree, a village house,
+// a chest, a villager, and one row showing every block. You stand on it in first person.
 import * as THREE from "three";
-import { BLOCKS, buildBlocks } from "./blocks.js";
+import { BLOCKS } from "./bw/blocks.js";
+import { buildAtlas, atlasCanvas, validateTiles, TILE, COLS, TILE_INDEX } from "./bw/atlas.js";
+import { makeMaterials } from "./bw/chunk.js";
+import { IslandWorld, ISLAND_SIZE, buildSea } from "./bw/world.js";
+import { Sky } from "./bw/sky.js";
+import { villagerModel } from "./bw/villager.js";
+import { attachLook } from "./look.js";
 
-const SIZE = 24;
-const SKY = 0x8fd3ff;
+const SEA_LEVEL = 6;
+const EYE = 1.62;          // BlockWords' eye height above the feet
+const MID = ISLAND_SIZE / 2;
 
-function islandBlocks() {
-  const blocks = [];
-  const add = (x, y, z, kind, tint) => blocks.push({ x, y, z, kind, tint });
+// Sharp square pixels, as BlockWords makes its atlas texture.
+function pixelTexture(canvas, repeat) {
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestFilter;
+  tex.generateMipmaps = false;
+  tex.wrapS = tex.wrapT = repeat ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
+  return tex;
+}
 
-  // Sea round the edge, then wet sand, sand and grass, with a cobble path across.
-  for (let x = 0; x < SIZE; x += 1) {
-    for (let z = 0; z < SIZE; z += 1) {
-      const edge = Math.min(x, z, SIZE - 1 - x, SIZE - 1 - z);
-      if (edge < 2) add(x, -1, z, "water");
-      else if (edge === 2) add(x, -1, z, "wetsand");
-      else if (edge < 5) add(x, 0, z, "sand");
-      else add(x, 0, z, z === 12 && x > 4 && x < 19 ? "cobble" : "grass");
-    }
-  }
+// A repeating copy of the water tile, for the sea beyond the island.
+function waterTexture() {
+  const at = TILE_INDEX.water;
+  const c = document.createElement("canvas");
+  c.width = c.height = TILE;
+  c.getContext("2d").drawImage(atlasCanvas, (at % COLS) * TILE, Math.floor(at / COLS) * TILE, TILE, TILE, 0, 0, TILE, TILE);
+  return pixelTexture(c, true);
+}
 
-  // A tree: a log with leaves round the top.
-  for (let y = 1; y <= 3; y += 1) add(6, y, 6, "log");
-  for (let y = 3; y <= 4; y += 1) {
-    for (let dx = -1; dx <= 1; dx += 1) {
-      for (let dz = -1; dz <= 1; dz += 1) if (dx || dz) add(6 + dx, y, 6 + dz, "leaves");
-    }
-  }
-  add(6, 5, 6, "leaves");
+// The beach, as placed blocks: a round island of grass, sand and wet sand in a shallow sea.
+function beachBlocks() {
+  const placed = [];
+  const fill = (x0, x1, y0, y1, z0, z1, kind) => placed.push({ x0, x1, y0, y1, z0, z1, kind });
+  const put = (x, y, z, kind) => placed.push({ x, y, z, kind });
 
-  // A small plank hut with a glass window and a doorway.
-  for (let y = 1; y <= 2; y += 1) {
-    for (let x = 15; x <= 18; x += 1) {
-      for (let z = 14; z <= 17; z += 1) {
-        const wall = x === 15 || x === 18 || z === 14 || z === 17;
-        const door = x === 16 && z === 14;
-        const window = y === 2 && x === 18 && z === 15;
-        if (wall && !door) add(x, y, z, window ? "glass" : "planks");
+  for (let x = 0; x < ISLAND_SIZE; x += 1) {
+    for (let z = 0; z < ISLAND_SIZE; z += 1) {
+      const r = Math.hypot(x + 0.5 - MID, z + 0.5 - MID);
+      put(x, 0, z, "bedrock");
+      if (r >= 26) {
+        fill(x, x, 1, 3, z, z, "sand");
+        fill(x, x, 4, SEA_LEVEL, z, z, "water");
+      } else if (r >= 23) {
+        fill(x, x, 1, 5, z, z, "sand");
+        put(x, SEA_LEVEL, z, "wet_sand");
+      } else if (r >= 16) {
+        fill(x, x, 1, 4, z, z, "stone");
+        fill(x, x, 5, 7, z, z, "sand");
+      } else {
+        fill(x, x, 1, 5, z, z, "stone");
+        fill(x, x, 6, 7, z, z, "dirt");
+        put(x, 8, z, "grass_block");
       }
     }
   }
-  // A stone tower with a cobble top, and coloured wool.
-  for (let y = 1; y <= 3; y += 1) add(17, y, 6, "stone");
-  add(17, 4, 6, "cobble");
-  add(9, 1, 16, "wool", 0xd62828);
-  add(10, 1, 16, "wool", 0xffd60a);
-  add(11, 1, 16, "wool", 0x1d6fe0);
 
-  // The kit row: every block once, the wool one red.
-  Object.keys(BLOCKS).forEach((kind, i) => add(6 + i, 1, 19, kind, kind === "wool" ? 0xd62828 : undefined));
-  return blocks;
+  // A path from where you stand to the house.
+  for (let z = 30; z <= 41; z += 1) put(32, 8, z, "dirt_path");
+
+  // An oak tree: a trunk with a ball of leaves.
+  for (let y = 9; y <= 13; y += 1) put(24, y, 26, "oak_log");
+  for (let y = 12; y <= 14; y += 1) {
+    const reach = y === 14 ? 1 : 2;
+    for (let dx = -reach; dx <= reach; dx += 1) {
+      for (let dz = -reach; dz <= reach; dz += 1) {
+        if (dx === 0 && dz === 0 && y < 14) continue;
+        if (Math.abs(dx) === 2 && Math.abs(dz) === 2) continue;
+        put(24 + dx, y, 26 + dz, "oak_leaves");
+      }
+    }
+  }
+  put(24, 15, 26, "oak_leaves");
+
+  // A small village house: cobblestone floor, log corners, plank walls, glass windows, a doorway.
+  const [hx0, hx1, hz0, hz1] = [29, 35, 22, 28];
+  fill(hx0, hx1, 8, 8, hz0, hz1, "cobblestone");
+  for (let y = 9; y <= 11; y += 1) {
+    for (let x = hx0; x <= hx1; x += 1) {
+      for (let z = hz0; z <= hz1; z += 1) {
+        const edgeX = x === hx0 || x === hx1;
+        const edgeZ = z === hz0 || z === hz1;
+        if (!edgeX && !edgeZ) continue;
+        const corner = edgeX && edgeZ;
+        const door = z === hz1 && x === 32 && y <= 10;
+        const window = y === 10 && !corner && (x === 30 || x === 34 || z === 25);
+        if (door) continue;
+        put(x, y, z, corner ? "oak_log" : window ? "glass" : "oak_planks");
+      }
+    }
+  }
+  fill(hx0, hx1, 12, 12, hz0, hz1, "oak_planks");
+  fill(hx0 + 1, hx1 - 1, 13, 13, hz0 + 1, hz1 - 1, "oak_planks");
+  put(30, 9, 23, "crafting_table");
+  put(34, 9, 23, "bookshelf");
+
+  // A treasure chest by the path, and some flowers and grass.
+  put(34, 9, 36, "chest");
+  [[27, 33, "rose"], [28, 37, "dandelion"], [37, 31, "rose"], [38, 38, "dandelion"], [26, 30, "tall_grass"],
+    [29, 39, "tall_grass"], [36, 34, "tall_grass"], [21, 33, "tall_grass"], [40, 27, "tall_grass"]]
+    .forEach(([x, z, kind]) => put(x, 9, z, kind));
+  [[44, 51], [45, 51], [46, 50]].forEach(([x, z]) => {
+    put(x, SEA_LEVEL + 1, z, "sugar_cane");
+    put(x, SEA_LEVEL + 2, z, "sugar_cane");
+  });
+
+  // The kit row: every block once, on the sand in front of you.
+  const kinds = BLOCKS.filter((b) => b.name !== "air").map((b) => b.name);
+  kinds.forEach((kind, i) => put(15 + i, 8, 46, kind));
+  return placed;
 }
 
-export function buildTestScene(camera) {
+export function buildTestScene(camera, canvas) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(SKY);
-  scene.fog = new THREE.Fog(SKY, 30, 70);
+  buildAtlas();
+  validateTiles();
+  const materials = makeMaterials(pixelTexture(atlasCanvas, false));
 
-  const blocks = islandBlocks();
-  const island = buildBlocks(blocks);
-  island.position.set(-SIZE / 2 + 0.5, 0, -SIZE / 2 + 0.5);
-  scene.add(island);
+  const world = new IslandWorld(scene, materials, SEA_LEVEL);
+  world.build(beachBlocks());
+  scene.add(buildSea(materials, SEA_LEVEL, waterTexture()));
 
-  // The camera circles the island slowly, so the frame rate can be judged on a moving picture.
-  let angle = 0;
+  const sky = new Sky(scene, materials);
+  sky.setFogDistance(6);
+
+  // The villager stands by the house, facing the path.
+  const villager = villagerModel();
+  villager.position.set(31.5, 9, 30.5);
+  villager.rotation.y = Math.PI;
+  scene.add(villager);
+
+  // You stand on the path, looking up it at the house and the tree.
+  const start = { x: 32.5, y: 9, z: 41.5, yaw: 0 };
+  camera.position.set(start.x, start.y + EYE, start.z);
+  const look = attachLook(camera, canvas, { yaw: start.yaw, pitch: -0.12 });
+
   function update(dt) {
-    angle += dt * 0.25;
-    camera.position.set(Math.cos(angle) * 22, 14, Math.sin(angle) * 22);
-    camera.lookAt(0, 0, 0);
-    island.userData.tick(dt);
+    look.update(dt);
+    sky.update(dt, camera);
   }
-  update(0);
+  sky.update(0, camera);
 
-  return { scene, update, blockCount: blocks.length };
+  return { scene, update, world, start };
 }
