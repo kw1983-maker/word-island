@@ -15,7 +15,7 @@ export function showDebug(engine, quest) {
   });
   const audio = () => {
     const a = sound.state();
-    return `audio ${a.context} · sound ${onOff(a.sound)} · music ${onOff(a.music)}${a.tune ? " · tune playing" : ""} · voice ${voice.name()}`;
+    return `audio ${a.context} · sound ${onOff(a.sound)} · music ${onOff(a.music)}${a.tune ? " · music playing" : ""} · voice ${voice.name()}`;
   };
   const draw = () => {
     const s = engine.stats();
