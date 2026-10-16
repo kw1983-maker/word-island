@@ -12,7 +12,6 @@ const HITCH = 250;            // ms; a frame this long is a hitch, not the real 
 const STEP_DOWN_BELOW = 24;   // fps
 const GIVE_UP_BELOW = 15;     // fps, at the lowest scale
 const LOST_WAIT = 5000;       // ms to wait for a lost picture to come back
-const CHUNKY_ROWS = 240;      // the world is drawn about this many pixels tall, for the chunky retro look
 
 let renderer = null;
 let canvas = null;
@@ -33,7 +32,8 @@ const watch = { from: 0, frames: [], lastCheck: 0, fps: 0 };
 // What the debug view shows: plain frames in the last second, counted all the time.
 const shown = { count: 0, since: 0, fps: 0 };
 
-const camera = new THREE.PerspectiveCamera(60, 16 / 9, 0.1, 400);
+// BlockWords' first person camera: a 72° view, reaching past the sea to the horizon.
+const camera = new THREE.PerspectiveCamera(72, 16 / 9, 0.1, 1000);
 
 function emit(kind, value) {
   listeners[kind].forEach((fn) => {
@@ -52,18 +52,17 @@ function fail(kind) {
   emit("fail", kind);
 }
 
-// One drawn pixel covers clamp(height ÷ 240, 1, 2) CSS pixels on each side, and the quality steps
-// shrink it further (spec 0003). A 390 px tall phone draws about 240 rows; a 768 px laptop about 384.
-function pixelRatio(height) {
-  const chunk = Math.min(Math.max(height / CHUNKY_ROWS, 1), 2);
-  return (Math.min(window.devicePixelRatio || 1, 1) * SCALES[scaleIndex]) / chunk;
+// Screen size sharpness: one drawn pixel per CSS pixel at most, so budget phones with sharp
+// screens never draw 4 to 9 times the pixels; the quality steps lower it on slow devices (spec 0004).
+function pixelRatio() {
+  return Math.min(window.devicePixelRatio || 1, 1) * SCALES[scaleIndex];
 }
 
 function resize() {
   if (!renderer) return;
   const width = Math.max(1, canvas.clientWidth);
   const height = Math.max(1, canvas.clientHeight);
-  renderer.setPixelRatio(pixelRatio(height));
+  renderer.setPixelRatio(pixelRatio());
   renderer.setSize(width, height, false);
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
