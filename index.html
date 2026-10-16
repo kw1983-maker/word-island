@@ -733,6 +733,9 @@ const GAME = {
 
 const BADGE = { maze: "Maze badge", moles: "Mole badge", hangman: "Balloon badge", runner: "Robot badge", planes: "Plane badge" };
 
+// The class leaderboards: one for Run and pick, one for Listen and shoot.
+const BOARD = { runner: "Top runners", planes: "Top pilots" };
+
 const HEX = {
   red: "#d62828", yellow: "#ffd60a", orange: "#f77f00", purple: "#7b2cbf",
   blue: "#1d6fe0", green: "#2a9d3a", black: "#1b1b1b", white: "#ffffff"
@@ -1804,18 +1807,20 @@ function showEngage(host) {
     <p class="skytitle">Run &amp; Pick</p>
     <p>Listen to the word. Run through the gate that matches. Jump over the red hurdles. A wrong gate or a hurdle costs a heart.</p>
     <p class="skyhow">Change lane: swipe, tap a lane, or arrow keys · Jump: swipe up, tap your lane, or Up / Space</p>
+    <p class="boardtitle">${BOARD.runner} · ${esc(state.cls || "your class")} · Unit ${U.number}</p>
+    <ol class="board" id="engageboard"><li>Loading scores…</li></ol>
     <button type="button" class="btn gold engage" data-act="engage">Run!</button>
   `
     : `
     <p class="skytitle">Listen &amp; Shoot</p>
     <p>Listen to the word. Shoot the plane that matches. Planes fly faster, and they drop red shots. Dodge them.</p>
     <p class="skyhow">Move: mouse, finger or arrow keys · Shoot: hold down, or Space</p>
-    <p class="boardtitle">Top pilots · ${esc(state.cls || "your class")} · Unit ${U.number}</p>
+    <p class="boardtitle">${BOARD.planes} · ${esc(state.cls || "your class")} · Unit ${U.number}</p>
     <ol class="board" id="engageboard"><li>Loading scores…</li></ol>
     <button type="button" class="btn gold engage" data-act="engage">Engage!</button>
   `;
   host.appendChild(box);
-  if (play.gate === "planes") fillBoard(box.querySelector("#engageboard"), null);
+  fillBoard(box.querySelector("#engageboard"), null);
   box.querySelector(".engage").focus({ preventScroll: true });
 }
 
@@ -1838,12 +1843,13 @@ function firebaseReady() {
   });
 }
 
-// The class's best scores for this unit: one line per pupil, best first.
+// The class's best scores in this game for this unit: one line per pupil, best first.
 function fillBoard(list, mine) {
   if (!list) return;
   const unitId = U.id;
+  const game = play.gate;
   firebaseReady()
-    .then(() => window.wiLeaderboard(unitId, state.cls))
+    .then(() => window.wiLeaderboard(unitId, state.cls, game))
     .then((rows) => {
       const seen = new Set();
       const best = rows.filter((row) => {
@@ -1908,9 +1914,9 @@ function finish() {
   const perfect = play.stars === play.items.length;
   if (!reduceMotion && (perfect || firstClear)) burst();
   setSendNote("Sending your stars to your teacher…", "");
-  // A full round of Listen and shoot also puts the pupil's score on the class leaderboard.
-  // Run and pick shows its score on the results page only, so it never mixes into that board.
-  const score = play.gate === "planes" && play.sky && play.mode === "full" ? play.sky.score : null;
+  // A full round of Listen and shoot or Run and pick also puts the pupil's score on that game's
+  // class leaderboard.
+  const score = play.sky && play.mode === "full" ? play.sky.score : null;
   sendRun({
     unit: U.id,
     name: state.name,
@@ -1959,7 +1965,7 @@ function renderResults() {
         <p><span>Score</span> <b>${play.sky.score}</b></p>
         <p><span>Best combo</span> <b>x${play.sky.bestCombo}</b></p>
       </div>
-      ${play.mode === "full" && play.gate === "planes" ? `<p class="boardtitle">Top pilots · ${esc(state.cls || "your class")} · Unit ${U.number}</p>
+      ${play.mode === "full" ? `<p class="boardtitle">${BOARD[play.gate]} · ${esc(state.cls || "your class")} · Unit ${U.number}</p>
       <ol class="board light" id="resultboard"><li>Saving your score…</li></ol>` : ""}`
     : "";
   view.innerHTML = `
@@ -2703,11 +2709,11 @@ window.wiSend = async (run) => {
     const saved = await storeSdk.getDoc(ref).catch(() => null);
     if (!saved || !saved.exists()) throw err;
   }
-  // A full round of Listen and shoot also goes on the class leaderboard, under the same id.
-  // The leaderboard is a bonus, so a failed score never holds back the result above.
+  // A full round of Listen and shoot or Run and pick also goes on that game's class leaderboard,
+  // under the same id. The leaderboard is a bonus, so a failed score never holds back the result above.
   if (typeof run.score === "number") {
     try {
-      await storeSdk.setDoc(storeSdk.doc(db, "wordIslandScores", run.key), {
+      await storeSdk.setDoc(storeSdk.doc(db, scoreCollection(run.game), run.key), {
         uid: user.uid,
         unit: run.unit,
         cls: run.cls,
@@ -2722,13 +2728,18 @@ window.wiSend = async (run) => {
   }
 };
 
-// The class's best Listen and shoot scores for a unit, best first.
-window.wiLeaderboard = async (unit, cls) => {
+// Each game keeps its own leaderboard. Listen and shoot had one first, so it keeps the old name.
+function scoreCollection(game) {
+  return game === "runner" ? "wordIslandRunScores" : "wordIslandScores";
+}
+
+// The class's best scores in one game (Listen and shoot unless named) for a unit, best first.
+window.wiLeaderboard = async (unit, cls, game) => {
   const { authSdk, storeSdk, auth, db } = await loadSdk();
   await auth.authStateReady();
   if (!auth.currentUser) await authSdk.signInAnonymously(auth);
   const snap = await storeSdk.getDocs(storeSdk.query(
-    storeSdk.collection(db, "wordIslandScores"),
+    storeSdk.collection(db, scoreCollection(game)),
     storeSdk.where("cls", "==", cls),
     storeSdk.where("unit", "==", unit),
     storeSdk.orderBy("score", "desc"),

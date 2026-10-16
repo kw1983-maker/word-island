@@ -121,7 +121,7 @@ window.RunGame = (() => {
     game.step = step || 0;
     game.leaving = [];
     game.row = {
-      resolved: false, u: -LEAD, delay: 0.05, checked: false, hurdleChecked: false, hurdles: makeHurdles(),
+      resolved: false, u: -LEAD, delay: 0.05, checked: false, hurdleChecked: false, hurdles: makeHurdles(true),
       gates: gates.map((gate, lane) => ({
         lane, ok: gate.ok, text: gate.text || gate.label || "", img: picture(gate.img), big: !!gate.big, state: "live", pop: 0
       }))
@@ -129,14 +129,15 @@ window.RunGame = (() => {
   }
 
   // Half of the time a hurdle fills every lane, so the robot has to jump. Otherwise it fills one or two
-  // lanes and the robot can jump or step around it.
-  function makeHurdles() {
+  // lanes and the robot can jump or step around it. Only the first hurdle of a question gives jump
+  // points, so a pupil cannot skip the gates and keep jumping to climb the leaderboard.
+  function makeHurdles(bonus) {
     const lanes = Array.from({ length: game.lanes }, (_, lane) => lane);
-    if (Math.random() < 0.5) return { lanes, cleared: false };
+    if (Math.random() < 0.5) return { lanes, cleared: false, bonus };
     const blocked = lanes.filter(() => Math.random() < 0.5);
     if (!blocked.length) blocked.push(Math.floor(Math.random() * game.lanes));
     if (blocked.length === game.lanes) blocked.pop();
-    return { lanes: blocked, cleared: false };
+    return { lanes: blocked, cleared: false, bonus };
   }
 
   function jump() {
@@ -401,7 +402,7 @@ window.RunGame = (() => {
       row.delay = 0.3;
       row.checked = false;
       row.hurdleChecked = false;
-      row.hurdles = makeHurdles();
+      row.hurdles = makeHurdles(false);
     }
   }
 
@@ -415,8 +416,10 @@ window.RunGame = (() => {
     const y = screenY(q) - laneWidth() * q * 0.5;
     if (height() > CLEAR) {
       hurdles.cleared = true;
-      round.score += 25;
-      popup(x, y, "+25 JUMP!", "#ffe14a");
+      if (hurdles.bonus) {
+        round.score += 25;
+        popup(x, y, "+25 JUMP!", "#ffe14a");
+      }
       sound.clear();
       return;
     }
