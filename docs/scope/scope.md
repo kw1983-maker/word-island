@@ -19,7 +19,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 3 | Quest content model | Foundation | done |
 | 4 | Retro look & sound kit | Foundation | done |
 | 5 | Quest entry in Word Island | Release 1 | planned |
-| 6 | Movement & controls | Release 1 | planned |
+| 6 | Movement & controls | Release 1 | in-progress |
 | 7 | Beach island (Unit 9) | Release 1 | planned |
 | 8 | Treasure chests | Release 1 | planned |
 | 9 | Island finish & score | Release 1 | planned |
@@ -101,10 +101,18 @@ A Treasure Quest button on Word Island that opens only the islands the pupil's c
 **Done when:** a pupil who taps their class sees Treasure Quest with only their units, and the teacher's Pause freezes the quest too.
 - [ ] Build it: `/develop quest entry in Word Island`
 
-### 6. Movement & controls · needs a decision
-Walk, look around and jump like in BlockWords (first person, or a camera behind the hero: to decide); touch controls on phones, mouse and keys on laptops; nothing can hurt you, and pupils can never fall off or get stuck.
+### 6. Movement & controls · in-progress
+Walk, look around and jump like in BlockWords, in first person; touch controls on phones, mouse and keys on laptops; nothing can hurt you, and pupils can never fall off or get stuck.
 **Done when:** a 7 year old can walk around the island on a phone and a laptop without help, and falling into the sea puts them back on land.
-- [ ] Design it (spec): `/architect movement & controls`
+- [x] Design it (spec): `/architect movement & controls`
+- [ ] Build it: `/develop movement & controls`
+   - [ ] Walk the test beach with the keys: BlockWords' player, arrows that turn, the island start (AC-2, AC-4, AC-9)
+   - [ ] Laptop mouse capture, crosshair and click hint; phone joystick, drag to look and Jump (AC-1, AC-3)
+   - [ ] Safety net: shallow water, back to the beach from deep water (AC-5)
+   - [ ] Use things: glow, label, click, E, tap and Use, with the kit chest and villager (AC-6, AC-10)
+   - [ ] Pauses clear the controls, steps, jump sound, head bob, debug and the size and speed checks (AC-7, AC-8, AC-10, AC-11)
+- [ ] Verify it: `/check verify movement & controls`
+Spec [0005](../specs/0005-quest-movement-controls/index.md)
 
 ### 7. Beach island (Unit 9) · needs a decision
 A blocky beach (sand, sea, rocks, shells, sandcastles, beach things from the unit) with spots for about 10 to 12 puzzles.
