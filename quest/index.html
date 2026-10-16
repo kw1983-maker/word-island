@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14213d">
+<title>Treasure Quest · Word Island</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%227%22 fill=%22%23ffe14a%22/%3E%3C/svg%3E">
+<script>
+// The quest's files are found with ../ paths, so the address must end in a slash (on Vercel and the quiz copy alike).
+if (!location.pathname.endsWith("/")) location.replace(location.pathname + "/" + location.search + location.hash);
+</script>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+<link rel="stylesheet" href="quest.css">
+</head>
+<body>
+<canvas id="world" aria-label="Treasure Quest island"></canvas>
+<button type="button" class="back" id="back" hidden>Back</button>
+
+<div id="screen" class="screen" role="dialog" aria-modal="true" aria-labelledby="screentitle" aria-describedby="screentext">
+  <div class="card">
+    <h1 id="screentitle" tabindex="-1">Treasure Quest</h1>
+    <p id="screentext">Getting the island ready…</p>
+    <div class="actions" id="screenbtns"></div>
+  </div>
+</div>
+
+<!-- Copied from Word Island's index.html, so a paused class sees the same screen in the quest. -->
+<div id="hush" class="hush" role="alertdialog" aria-modal="true" aria-labelledby="hushtitle" aria-describedby="hushtext" hidden>
+  <div class="hushbox">
+    <svg viewBox="0 0 80 80" aria-hidden="true"><rect x="12" y="28" width="16" height="24" rx="3" fill="#fff"/><polygon points="28,28 46,14 46,66 28,52" fill="#fff"/><path d="M54 30 q8 10 0 20 M60 22 q16 18 0 36" fill="none" stroke="#ffe14a" stroke-width="5" stroke-linecap="round"/></svg>
+    <h2 id="hushtitle" tabindex="-1">Stop and listen to your teacher</h2>
+    <p id="hushtext">Hands off. Eyes on your teacher. Your game will wait for you.</p>
+  </div>
+</div>
+
+<div id="debug" class="debug" hidden></div>
+<noscript><p class="noscript">This page needs JavaScript. Turn it on, then open Word Island again.</p></noscript>
+
+<script>
+// Before anything else: can this browser run the quest at all? It needs import maps (to find Three.js)
+// and WebGL 2. If not, show the kind message here, because the game's own scripts may never run.
+window.QUEST_PROBE = (() => {
+  let ok = typeof HTMLScriptElement.supports === "function" && HTMLScriptElement.supports("importmap");
+  if (ok) {
+    try {
+      const gl = document.createElement("canvas").getContext("webgl2");
+      ok = Boolean(gl);
+      const lose = gl && gl.getExtension("WEBGL_lose_context");
+      if (lose) lose.loseContext();
+    } catch (err) {
+      ok = false;
+    }
+  }
+  if (!ok) {
+    document.getElementById("screentitle").textContent = "This device can't run the quest";
+    document.getElementById("screentext").textContent = "Try the other Word Island games, or ask a grown up to update the browser.";
+    document.getElementById("screenbtns").innerHTML = '<a class="btn gold" href="../">Play other games</a>';
+  }
+  return ok;
+})();
+</script>
+<script src="../shared/bank.js"></script>
+<script src="../shared/settings.js"></script>
+<script type="module" src="../shared/firebase.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

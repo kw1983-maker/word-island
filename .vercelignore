@@ -1,2 +1,11 @@
 tools/
 .env*
+# AI notes, plans and agent skills stay in the repo, not on the site
+docs/
+.agents/
+.claude/
+skills-lock.json
+AGENTS.md
+CLAUDE.md
+units/AGENTS.md
+units/CLAUDE.md

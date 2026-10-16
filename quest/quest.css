@@ -1,0 +1,92 @@
+/* Treasure Quest: the frame around the 3D island. The retro look itself comes with the look and sound kit. */
+:root {
+  --ink: #14213d;
+  --gold: #ffe14a;
+  --card: #fffdf8;
+  --sky: #8fd3ff;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%; overflow: hidden;
+  background: var(--ink); color: var(--ink);
+  font-family: var(--font);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The island fills the screen. It is drawn at a low resolution and scaled up, so keep the pixels sharp. */
+#world {
+  position: fixed; inset: 0;
+  display: block; width: 100vw; height: 100vh; height: 100dvh;
+  image-rendering: pixelated;
+  touch-action: none;
+  background: var(--sky);
+}
+
+.btn {
+  display: inline-block; min-height: 48px; padding: 12px 22px;
+  border: 3px solid var(--ink); border-radius: 14px;
+  background: #fff; color: var(--ink);
+  font: 700 1.05rem/1.2 var(--font); text-decoration: none; cursor: pointer;
+}
+.btn.gold { background: var(--gold); }
+.btn:focus-visible, .back:focus-visible { outline: 4px solid #2f6fed; outline-offset: 3px; }
+
+/* Loading, "not open", "turn your phone" and the other messages: one card at a time. */
+.screen {
+  position: fixed; inset: 0; z-index: 10;
+  display: grid; place-items: center;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: rgba(20, 33, 61, .78);
+}
+.screen[hidden] { display: none; }
+.card {
+  max-width: 30rem; padding: 22px 24px; text-align: center;
+  background: var(--card); border: 3px solid var(--ink); border-radius: 18px;
+}
+.card h1 { margin: 0 0 8px; font-size: clamp(1.4rem, 5vw, 2rem); line-height: 1.15; }
+.card h1:focus { outline: none; }
+.card p { margin: 0; font-size: 1.1rem; line-height: 1.4; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
+.actions:empty { display: none; }
+
+/* A way home from the running quest, clear of phone notches. */
+.back {
+  position: fixed; z-index: 5;
+  top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left));
+  min-height: 44px; padding: 8px 16px;
+  border: 3px solid var(--ink); border-radius: 12px;
+  background: rgba(255, 255, 255, .92); color: var(--ink);
+  font: 700 1rem/1 var(--font); cursor: pointer;
+}
+.back[hidden] { display: none; }
+
+/* The teacher has paused the class (copied from Word Island). */
+.hush {
+  position: fixed; inset: 0; z-index: 20;
+  display: grid; place-items: center; padding: 18px;
+  background: rgba(20, 33, 61, .94); color: #fff; text-align: center;
+}
+.hush[hidden] { display: none; }
+.hushbox { display: grid; justify-items: center; gap: 10px; max-width: 34ch; }
+.hushbox svg { width: clamp(110px, 26vw, 170px); height: auto; animation: hushpulse 1.6s ease-in-out infinite; }
+.hushbox h2 { margin: 0; font-size: clamp(2rem, 7vw, 3.4rem); line-height: 1.05; }
+.hushbox h2:focus { outline: none; }
+.hushbox p { margin: 0; font-size: clamp(1.1rem, 3.6vw, 1.4rem); font-weight: 600; color: var(--gold); }
+@keyframes hushpulse { 50% { transform: scale(1.08); } }
+@media (prefers-reduced-motion: reduce) {
+  .hushbox svg { animation: none; }
+}
+
+/* Add &debug to the address to see this. */
+.debug {
+  position: fixed; z-index: 30;
+  right: max(8px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom));
+  padding: 6px 10px; border-radius: 8px;
+  background: rgba(0, 0, 0, .7); color: #9effa0;
+  font: 12px/1.4 ui-monospace, Consolas, monospace; white-space: pre;
+  pointer-events: none;
+}
+.debug[hidden] { display: none; }
+.noscript { position: fixed; inset: 0; margin: 0; padding: 24px; background: #fff; font-size: 1.2rem; }
