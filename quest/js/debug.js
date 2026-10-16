@@ -1,4 +1,4 @@
-// Treasure Quest · the &debug view: frame rate, render scale, unit and question counts,
+// Treasure Quest · the &debug view: frame rate, render scale and drawn size, unit and question counts,
 // and this play's drawn puzzles (add &seed=N to get the same ones again).
 export function showDebug(engine, quest) {
   const box = document.getElementById("debug");
@@ -12,7 +12,7 @@ export function showDebug(engine, quest) {
     const s = engine.stats();
     box.textContent = [
       `fps ${s.fps.toFixed(1)} (judged ${s.judged.toFixed(1)})`,
-      `scale ${s.scale}${s.running ? "" : " · paused: " + s.reasons.join(", ")}`,
+      `scale ${s.scale} · drawn ${s.drawn[0]}×${s.drawn[1]}${s.running ? "" : " · paused: " + s.reasons.join(", ")}`,
       `unit ${quest.unit.id} · ${quest.pupil.cls}`,
       banks,
       `island year ${quest.island.year} · seed ${quest.seed}`,

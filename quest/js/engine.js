@@ -12,6 +12,7 @@ const HITCH = 250;            // ms; a frame this long is a hitch, not the real 
 const STEP_DOWN_BELOW = 24;   // fps
 const GIVE_UP_BELOW = 15;     // fps, at the lowest scale
 const LOST_WAIT = 5000;       // ms to wait for a lost picture to come back
+const CHUNKY_ROWS = 240;      // the world is drawn about this many pixels tall, for the chunky retro look
 
 let renderer = null;
 let canvas = null;
@@ -51,15 +52,18 @@ function fail(kind) {
   emit("fail", kind);
 }
 
-function pixelRatio() {
-  return Math.min(window.devicePixelRatio || 1, 1) * SCALES[scaleIndex];
+// One drawn pixel covers clamp(height ÷ 240, 1, 2) CSS pixels on each side, and the quality steps
+// shrink it further (spec 0003). A 390 px tall phone draws about 240 rows; a 768 px laptop about 384.
+function pixelRatio(height) {
+  const chunk = Math.min(Math.max(height / CHUNKY_ROWS, 1), 2);
+  return (Math.min(window.devicePixelRatio || 1, 1) * SCALES[scaleIndex]) / chunk;
 }
 
 function resize() {
   if (!renderer) return;
   const width = Math.max(1, canvas.clientWidth);
   const height = Math.max(1, canvas.clientHeight);
-  renderer.setPixelRatio(pixelRatio());
+  renderer.setPixelRatio(pixelRatio(height));
   renderer.setSize(width, height, false);
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
@@ -215,5 +219,8 @@ export const engine = {
   onQuality: (fn) => listeners.quality.push(fn),
   onFail: (fn) => listeners.fail.push(fn),
 
-  stats: () => ({ fps: running ? shown.fps : 0, judged: watch.fps, scale: SCALES[scaleIndex], running, reasons: [...reasons] })
+  stats() {
+    const size = renderer ? renderer.getDrawingBufferSize(new THREE.Vector2()) : { x: 0, y: 0 };
+    return { fps: running ? shown.fps : 0, judged: watch.fps, scale: SCALES[scaleIndex], drawn: [size.x, size.y], running, reasons: [...reasons] };
+  }
 };
