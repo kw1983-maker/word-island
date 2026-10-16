@@ -2,9 +2,10 @@
 // Three.js is only downloaded once the pupil and the island check out, so a pupil on a "not open"
 // screen never spends mobile data on it.
 import { screens } from "./screens.js";
-import { drawIsland, randomSeed, tagUnit } from "./puzzles.js";
+import { drawIsland, randomSeed, tagUnit, islandMax } from "./puzzles.js";
 import { sound } from "./sound.js";
 import { voice } from "./voice.js";
+import { hud } from "./hud.js";
 
 const UNIT_IDS = ["u1", "u2", "u3", "u4", "u5", "u6", "u7", "u8", "u9"];
 const WAIT = 8000; // ms for the class list and the unit file, the same patience Word Island has
@@ -121,7 +122,7 @@ async function boot() {
     return;
   }
 
-  const enginePart = Promise.all([import("./engine.js"), import("./testscene.js")]).catch((err) => {
+  const enginePart = Promise.all([import("./engine.js"), import("./testscene.js"), import("./hand.js")]).catch((err) => {
     console.warn("Treasure Quest: Three.js did not load.", err);
     return null;
   });
@@ -160,7 +161,7 @@ async function boot() {
     screens.setBase("unsupported");
     return;
   }
-  const [{ engine }, { buildTestScene }] = parts;
+  const [{ engine }, { buildTestScene }, { hand }] = parts;
   if (!engine.init(document.getElementById("world"))) {
     screens.setBase("unsupported");
     return;
@@ -168,7 +169,10 @@ async function boot() {
   wireEngine(engine);
   const test = buildTestScene(engine.camera, document.getElementById("world"));
   quest.world = test.world;
-  engine.start(test.scene, test.update);
+  engine.start(test.scene, test.update, { overlay: hand });
+  // The hotbar and the hand: the selected slot is what the hand holds.
+  hud.onSelect((item) => hand.setItem(item));
+  hud.blockWhile(() => screens.state.covered);
   const kit = params.has("kit") ? await import("./kit.js") : null;
   // The island waits behind the Play card; the tap itself switches on sound and voice.
   screens.onPlay(() => {
@@ -176,6 +180,10 @@ async function boot() {
     voice.unlock();
     sound.play("click");
     screens.setBase("running");
+    // Coins and puzzles left: none won yet, until chests (feature 8) count them.
+    hud.show();
+    hud.setCoins(0, islandMax(island));
+    hud.setLeft(island.spots.length);
     if (kit) kit.showKit(quest);
   });
   screens.setBase("ready");

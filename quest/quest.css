@@ -97,36 +97,49 @@ html, body {
 }
 .back[hidden] { display: none; }
 
-/* The top bar: coins, puzzles left, Music and Sound, to the right of Back. */
+/* BlockWords' bottom of the screen (its #hud, #hotbar, .slot and .emeralds rules): the coins and
+   puzzles left just above the hotbar. Only the slots take taps; the rest lets the island through. */
 .hud {
-  position: fixed; z-index: 5;
-  top: max(10px, env(safe-area-inset-top));
-  left: calc(max(10px, env(safe-area-inset-left)) + 92px);
-  right: max(10px, env(safe-area-inset-right));
-  display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 4;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
   pointer-events: none;
+  color: #fff; font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
 }
 .hud[hidden] { display: none; }
-.hcount, .hbtn {
-  display: inline-flex; align-items: center; gap: 6px; margin: 0;
-  min-height: 44px; padding: 6px 12px;
-  border: 4px solid var(--frame);
-  font: 600 1.1rem/1 var(--pixel); white-space: nowrap;
+.counter { display: flex; gap: 18px; }
+.counter p {
+  display: flex; align-items: center; gap: 6px; margin: 0;
+  font: bold 20px/1 'Trebuchet MS', sans-serif; text-shadow: 2px 2px 0 #000;
 }
-.hcount { background: rgba(20, 33, 61, .88); color: #fff; }
-.hcount svg, .hbtn svg { width: 20px; height: 20px; shape-rendering: crispEdges; flex: none; }
-.hleft { margin-right: auto; }
-.hbtn {
-  position: relative; pointer-events: auto; cursor: pointer;
-  background: var(--grass); color: var(--ink); box-shadow: inset 0 -4px 0 var(--grass-dark);
-  touch-action: manipulation;
+.counter svg { width: 20px; height: 20px; shape-rendering: crispEdges; filter: drop-shadow(2px 2px 0 #000); }
+.hotbar {
+  display: flex; gap: 0; padding: 3px;
+  background: rgba(20, 20, 24, .72);
+  border: 3px solid #101014; border-radius: 4px;
 }
-.hbtn.off { background: var(--stone); box-shadow: inset 0 -4px 0 var(--stone-dark); }
-/* Off shows a red line through the picture, so it does not rest on colour alone. */
-.hbtn.off svg { background: linear-gradient(135deg, transparent 42%, var(--coral) 42% 58%, transparent 58%); }
-.hbtn.muted { opacity: .65; }
-.hbtn:active { transform: translateY(3px); }
-@media (prefers-reduced-motion: reduce) { .hbtn:active { transform: none; } }
+.slot {
+  position: relative;
+  width: 52px; height: 52px; padding: 0;
+  border: 2px solid #5c5c62;
+  background: rgba(139, 139, 139, .32);
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: auto; cursor: pointer; touch-action: manipulation;
+}
+.slot.sel { border-color: #fff; box-shadow: 0 0 0 2px #fff inset; transform: scale(1.06); }
+.slot:focus-visible { outline: 3px solid #ffd23f; outline-offset: 2px; }
+.slot img { width: 40px; height: 40px; image-rendering: pixelated; pointer-events: none; }
+.slot .count {
+  position: absolute; right: 3px; bottom: 1px;
+  color: #fff; font: bold 15px/1 monospace; text-shadow: 2px 2px 0 #000;
+}
+/* A phone on its side: smaller slots, so the island stays in view. */
+@media (max-height: 460px) {
+  .slot { width: 42px; height: 42px; }
+  .slot img { width: 32px; height: 32px; }
+  .counter p { font-size: 17px; }
+  .hud { gap: 4px; }
+}
 
 /* The puzzle panel: a blocky wooden sign over the island. */
 .panelwrap {

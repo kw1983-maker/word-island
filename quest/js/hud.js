@@ -1,66 +1,96 @@
-// Treasure Quest · the top bar next to the Back button: coins, puzzles left, and the Music and Sound
-// buttons. The calling feature gives the numbers; the buttons save through sound.js (spec 0003).
-import { sound } from "./sound.js";
+// Treasure Quest · the bottom of the screen, as in BlockWords: the hotbar (9 slots) and, just above
+// it, the coins and the puzzles left (spec 0004). The calling feature gives the numbers and the
+// slots; feature 23 (mining) fills the slots. Keys 1 to 9 and the mouse wheel pick a slot on a
+// laptop and a tap picks one on a phone, except while something covers the game.
+import { blockIconUrl, blockLabel } from "./bw/icons.js";
 
-// Small pixel drawings, so the buttons show on or off without words alone.
-const NOTE = '<svg viewBox="0 0 8 8" aria-hidden="true"><path d="M5 0h1v6H5z M6 0h1v1h1v2H7V1H6z M2 5h4v3H2z" fill="currentColor"/></svg>';
-const SPEAKER = '<svg viewBox="0 0 8 8" aria-hidden="true"><path d="M0 3h2l2-2h1v6H4L2 5H0z M6 2h1v4H6z" fill="currentColor"/></svg>';
-const COIN = '<svg viewBox="0 0 8 8" aria-hidden="true"><path d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1z" fill="#c99400"/><path d="M2 1h4v1h1v4H6v1H2V6H1V2h1z" fill="#ffe14a"/><path d="M3 2h2v4H3z" fill="#c99400"/></svg>';
+const SLOTS = 9;
+const COIN = '<svg viewBox="0 0 8 8" aria-hidden="true"><path d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1z" fill="#8a6200"/><path d="M2 1h4v1h1v4H6v1H2V6H1V2h1z" fill="#ffd23f"/><path d="M3 2h2v4H3z" fill="#c99400"/></svg>';
 
 let root = null;
 let el = {};
+let slots = Array(SLOTS).fill(null);   // { item, count } or null
+let selected = 0;
+let blocked = () => false;
+const listeners = [];
 
-function make(tag, cls, html) {
+function make(tag, cls) {
   const node = document.createElement(tag);
   if (cls) node.className = cls;
-  if (html) node.innerHTML = html; // fixed drawings only
   return node;
-}
-
-function toggle(name, drawing) {
-  const button = make("button", "hbtn", drawing);
-  button.type = "button";
-  const word = make("span", "hword");
-  button.append(word);
-  button.dataset.name = name;
-  return { button, word };
 }
 
 function build() {
   root = make("div", "hud");
+  root.id = "hud";
   root.hidden = true;
-  const coins = make("p", "hcount", COIN);
-  const coinText = document.createElement("span");
+  const counter = make("div", "counter");
+  const coins = make("p", "coins");
+  coins.innerHTML = COIN; // a fixed drawing
+  const coinText = make("span");
   coins.append(coinText);
-  const left = make("p", "hcount hleft");
-  const music = toggle("Music", NOTE);
-  const soundBtn = toggle("Sound", SPEAKER);
-  root.append(coins, left, music.button, soundBtn.button);
+  const left = make("p", "left");
+  counter.append(coins, left);
+  const bar = make("div", "hotbar");
+  bar.id = "hotbar";
+  bar.setAttribute("role", "toolbar");
+  bar.setAttribute("aria-label", "Hotbar");
+  root.append(counter, bar);
   document.body.append(root);
-  el = { coins, coinText, left, music, sound: soundBtn };
-  music.button.addEventListener("click", () => {
-    sound.setMusic(!sound.state().music);
-    sound.play("click");
+  el = { coins, coinText, left, bar };
+
+  bar.addEventListener("click", (event) => {
+    const slot = event.target.closest("button[data-at]");
+    if (slot && !blocked()) select(Number(slot.dataset.at));
   });
-  soundBtn.button.addEventListener("click", () => {
-    const on = !sound.state().sound;
-    sound.setSound(on);
-    sound.play("click");
+  window.addEventListener("keydown", (event) => {
+    if (root.hidden || blocked() || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (/^[1-9]$/.test(event.key)) select(Number(event.key) - 1);
   });
-  sound.onChange(paint);
-  paint(sound.state());
+  window.addEventListener("wheel", (event) => {
+    if (root.hidden || blocked() || !event.deltaY) return;
+    select((selected + (event.deltaY > 0 ? 1 : SLOTS - 1)) % SLOTS);
+  }, { passive: true });
+  paint();
 }
 
-// Music shows as off while Sound is off, because Sound off silences the tune too.
-function paint(now) {
-  const set = (part, on, label) => {
-    part.button.setAttribute("aria-pressed", String(on));
-    part.button.classList.toggle("off", !on);
-    part.word.textContent = `${label} ${on ? "on" : "off"}`;
-  };
-  set(el.music, now.music, "Music");
-  set(el.sound, now.sound, "Sound");
-  el.music.button.classList.toggle("muted", !now.sound);
+// BlockWords' slot: the item's picture and, above one, how many.
+function slotButton(stack, at) {
+  const b = make("button", "slot" + (at === selected ? " sel" : ""));
+  b.type = "button";
+  b.dataset.at = String(at);
+  b.setAttribute("aria-pressed", String(at === selected));
+  const label = stack ? blockLabel(stack.item) : "empty";
+  b.setAttribute("aria-label", `Slot ${at + 1}: ${label}`);
+  const url = stack && blockIconUrl(stack.item);
+  if (url) {
+    const img = make("img");
+    img.src = url;
+    img.alt = "";
+    b.append(img);
+    if (stack.count > 1) {
+      const count = make("span", "count");
+      count.textContent = String(stack.count);
+      b.append(count);
+    }
+  }
+  return b;
+}
+
+function paint() {
+  el.bar.replaceChildren(...slots.map(slotButton));
+}
+
+function tell() {
+  const stack = slots[selected];
+  listeners.forEach((fn) => fn(stack ? stack.item : null, selected));
+}
+
+function select(at) {
+  if (at === selected) return;
+  selected = at;
+  paint();
+  tell();
 }
 
 export const hud = {
@@ -80,5 +110,19 @@ export const hud = {
     if (!root) build();
     el.left.textContent = `${n} left`;
     el.left.setAttribute("aria-label", `${n} puzzles left`);
+  },
+  // slots: up to 9 of { item: a block name, count } or null.
+  setHotbar(list) {
+    if (!root) build();
+    slots = Array.from({ length: SLOTS }, (_, i) => (list && list[i]) || null);
+    paint();
+    tell();
+  },
+  select: (at) => select(at),
+  selected: () => selected,
+  onSelect: (fn) => listeners.push(fn),
+  // While this says true (a talk box, the pause panel or a screen is open), keys, wheel and taps leave the hotbar alone.
+  blockWhile(fn) {
+    blocked = fn;
   }
 };

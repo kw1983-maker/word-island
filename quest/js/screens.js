@@ -150,7 +150,7 @@ export const screens = {
   // Runs inside the Play tap, so it may start sound and speech.
   onPlay: (fn) => { playHandler = fn; },
   get state() {
-    return { ...state };
+    return { ...state, covered: state.hush || Boolean(cardKey()) };
   }
 };
 

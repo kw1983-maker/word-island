@@ -17,6 +17,7 @@ let renderer = null;
 let canvas = null;
 let scene = null;
 let update = null;
+let overlay = null;          // { scene, camera } drawn on top of the world (the hand)
 let started = false;
 let running = false;
 let failed = false;
@@ -66,6 +67,19 @@ function resize() {
   renderer.setSize(width, height, false);
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
+  if (overlay) {
+    overlay.camera.aspect = width / height;
+    overlay.camera.updateProjectionMatrix();
+  }
+}
+
+// The world, then the overlay on top with its own depth (as BlockWords draws the held item).
+function draw() {
+  renderer.clear();
+  renderer.render(scene, camera);
+  if (!overlay) return;
+  renderer.clearDepth();
+  renderer.render(overlay.scene, overlay.camera);
 }
 
 function queueResize() {
@@ -112,7 +126,7 @@ function watchFrame(now, dt) {
 function frame(nowMs) {
   if (!last) {
     last = nowMs;
-    renderer.render(scene, camera);
+    draw();
     return;
   }
   const dt = nowMs - last;
@@ -132,7 +146,7 @@ function frame(nowMs) {
     carry -= STEP;
     steps += 1;
   }
-  renderer.render(scene, camera);
+  draw();
 }
 
 function startLoop() {
@@ -168,6 +182,7 @@ export const engine = {
     canvas = target;
     try {
       renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
+      renderer.autoClear = false;
     } catch (err) {
       console.warn("Treasure Quest: no WebGL 2.", err);
       return false;
@@ -194,9 +209,12 @@ export const engine = {
   },
 
   // update(dt) runs at a fixed 60 steps a second while nothing pauses the game.
-  start(newScene, newUpdate) {
+  // options.overlay: { scene, camera } drawn on top of the world, such as the hand.
+  start(newScene, newUpdate, options = {}) {
     scene = newScene;
     update = newUpdate;
+    overlay = options.overlay || null;
+    resize();
     started = true;
     renderer.compile(scene, camera);
     settle();
