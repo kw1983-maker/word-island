@@ -1,0 +1,239 @@
+// Treasure Quest · the puzzle panel: a wooden sign over the island that shows one puzzle from spec 0002,
+// its picture, 2 or 3 choices and a Hear it button. It only shows and reports: the calling feature
+// decides right or wrong and the coins, then tells the panel through result() (spec 0003).
+// Text is always set with textContent; only the shared picture drawer's own markup is used as HTML.
+import { sound } from "./sound.js";
+import { voice } from "./voice.js";
+
+const LABELS = { chest: "Treasure chest", find: "Listen and find", riddle: "Riddle" };
+const NO_VOICE = "Read the words on the screen.";
+
+let root = null;
+let el = {};
+let current = null; // { puzzle, unit, onChoose, onClose, onButton, chosen }
+let opener = null;  // what had focus before, to give it back on close
+
+function make(tag, cls, text) {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text != null) node.textContent = text;
+  return node;
+}
+
+function build() {
+  root = make("div", "panelwrap");
+  root.hidden = true;
+  const panel = make("div", "panel");
+  panel.setAttribute("role", "dialog");
+  panel.setAttribute("aria-modal", "true");
+  panel.setAttribute("aria-labelledby", "panelq");
+  const head = make("div", "phead");
+  const label = make("p", "plabel");
+  label.id = "panellabel";
+  const hear = make("button", "wbtn stone phear", "Hear it");
+  hear.type = "button";
+  hear.setAttribute("aria-keyshortcuts", "H");
+  head.append(label, hear);
+  const question = make("h2", "pq");
+  question.id = "panelq";
+  question.tabIndex = -1;
+  const body = make("div", "pbody");
+  const pic = make("div", "ppic");
+  const choices = make("div", "pchoices");
+  body.append(pic, choices);
+  const text = make("p", "ptext");
+  const foot = make("div", "pfoot");
+  const line = make("p", "pline");
+  line.setAttribute("role", "status");
+  const buttons = make("div", "pbtns");
+  foot.append(line, buttons);
+  panel.append(head, question, text, body, foot);
+  root.append(panel);
+  document.body.append(root);
+  el = { panel, label, hear, question, text, body, pic, choices, line, buttons };
+
+  hear.addEventListener("click", () => {
+    if (!current || !current.puzzle) return;
+    sound.play("click");
+    const ok = voice.say(current.puzzle.say, { by: current.puzzle.by, fromButton: true });
+    if (!ok) setLine(NO_VOICE, "tip");
+  });
+  choices.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-at]");
+    if (!button || button.disabled || !current || !current.onChoose) return;
+    const choice = current.puzzle.choices[Number(button.dataset.at)];
+    current.chosen = button;
+    sound.play("click");
+    current.onChoose({ value: choice.value, label: choice.label, ok: choice.ok });
+  });
+  buttons.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-act]");
+    if (!button || !current) return;
+    if (button.dataset.act === "carryon") {
+      const done = current.onClose;
+      panelApi.close();
+      if (done) done();
+    } else if (current.onButton) {
+      sound.play("click");
+      current.onButton(button.dataset.act);
+    }
+  });
+  // Keys 1, 2, 3 pick a choice and H reads the puzzle again; Tab stays inside the panel.
+  document.addEventListener("keydown", onKey);
+}
+
+function onKey(event) {
+  if (!current || root.hidden || root.inert || event.ctrlKey || event.metaKey || event.altKey) return;
+  if (event.key === "Tab") {
+    const stops = [...el.panel.querySelectorAll("button:not([disabled]):not([hidden])")]
+      .filter((b) => b.offsetParent !== null);
+    if (!stops.length) return;
+    const at = stops.indexOf(document.activeElement);
+    const next = event.shiftKey ? (at <= 0 ? stops.length - 1 : at - 1) : (at === stops.length - 1 ? 0 : at + 1);
+    event.preventDefault();
+    stops[next].focus();
+    return;
+  }
+  if (!current.puzzle) return;
+  if (/^[1-3]$/.test(event.key)) {
+    const button = el.choices.querySelectorAll("button")[Number(event.key) - 1];
+    if (button && !button.disabled) {
+      event.preventDefault();
+      button.click();
+    }
+  } else if (event.key === "h" || event.key === "H") {
+    event.preventDefault();
+    el.hear.click();
+  }
+}
+
+function setLine(text, kind) {
+  el.line.textContent = text;
+  el.line.className = "pline" + (kind ? " " + kind : "");
+}
+
+function setButtons(list) {
+  el.buttons.replaceChildren(...list.map((b, i) => {
+    const button = make("button", "wbtn " + (i === 0 ? "grass" : "stone"), b.label);
+    button.type = "button";
+    button.dataset.act = b.act;
+    return button;
+  }));
+}
+
+// A picture choice uses the book picture; an icon choice uses the shared icon; a word choice has none.
+function choiceButton(choice, at, look, unit) {
+  const button = make("button", "wbtn wood pchoice");
+  button.type = "button";
+  button.dataset.at = String(at);
+  const key = make("span", "pkey", String(at + 1));
+  key.setAttribute("aria-hidden", "true");
+  button.append(key);
+  if (look === "pic") {
+    const img = make("img", "pthumb");
+    img.alt = "";
+    img.src = `../img/${unit}/${choice.value}.webp`;
+    button.append(img);
+  } else if (look === "icon" && typeof icon === "function") {
+    const box = make("span", "pthumb");
+    box.innerHTML = icon(choice.value); // a fixed drawing from shared/picture.js, never bank text
+    button.append(box);
+  }
+  button.append(make("span", "pword", choice.label));
+  return button;
+}
+
+function show() {
+  opener = document.activeElement;
+  root.hidden = false;
+  sound.play("open");
+}
+
+const panelApi = {
+  // Opens a puzzle. onChoose gets { value, label, ok } for each pick; onClose runs after Carry on.
+  open(puzzle, { unit, onChoose, onClose } = {}) {
+    if (!root) build();
+    current = { puzzle, unit, onChoose, onClose, chosen: null };
+    el.panel.className = "panel puzzle";
+    const kind = puzzle.playAs || puzzle.type;
+    el.label.textContent = puzzle.by || LABELS[kind] || LABELS.chest;
+    el.label.hidden = false;
+    el.hear.hidden = false;
+    el.question.textContent = puzzle.show;
+    el.text.hidden = true;
+    el.body.hidden = false;
+    el.pic.hidden = !puzzle.pic;
+    if (puzzle.pic && typeof picture === "function") el.pic.innerHTML = picture(puzzle.pic, true, "../img/");
+    else el.pic.replaceChildren();
+    el.body.classList.toggle("nopic", !puzzle.pic);
+    el.choices.replaceChildren(...puzzle.choices.map((choice, at) => choiceButton(choice, at, puzzle.look, unit)));
+    el.choices.dataset.look = puzzle.look || "text";
+    setLine("", "");
+    setButtons([]);
+    show();
+    el.panel.setAttribute("aria-describedby", "panellabel");
+    el.choices.querySelector("button").focus({ preventScroll: true });
+    voice.say(puzzle.say, { by: puzzle.by });
+  },
+
+  // What the calling feature decided: right, wrong (choices stay open) or shown (the answer is marked).
+  result(kind, { text = "", coins = 0, answer = "" } = {}) {
+    if (!current || !current.puzzle) return;
+    const buttons = [...el.choices.querySelectorAll("button")];
+    if (kind === "wrong") {
+      if (current.chosen) current.chosen.classList.add("wrong");
+      setLine(["Try again.", text].filter(Boolean).join(" "), "wrong");
+      sound.play("wrong");
+      return;
+    }
+    buttons.forEach((button) => {
+      button.disabled = true;
+      const choice = current.puzzle.choices[Number(button.dataset.at)];
+      if (choice.ok) button.classList.add("right");
+    });
+    if (kind === "right") {
+      setLine(`Well done! +${coins} coins`, "right");
+      sound.play("right");
+    } else {
+      const stop = /[.!?]$/.test(answer) ? "" : ".";
+      setLine([`The answer is: ${answer}${stop}`, text].filter(Boolean).join(" "), "shown");
+      sound.play("hint");
+    }
+    setButtons([{ label: "Carry on", act: "carryon" }]);
+    el.buttons.querySelector("button").focus({ preventScroll: true });
+  },
+
+  // A plain wooden sign with buttons, for the island finish and other features.
+  // onButton(act) runs when a button is tapped; the caller closes the panel.
+  message({ title = "", text = "", buttons = [], onButton } = {}) {
+    if (!root) build();
+    current = { puzzle: null, onButton };
+    el.panel.className = "panel message";
+    el.label.hidden = true;
+    el.hear.hidden = true;
+    el.question.textContent = title;
+    el.text.textContent = text;
+    el.text.hidden = !text;
+    el.body.hidden = true;
+    setLine("", "");
+    setButtons(buttons);
+    show();
+    el.panel.setAttribute("aria-describedby", "panelq");
+    const first = el.buttons.querySelector("button");
+    (first || el.question).focus({ preventScroll: true });
+  },
+
+  close() {
+    if (!root || root.hidden) return;
+    root.hidden = true;
+    current = null;
+    voice.stop();
+    sound.play("close");
+    if (opener && document.contains(opener) && typeof opener.focus === "function") opener.focus({ preventScroll: true });
+    opener = null;
+  },
+
+  isOpen: () => Boolean(root && !root.hidden)
+};
+
+export const panel = panelApi;

@@ -14,6 +14,18 @@
   --gold: #ffe14a;
   --card: #fffdf8;
   --sky: #8fd3ff;
+  /* The kit palette (spec 0003); blocks.js draws with the same hex values. */
+  --plank: #c8a165;
+  --plank-dark: #8b6a3e;
+  --frame: #4a3220;
+  --grass: #5cb85c;
+  --grass-dark: #3d8b3d;
+  --stone: #9a9a9a;
+  --stone-dark: #6e6e6e;
+  --coral: #c0392b;
+  --paper: #fff6e0;
+  /* Wood grain: faint dark lines over the plank colour, light enough to keep text contrast. */
+  --grain: repeating-linear-gradient(180deg, transparent 0 6px, rgba(139, 106, 62, .28) 6px 8px);
   --pixel: "Pixelify Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -35,14 +47,23 @@ html, body {
   background: var(--sky);
 }
 
-.btn {
-  display: inline-block; min-height: 48px; padding: 12px 22px;
-  border: 3px solid var(--ink); border-radius: 14px;
-  background: #fff; color: var(--ink);
+/* Chunky block buttons: square corners, a darker bottom edge, and they press down when tapped. */
+.btn, .wbtn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 10px 20px;
+  border: 4px solid var(--frame); border-radius: 0;
+  background: var(--stone); color: var(--ink);
+  box-shadow: inset 0 -5px 0 var(--stone-dark);
   font: 600 1.15rem/1.2 var(--pixel); text-decoration: none; cursor: pointer;
+  touch-action: manipulation;
 }
-.btn.gold { background: var(--gold); }
-.btn:focus-visible, .back:focus-visible { outline: 4px solid #2f6fed; outline-offset: 3px; }
+.btn.gold { background: var(--gold); box-shadow: inset 0 -5px 0 #c99400; }
+.wbtn.grass { background: var(--grass); box-shadow: inset 0 -5px 0 var(--grass-dark); }
+.btn:active, .wbtn:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .25); }
+.btn:focus-visible, .back:focus-visible, .wbtn:focus-visible, .hbtn:focus-visible { outline: 4px solid #2f6fed; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .btn:active, .wbtn:active:not(:disabled) { transform: none; }
+}
 
 /* Loading, "not open", "turn your phone" and the other messages: one card at a time. */
 .screen {
@@ -54,7 +75,8 @@ html, body {
 .screen[hidden] { display: none; }
 .card {
   max-width: 30rem; padding: 22px 24px; text-align: center;
-  background: var(--card); border: 3px solid var(--ink); border-radius: 18px;
+  background: var(--grain), var(--plank); border: 4px solid var(--frame);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .3);
 }
 .card h1 { margin: 0 0 8px; font-family: var(--pixel); font-weight: 600; font-size: clamp(1.4rem, 5vw, 2rem); line-height: 1.15; }
 .card h1:focus { outline: none; }
@@ -67,11 +89,142 @@ html, body {
   position: fixed; z-index: 5;
   top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left));
   min-height: 44px; padding: 8px 16px;
-  border: 3px solid var(--ink); border-radius: 12px;
-  background: rgba(255, 255, 255, .92); color: var(--ink);
+  border: 4px solid var(--frame); border-radius: 0;
+  background: var(--plank); color: var(--ink);
+  box-shadow: inset 0 -4px 0 var(--plank-dark);
   font: 600 1.1rem/1 var(--pixel); cursor: pointer;
 }
 .back[hidden] { display: none; }
+
+/* The top bar: coins, puzzles left, Music and Sound, to the right of Back. */
+.hud {
+  position: fixed; z-index: 5;
+  top: max(10px, env(safe-area-inset-top));
+  left: calc(max(10px, env(safe-area-inset-left)) + 92px);
+  right: max(10px, env(safe-area-inset-right));
+  display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;
+  pointer-events: none;
+}
+.hud[hidden] { display: none; }
+.hcount, .hbtn {
+  display: inline-flex; align-items: center; gap: 6px; margin: 0;
+  min-height: 44px; padding: 6px 12px;
+  border: 4px solid var(--frame);
+  font: 600 1.1rem/1 var(--pixel); white-space: nowrap;
+}
+.hcount { background: rgba(20, 33, 61, .88); color: #fff; }
+.hcount svg, .hbtn svg { width: 20px; height: 20px; shape-rendering: crispEdges; flex: none; }
+.hleft { margin-right: auto; }
+.hbtn {
+  position: relative; pointer-events: auto; cursor: pointer;
+  background: var(--grass); color: var(--ink); box-shadow: inset 0 -4px 0 var(--grass-dark);
+  touch-action: manipulation;
+}
+.hbtn.off { background: var(--stone); box-shadow: inset 0 -4px 0 var(--stone-dark); }
+/* Off shows a red line through the picture, so it does not rest on colour alone. */
+.hbtn.off svg { background: linear-gradient(135deg, transparent 42%, var(--coral) 42% 58%, transparent 58%); }
+.hbtn.muted { opacity: .65; }
+.hbtn:active { transform: translateY(3px); }
+@media (prefers-reduced-motion: reduce) { .hbtn:active { transform: none; } }
+
+/* The puzzle panel: a blocky wooden sign over the island. */
+.panelwrap {
+  position: fixed; inset: 0; z-index: 8;
+  display: grid; place-items: center;
+  padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+  background: rgba(20, 33, 61, .35);
+}
+.panelwrap[hidden] { display: none; }
+.panel {
+  display: grid; gap: 10px;
+  width: min(46rem, 100%); max-height: 100%; overflow: auto;
+  padding: 14px 18px 16px;
+  background: var(--grain), var(--plank); color: var(--ink);
+  border: 4px solid var(--frame);
+  box-shadow: inset 0 0 0 3px #d9b77d, 0 6px 0 rgba(0, 0, 0, .3);
+}
+.phead { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.plabel {
+  margin: 0; padding: 4px 10px;
+  background: var(--frame); color: var(--gold);
+  font: 600 1.05rem/1.2 var(--pixel);
+}
+.plabel[hidden], .phear[hidden] { display: none; }
+.phear { min-height: 44px; padding: 6px 14px; font-size: 1.05rem; }
+.pq { margin: 0; font: 700 clamp(20px, 2.4vw, 26px)/1.3 var(--font); }
+.pq:focus { outline: none; }
+.panel.message .pq { font: 600 clamp(1.5rem, 4vw, 2rem)/1.15 var(--pixel); text-align: center; }
+.ptext { margin: 0; font: 400 1.25rem/1.4 var(--font); text-align: center; }
+.ptext[hidden] { display: none; }
+.pbody { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 12px; align-items: center; }
+.pbody.nopic { grid-template-columns: minmax(0, 1fr); }
+.pbody[hidden], .ppic[hidden] { display: none; }
+.ppic { background: var(--paper); border: 4px solid var(--frame); padding: 4px; }
+.ppic .pic.small { min-height: 0; }
+.ppic .photo { margin: 0 auto; border-radius: 0; max-height: min(150px, 34vh); }
+.pchoices { display: grid; gap: 8px; }
+.pchoice {
+  justify-content: flex-start; min-height: 56px; padding: 6px 12px; text-align: left;
+  background: var(--paper); box-shadow: inset 0 -5px 0 #d8c49a;
+}
+.pkey {
+  display: grid; place-items: center; flex: none; width: 28px; height: 28px;
+  background: var(--frame); color: var(--paper); font: 600 1rem/1 var(--pixel);
+}
+.pthumb { display: grid; place-items: center; flex: none; width: 44px; height: 44px; object-fit: contain; }
+.pthumb .ico { width: 44px; height: 44px; }
+.pword { font: 700 1.2rem/1.2 var(--font); }
+/* Picture choices with no main picture sit side by side, with bigger pictures. */
+.pbody.nopic .pchoices[data-look="pic"], .pbody.nopic .pchoices[data-look="icon"] { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+.pbody.nopic [data-look="pic"] .pchoice, .pbody.nopic [data-look="icon"] .pchoice { position: relative; flex-direction: column; justify-content: center; text-align: center; padding: 8px; }
+.pbody.nopic [data-look="pic"] .pkey, .pbody.nopic [data-look="icon"] .pkey { position: absolute; top: 4px; left: 4px; }
+.pbody.nopic [data-look="pic"] .pthumb, .pbody.nopic [data-look="icon"] .pthumb,
+.pbody.nopic [data-look="icon"] .pthumb .ico { width: min(96px, 20vh); height: min(96px, 20vh); }
+.pbody.nopic [data-look="pic"] .pchoice::after, .pbody.nopic [data-look="icon"] .pchoice::after { position: absolute; top: 6px; right: 8px; }
+.pchoice.right { background: var(--gold); box-shadow: inset 0 -5px 0 #c99400; }
+.pchoice.right::after { content: "✓"; margin-left: auto; font: 700 1.5rem/1 var(--font); }
+.pchoice.wrong { border-color: var(--coral); box-shadow: inset 0 -5px 0 var(--coral); }
+.pchoice.wrong::after { content: "✗"; margin-left: auto; color: var(--coral); font: 700 1.5rem/1 var(--font); }
+.pchoice:disabled { cursor: default; }
+.pchoice:disabled:not(.right) { opacity: .6; }
+.pfoot { display: flex; align-items: center; gap: 12px; }
+.pline { flex: 1; margin: 0; font: 700 1.15rem/1.35 var(--font); }
+.pline:empty, .pbtns:empty { display: none; }
+.pline.right { color: #1d5e1d; }
+.pline.wrong { color: #8e2318; }
+.pbtns { display: flex; gap: 10px; margin-left: auto; }
+.panel.message .pfoot { justify-content: center; }
+.panel.message .pbtns { margin: 0 auto; }
+
+/* Phones on their side: tighter spacing so the whole sign fits without scrolling. */
+@media (max-height: 460px) {
+  .panel { gap: 6px; padding: 8px 14px 10px; }
+  .pq { font-size: 20px; line-height: 1.25; }
+  .phear { min-height: 40px; padding: 4px 12px; }
+  .pbody { grid-template-columns: minmax(0, 12rem) minmax(0, 1fr); }
+  .ppic .photo { max-height: 128px; }
+  .pchoices { gap: 6px; }
+  .pfoot .wbtn { min-height: 48px; padding: 6px 16px; }
+}
+
+/* Add &kit to the address to see this: the kit's sample puzzles, sounds and voices. */
+.kittoggle {
+  position: fixed; z-index: 7;
+  left: max(10px, env(safe-area-inset-left)); bottom: max(10px, env(safe-area-inset-bottom));
+}
+.kitsheet {
+  position: fixed; z-index: 7;
+  left: max(10px, env(safe-area-inset-left)); bottom: calc(max(10px, env(safe-area-inset-bottom)) + 62px);
+  top: calc(max(10px, env(safe-area-inset-top)) + 58px);
+  width: min(26rem, calc(100% - 20px)); overflow: auto;
+  padding: 10px 12px;
+  background: var(--grain), var(--plank); border: 4px solid var(--frame);
+}
+.kitsheet[hidden] { display: none; }
+.kitsheet h2 { margin: 4px 0 6px; font: 600 1.15rem/1.2 var(--pixel); }
+.kitrow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.kitrow .wbtn { min-height: 44px; padding: 6px 12px; font-size: 1rem; }
+.kitnote { margin: 0; font: 400 .95rem/1.3 var(--font); }
 
 /* The teacher has paused the class (copied from Word Island). */
 .hush {

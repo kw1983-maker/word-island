@@ -168,12 +168,14 @@ async function boot() {
   wireEngine(engine);
   const test = buildTestScene(engine.camera);
   engine.start(test.scene, test.update);
+  const kit = params.has("kit") ? await import("./kit.js") : null;
   // The island waits behind the Play card; the tap itself switches on sound and voice.
   screens.onPlay(() => {
     sound.unlock();
     voice.unlock();
     sound.play("click");
     screens.setBase("running");
+    if (kit) kit.showKit(quest);
   });
   screens.setBase("ready");
   if (quest.debug) {
@@ -199,6 +201,10 @@ function wireEngine(engine) {
     (s.leave ? engine.pause : engine.resume)("ask");
   };
   screens.onChange(sync);
+  // The kit's top bar, panels and &kit sheet can't be reached while a screen covers the game.
+  screens.onChange((s) => {
+    document.querySelectorAll(".hud, .panelwrap, .kittoggle, .kitsheet").forEach((node) => { node.inert = s.covered; });
+  });
   sync(screens.state);
   engine.onFail((kind) => screens.setBase(kind));
   // Nothing plays or speaks while the game is paused (teacher Pause, hidden tab, turn your phone, Leave box).
