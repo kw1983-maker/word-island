@@ -75,7 +75,7 @@ One way to describe an island's puzzles (chests, riddles, listen and find, word 
    - [x] Island loading in the quest, the drawn plan in the debug view (AC-11)
    - [x] Riddle, find and word block drawing ready for Release 3 (AC-2, AC-4)
    - [x] Island checker and review page (AC-9, AC-10)
-- [ ] Verify it: `/check verify quest content model`
+- [x] Verify it: `/check verify quest content model`
 Spec [0002](../specs/0002-quest-content-model/index.md) · code in `quest/islands/`, `quest/js/puzzles.js`, `quest/review.html`, `shared/picture.js`, `tools/check-quests.mjs`
 
 ### 4. Retro look & sound kit · needs a decision
