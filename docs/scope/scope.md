@@ -36,7 +36,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 18 | Robot island (Unit 8) | Release 5 | planned |
 | 19 | School island (Unit 1) | Release 6 | planned |
 | 20 | Let's play island (Unit 2) | Release 6 | planned |
-| 21 | Pet show island (Unit 3) | Release 6 | planned |
+| 21 | Pet show island (Unit 3) | Release 6 | in-progress |
 | 22 | Lunchtime island (Unit 4) | Release 6 | planned |
 
 ## Already built (for context)
@@ -242,7 +242,7 @@ A toy room and playground island.
 **Done when:** the island plays end to end with Unit 2 content at Year 1 difficulty and scores reach the results page.
 - [ ] Build it: `/develop lets play island`
 
-### 21. Pet show island (Unit 3)
+### 21. Pet show island (Unit 3) · in-progress
 A pet show island with animals to find.
 **Done when:** the island plays end to end with Unit 3 content at Year 1 difficulty and scores reach the results page.
 - [ ] Build it: `/develop pet show island`
