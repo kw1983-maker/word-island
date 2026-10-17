@@ -22,7 +22,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 6 | Movement & controls | Release 1 | done |
 | 7 | Beach island (Unit 9) | Release 1 | done |
 | 8 | Treasure chests | Release 1 | done |
-| 9 | Island finish & score | Release 1 | planned |
+| 9 | Island finish & score | Release 1 | in-progress |
 | 23 | Mining | Release 2 | planned |
 | 24 | Crafting unit things | Release 2 | planned |
 | 10 | Scores to your results page | Release 3 | planned |
@@ -139,10 +139,16 @@ Walk to a chest, hear a Unit 9 picture question, tap the right answer to open it
 - [x] Verify it: `/check verify treasure chests` (all 16 steps passed in a browser on 2026-10-17; the real phone check is still owed with features 4, 6 and 7)
 Spec [0007](../specs/0007-quest-treasure-chests/index.md) · code in `quest/js/` (`chests.js`, `panel.js`, `hud.js`), `quest/js/bw/` (`blocks.js`, `atlas.js`)
 
-### 9. Island finish & score
+### 9. Island finish & score · in-progress
 When all puzzles are done, a treasure ending shows the score and stars, with play again and back to Word Island.
 **Done when:** finishing the island always shows the ending with the right score and stars, and both buttons work.
+- [x] Design it (spec): `/architect island finish & score`
 - [ ] Build it: `/develop island finish & score`
+   - [ ] The ending after the last chest: finishing bonus, fanfare, read aloud, Play again and Back to Word Island (AC-1, AC-2, AC-4, AC-5, AC-6)
+   - [ ] Stars: the rule and the three star row in the talk box (AC-3)
+   - [ ] Size check (AC-7)
+- [ ] Verify it: `/check verify island finish & score`
+Spec [0008](../specs/0008-quest-island-finish/index.md) · code in `quest/js/` (`finish.js`, `panel.js`, `main.js`)
 
 ## Release 2: Mine and craft
 
