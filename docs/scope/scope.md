@@ -131,11 +131,11 @@ Spec [0006](../specs/0006-quest-beach-island/index.md) · code in `quest/islands
 Walk to a chest, hear a Unit 9 picture question, tap the right answer to open it and win coins.
 **Done when:** each chest reads its question aloud, a right answer opens it with coins and a sound, a wrong answer gives a hint and a retry, and the score counts up.
 - [x] Design it (spec): `/architect treasure chests`
-- [ ] Build it: `/develop treasure chests`
+- [x] Build it: `/develop treasure chests`
    - [x] A chest at every spot that opens with its puzzle: coins, hint, answer shown, open chest, N left (AC-1 to AC-5, AC-8)
    - [x] Talk box title and Not now, tries kept, and the finished hook for feature 9 (AC-2, AC-6, AC-7)
    - [x] Gold chest and open chest looks, and the coin pop (AC-1, AC-3, AC-5)
-   - [ ] Kit counter, debug line, size and speed checks (AC-9, AC-10)
+   - [x] Kit counter, debug line, size and speed checks (AC-9, AC-10)
 - [ ] Verify it: `/check verify treasure chests`
 Spec [0007](../specs/0007-quest-treasure-chests/index.md) · code in `quest/js/` (`chests.js`, `panel.js`, `hud.js`), `quest/js/bw/` (`blocks.js`, `atlas.js`)
 

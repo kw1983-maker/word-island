@@ -6,6 +6,7 @@ import { sound } from "./sound.js";
 import { voice } from "./voice.js";
 import { walk } from "./walk.js";
 import { targets } from "./targets.js";
+import { chests } from "./chests.js";
 
 const onOff = (on) => (on ? "on" : "off");
 
@@ -88,6 +89,7 @@ export function showDebug(engine, quest) {
       audio(),
       player(),
       nearest(),
+      (() => { const c = chests.state(); return `chests done ${c.done} of ${c.total} · coins ${c.coins} / ${c.max}`; })(),
       `unit ${quest.unit.id} · ${quest.pupil.cls}`,
       banks,
       `island year ${quest.island.year} · seed ${quest.seed}`,

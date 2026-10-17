@@ -1,7 +1,8 @@
 // Treasure Quest · the &kit view: everything the look and sound kit makes, in one place, so it can be
 // seen and heard before the real islands use it (spec 0004, AC-18). Sample talk boxes hold real
 // puzzles from this island's draw. Loaded with import() only when the address has &kit.
-import { drawIsland, TYPES, islandMax, coinsFor } from "./puzzles.js";
+import { drawIsland, TYPES, coinsFor } from "./puzzles.js";
+import { chests } from "./chests.js";
 import { panel } from "./panel.js";
 import { hud } from "./hud.js";
 import { sound, EFFECTS } from "./sound.js";
@@ -43,11 +44,7 @@ function button(label, onClick, cls = "btn-small") {
 export function showKit(quest) {
   const plan = drawIsland(quest.island, quest.unit, quest.seed, TYPES);
   const samples = ["chest", "riddle", "find"].map((type) => plan.find((p) => p.playAs === type)).filter(Boolean);
-  const max = islandMax(quest.island);
-  let coins = 0;
-  let left = quest.island.spots.length;
-  hud.setCoins(coins, max);
-  hud.setLeft(left);
+  // The coin counter belongs to the island's chests (spec 0007): samples show their result but win nothing.
   hud.setHotbar(SAMPLE_HOTBAR);
   // The kit's chest and villager on the island (the map's kit places) open the sample chest and riddle.
   const sample = (type) => samples.find((p) => p.playAs === type);
@@ -82,7 +79,8 @@ export function showKit(quest) {
     toggle.setAttribute("aria-expanded", "false");
   };
 
-  // A sample puzzle plays as a feature would: 10 coins first time, 5 after one miss, shown after two.
+  // A sample puzzle plays as a chest would: 10 coins first time, 5 after one miss, shown after two,
+  // but the coins are only shown, never added to the counter.
   function play(puzzle) {
     let tries = 0;
     closeSheet();
@@ -90,12 +88,7 @@ export function showKit(quest) {
       unit: quest.unit.id,
       onChoose(choice) {
         if (choice.ok) {
-          const won = coinsFor(tries);
-          coins += won;
-          left = Math.max(0, left - 1);
-          hud.setCoins(coins, max);
-          hud.setLeft(left);
-          panel.result("right", { coins: won });
+          panel.result("right", { coins: coinsFor(tries) });
           sound.play("coin");
         } else if (tries === 0) {
           tries = 1;
@@ -117,7 +110,7 @@ export function showKit(quest) {
     closeSheet();
     panel.message({
       title: "Island finished!",
-      text: `You found ${coins} coins.`,
+      text: `You found ${chests.state().coins} coins.`,
       buttons: [{ label: "Play again", act: "again" }, { label: "Close", act: "close" }],
       onButton: () => panel.close()
     });
