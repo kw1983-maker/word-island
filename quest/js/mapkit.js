@@ -154,9 +154,14 @@ function pad(m, x0, x1, z0, z1, floorY, kind) {
   m.fill(x0, x1, floorY + 1, MAP_HEIGHT - 1, z0, z1, "air");
 }
 
-// A palm tree: a log trunk with a crown of palm leaves whose arms droop at the ends.
-export function palm(m, { x, z, height = 6, leaves = "palm_leaves" }) {
+// A palm tree: a log trunk with a crown of palm leaves whose arms droop at the ends, and maybe a
+// koala holding on near the top (koala: the side it sits on, "n", "s", "e" or "w").
+export function palm(m, { x, z, height = 6, leaves = "palm_leaves", koala = null }) {
   const g = m.ground(x, z);
+  if (koala) {
+    const [dx, dz] = { n: [0, -1], s: [0, 1], e: [1, 0], w: [-1, 0] }[koala];
+    m.set(x + dx, g + height - 1, z + dz, "koala");
+  }
   m.fill(x, x, g + 1, g + height, z, z, "oak_log");
   const top = g + height + 1;
   m.set(x, top, z, leaves);
@@ -285,11 +290,14 @@ export function rockPool(m, { x0, z0, w = 3, d = 3, waterY, rocks = [] }) {
   return cells;
 }
 
-// A sandcastle: a 3 by 3 sandstone base with four corner towers and a keep in the middle.
-export function sandcastle(m, { x, z, groundY }) {
+// A sandcastle: a 3 by 3 sandstone base with four corner towers and a keep in the middle, with a flag
+// on top of the keep. Returns the keep's top block.
+export function sandcastle(m, { x, z, groundY, flag = null }) {
   m.fill(x, x + 2, groundY + 1, groundY + 1, z, z + 2, "sandstone");
   [[0, 0], [2, 0], [0, 2], [2, 2]].forEach(([dx, dz]) => m.set(x + dx, groundY + 2, z + dz, "sandstone"));
   m.fill(x + 1, x + 1, groundY + 2, groundY + 3, z + 1, z + 1, "sandstone");
+  if (flag) m.set(x + 1, groundY + 4, z + 1, flag);
+  return { x: x + 1, y: groundY + 3, z: z + 1 };
 }
 
 // An ice cream cart: a white counter with two posts holding a pink and white striped canopy.
@@ -307,4 +315,31 @@ export function bench(m, { x, z, groundY, length = 3 }) {
   m.fill(x, x + length - 1, groundY + 1, groundY + 1, z, z, "oak_planks");
   m.set(x - 1, groundY + 1, z, "oak_log");
   m.set(x + length, groundY + 1, z, "oak_log");
+}
+
+// A beach umbrella: a log pole three blocks high under a 3 by 3 striped wool canopy.
+export function umbrella(m, { x, z, groundY, colours = ["red_wool", "white_wool"] }) {
+  m.fill(x, x, groundY + 1, groundY + 3, z, z, "oak_log");
+  for (let dx = -1; dx <= 1; dx += 1) {
+    for (let dz = -1; dz <= 1; dz += 1) m.set(x + dx, groundY + 4, z + dz, colours[Math.abs(dx + dz) % 2]);
+  }
+}
+
+// A flat striped beach towel lying on the ground.
+export function towel(m, { x, z, groundY, w = 2, d = 3 }) {
+  m.fill(x, x + w - 1, groundY + 1, groundY + 1, z, z + d - 1, "towel");
+}
+
+// A kite flying on its string: string blocks from the ground up, the kite on top. Returns the kite cell.
+export function kite(m, { x, z, groundY, height = 4 }) {
+  m.fill(x, x, groundY + 1, groundY + height - 1, z, z, "kite_string");
+  m.set(x, groundY + height, z, "kite");
+  return { x, y: groundY + height, z };
+}
+
+// A flag on a log post two blocks high. Returns the flag cell.
+export function flagPost(m, { x, z, groundY, flag }) {
+  m.fill(x, x, groundY + 1, groundY + 2, z, z, "oak_log");
+  m.set(x, groundY + 3, z, flag);
+  return { x, y: groundY + 3, z };
 }

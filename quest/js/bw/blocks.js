@@ -1,7 +1,9 @@
 // Copied from BlockWords js/blocks.js at commit 31a2bf4 (C:/Users/User/Documents/Claude/Minecraft).
 // Trimmed to the blocks an island, mining and crafting can use (spec 0004): no ores, other woods,
 // snow, ice, cactus, pumpkin, crops, farmland, torches, glowstone, furnace or bed. Leaves and tall
-// grass drop nothing (BlockWords drops apples and wheat). Added: wet_sand.
+// grass drop nothing (BlockWords drops apples and wheat). Added: wet_sand, and the beach things of
+// spec 0006 (palm leaves, shells, fish, a football, kites, a bucket and spade, flags, a towel, a koala
+// and a fishing rod).
 
 // The block registry. Every voxel in the world is one byte — an index into
 // BLOCKS. Ids are assigned in registration order, so ALWAYS refer to blocks by
@@ -90,6 +92,21 @@ def('chest', {
 });
 def('sign', { render: 'cross', solid: false, hardness: 1, tool: 'axe', interact: 'sign', tiles: 'sign' });
 def('bookshelf', { hardness: 1.5, tool: 'axe', tiles: { top: 'oak_planks', bottom: 'oak_planks', side: 'bookshelf' } });
+
+// ---- beach things (spec 0006): sprites like flowers, a palm crown and a flat towel --------
+def('palm_leaves', { hardness: 0.2, opaque: false, drops: null });
+def('shell', { label: 'Shell', render: 'cross', solid: false, hardness: 0.05 });
+def('fish', { render: 'cross', solid: false, hardness: 0.05 });
+def('football', { render: 'cross', solid: false, hardness: 0.05 });
+def('kite', { render: 'cross', solid: false, hardness: 0.05 });
+def('kite_string', { label: 'Kite String', render: 'cross', solid: false, hardness: 0.05, drops: null });
+def('bucket_spade', { label: 'Bucket and Spade', render: 'cross', solid: false, hardness: 0.05 });
+def('flag_uk', { label: 'UK Flag', render: 'cross', solid: false, hardness: 0.1 });
+def('flag_ca', { label: 'Canada Flag', render: 'cross', solid: false, hardness: 0.1 });
+def('flag_au', { label: 'Australia Flag', render: 'cross', solid: false, hardness: 0.1 });
+def('towel', { label: 'Beach Towel', solid: false, opaque: false, height: 1 / 16, hardness: 0.1 });
+def('koala', { render: 'cross', solid: false, hardness: 0.05 });
+def('fishing_rod', { label: 'Fishing Rod', render: 'cross', solid: false, hardness: 0.05 });
 
 // ---- wool: the colour vocabulary, one block per colour -------------------
 export const WOOL_COLOURS = [

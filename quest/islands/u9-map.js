@@ -3,7 +3,10 @@
 // and a path that loops past every puzzle spot.
 // North is -z, east is +x. Feet heights: wet sand 7, beach 8, grass 9, hill top 15.
 // The island checker (tools/check-quests.mjs) walks this map to prove every anchor can be reached.
-import { createMap, land, hill, path, palm, house, pier, rockShelf, lighthouse, boat, rock, rockPool, sandcastle, cart, bench } from "../js/mapkit.js";
+import {
+  createMap, land, hill, path, palm, house, pier, rockShelf, lighthouse, boat, rock, rockPool, sandcastle, cart, bench,
+  umbrella, towel, kite, flagPost
+} from "../js/mapkit.js";
 
 const SEA = 6;
 const BEACH = 7; // the top block of the sandy beach (feet at 8)
@@ -61,12 +64,35 @@ function blocks() {
   house(m, { x0: 15, z0: 18, floorY: GRASS, door: "e" });
 
   // Landmarks round the beach.
-  palm(m, { x: 15, z: 44, leaves: "oak_leaves" });
+  palm(m, { x: 15, z: 44 });
   cart(m, { x: 11, z: 38, groundY: BEACH });
   bench(m, { x: 23, z: 13, groundY: BEACH });
   rock(m, { x: 53, z: 32, groundY: BEACH });
   rockPool(m, { x0: 43, z0: 49, waterY: BEACH, rocks: [[46, 49], [46, 51], [44, 52], [43, 48]] });
-  sandcastle(m, { x: 33, z: 49, groundY: BEACH });
+  sandcastle(m, { x: 33, z: 49, groundY: BEACH, flag: "flag_uk" });
+
+  // Unit 9 beach things (decoration; some are word things, below).
+  palm(m, { x: 52, z: 40, koala: "w" });
+  palm(m, { x: 38, z: 11 });
+  palm(m, { x: 52, z: 24 });
+  sandcastle(m, { x: 9, z: 30, groundY: BEACH, flag: "flag_ca" });
+  sandcastle(m, { x: 26, z: 9, groundY: BEACH, flag: "flag_au" });
+  m.set(29, BEACH + 1, 11, "bucket_spade");
+  [[19, 49], [20, 50], [21, 51], [12, 23], [11, 24], [55, 28], [36, 9]].forEach(([x, z]) => m.set(x, m.ground(x, z) + 1, z, "shell"));
+  flagPost(m, { x: 27, z: 52, groundY: BEACH, flag: "flag_uk" });
+  flagPost(m, { x: 29, z: 52, groundY: BEACH, flag: "flag_ca" });
+  flagPost(m, { x: 31, z: 52, groundY: BEACH, flag: "flag_au" });
+  m.set(33, BEACH + 1, 60, "fishing_rod"); // the fishing spot at the end of the pier
+  m.set(31, BEACH + 1, 60, "bucket_spade");
+  m.set(44, BEACH - 1, 50, "fish"); // fish under the water in the rock pool
+  m.set(43, BEACH - 1, 51, "fish");
+  boat(m, { x0: 3, z: 28, floorY: SEA }); // a second boat on the west shore
+  m.set(44, GRASS + 1, 36, "football");
+  kite(m, { x: 48, z: 42, groundY: BEACH });
+  kite(m, { x: 32, z: 10, groundY: BEACH });
+  towel(m, { x: 46, z: 45, groundY: BEACH });
+  umbrella(m, { x: 48, z: 46, groundY: BEACH });
+  umbrella(m, { x: 40, z: 52, groundY: BEACH, colours: ["blue_wool", "yellow_wool"] });
   return m.blocks();
 }
 
@@ -80,5 +106,5 @@ export default {
   things: [],
   villagers: [],
   // Only on the &kit page: a sample chest and villager on the beach just west of the start.
-  kit: { chest: { x: 30, y: 8, z: 51 }, villager: { x: 28.5, y: 8, z: 50.5 } }
+  kit: { chest: { x: 30, y: 8, z: 49 }, villager: { x: 28.5, y: 8, z: 48.5 } }
 };

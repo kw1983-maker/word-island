@@ -1,6 +1,6 @@
 // Copied from BlockWords js/atlas.js at commit 31a2bf4 (C:/Users/User/Documents/Claude/Minecraft).
 // Trimmed to the tiles the kept blocks use (spec 0004); tiles are seeded by name, so each one matches BlockWords.
-// Added: wet_sand.
+// Added: wet_sand, and the beach things of spec 0006 (drawn here in the same 16 pixel style).
 
 // Procedural 16x16 pixel-art texture atlas, drawn to a canvas at load time.
 // No image files: every tile is generated in code, then sampled with a NEAREST
@@ -239,6 +239,147 @@ tile('bookshelf', (p) => {
       p.rect(x, 2 + band * 6, 2, 6, c, 12);
     }
   }
+});
+// ---- beach things (spec 0006) --------------------------------------------
+tile('palm_leaves', (p) => {
+  p.fill([92, 166, 58], 16);
+  for (let i = -16; i < 16; i += 4) { // long fronds running corner to corner
+    for (let x = 0; x < TILE; x++) {
+      const y = x + i;
+      if (y >= 0 && y < TILE) p.set(x, y, 62, 128, 40);
+    }
+  }
+  p.speckle(14, [130, 196, 82], 8);
+  p.holes(30);
+});
+tile('shell', (p) => {
+  p.clear();
+  for (let y = 8; y <= 14; y++) { // a scallop: a fan that widens towards the top
+    const half = Math.round((14 - y) * 0.8) + 1;
+    for (let x = 8 - half; x <= 7 + half; x++) {
+      const ridge = (x - 8 + 16) % 3 === 0;
+      p.set(x, y, ridge ? 214 : 246, ridge ? 160 : 216, ridge ? 146 : 200);
+    }
+  }
+  p.rect(6, 14, 4, 2, [222, 176, 160]);
+});
+tile('fish', (p) => {
+  p.clear();
+  for (let y = 5; y <= 11; y++) { // an orange body, rounder in the middle
+    const half = 4 - Math.abs(y - 8);
+    p.rect(6 - half, y, 6 + half * 2, 1, [240, 140, 52], 10);
+  }
+  p.rect(12, 5, 2, 2, [224, 112, 36]); // the tail
+  p.rect(12, 10, 2, 2, [224, 112, 36]);
+  p.rect(11, 7, 2, 3, [224, 112, 36]);
+  p.rect(4, 7, 1, 1, [20, 20, 20]); // the eye
+  p.rect(7, 6, 1, 5, [255, 196, 120]);
+});
+tile('football', (p) => {
+  p.clear();
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const d = Math.hypot(x - 7.5, y - 10.5);
+      if (d < 4.6) p.set(x, y, 244, 244, 244);
+    }
+  }
+  p.rect(7, 9, 2, 2, [30, 30, 30]); // black patches
+  p.rect(4, 8, 1, 2, [30, 30, 30]);
+  p.rect(11, 8, 1, 2, [30, 30, 30]);
+  p.rect(5, 13, 2, 1, [30, 30, 30]);
+  p.rect(9, 13, 2, 1, [30, 30, 30]);
+  p.rect(7, 6, 2, 1, [30, 30, 30]);
+});
+tile('kite', (p) => {
+  p.clear();
+  for (let y = 0; y <= 12; y++) { // a diamond, red above and yellow below
+    const half = y <= 5 ? y : 12 - y;
+    for (let x = 8 - half; x <= 7 + half; x++) {
+      const left = x < 8;
+      const top = y <= 5;
+      p.set(x, y, top === left ? 220 : 246, top === left ? 54 : 206, top === left ? 54 : 58);
+    }
+  }
+  p.rect(7, 0, 1, 13, [120, 84, 48]); // the cross sticks
+  p.rect(2, 5, 12, 1, [120, 84, 48]);
+  p.rect(7, 13, 1, 3, [235, 235, 235]); // the string
+});
+tile('kite_string', (p) => {
+  p.clear();
+  for (let y = 0; y < TILE; y++) p.set(7 + Math.round(Math.sin(y * 0.4)), y, 235, 235, 235);
+});
+tile('bucket_spade', (p) => {
+  p.clear();
+  for (let y = 8; y <= 15; y++) p.rect(1 + Math.floor((15 - y) / 4), y, 8 - 2 * Math.floor((15 - y) / 4), 1, [220, 52, 52], 8);
+  p.rect(1, 6, 1, 3, [90, 90, 96]); // the handle
+  p.rect(8, 6, 1, 3, [90, 90, 96]);
+  p.rect(2, 5, 6, 1, [90, 90, 96]);
+  p.rect(12, 1, 1, 9, [140, 100, 60]); // the spade
+  p.rect(11, 1, 3, 1, [140, 100, 60]);
+  p.rect(10, 10, 5, 5, [58, 112, 216], 6);
+});
+function flag(name, draw) {
+  tile(name, (p) => {
+    p.clear();
+    p.rect(1, 1, 1, 15, [120, 84, 48]); // the stick
+    draw(p);
+  });
+}
+// The flags fill x 2..14, y 1..8 (13 by 8 pixels).
+function unionJack(p, x0, y0, w, h) {
+  p.rect(x0, y0, w, h, [36, 62, 146]);
+  for (let i = 0; i < w; i++) {
+    const a = Math.round((i * (h - 1)) / (w - 1));
+    p.set(x0 + i, y0 + a, 240, 240, 240);
+    p.set(x0 + i, y0 + h - 1 - a, 240, 240, 240);
+  }
+  const cx = x0 + Math.floor(w / 2);
+  const cy = y0 + Math.floor(h / 2);
+  p.rect(x0, cy - 1, w, 2, [240, 240, 240]);
+  p.rect(cx - 1, y0, 2, h, [240, 240, 240]);
+  p.rect(x0, cy - 1, w, 1, [206, 36, 44]);
+  p.rect(cx - 1, y0, 1, h, [206, 36, 44]);
+}
+flag('flag_uk', (p) => unionJack(p, 2, 1, 13, 8));
+flag('flag_ca', (p) => {
+  p.rect(2, 1, 13, 8, [244, 244, 244]);
+  p.rect(2, 1, 3, 8, [214, 40, 40]);
+  p.rect(12, 1, 3, 8, [214, 40, 40]);
+  p.rect(7, 3, 3, 4, [214, 40, 40]); // the maple leaf
+  p.rect(6, 4, 5, 1, [214, 40, 40]);
+  p.rect(8, 2, 1, 1, [214, 40, 40]);
+  p.rect(8, 7, 1, 1, [214, 40, 40]);
+});
+flag('flag_au', (p) => {
+  p.rect(2, 1, 13, 8, [36, 62, 146]);
+  unionJack(p, 2, 1, 7, 4);
+  p.rect(4, 6, 2, 2, [244, 244, 244]); // the big star and the Southern Cross
+  [[11, 2], [13, 4], [10, 5], [12, 7]].forEach(([x, y]) => p.set(x, y, 244, 244, 244));
+});
+tile('towel', (p) => {
+  const bands = [[220, 52, 52], [244, 244, 244], [58, 112, 216], [244, 244, 244]];
+  for (let y = 0; y < TILE; y++) p.rect(0, y, TILE, 1, bands[Math.floor(y / 4) % 4], 6);
+});
+tile('koala', (p) => {
+  p.clear();
+  const grey = [150, 150, 158];
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      if (Math.hypot(x - 7.5, y - 6) < 4.2) p.set(x, y, ...grey);           // the head
+      if (Math.hypot(x - 3, y - 3) < 2.4 || Math.hypot(x - 12, y - 3) < 2.4) p.set(x, y, 196, 196, 204); // ears
+      if (y >= 10 && Math.abs(x - 7.5) < 4.5 - (y - 10) * 0.3) p.set(x, y, 138, 138, 146); // the body
+    }
+  }
+  p.rect(7, 6, 2, 3, [36, 36, 40]); // the nose
+  p.set(5, 5, 20, 20, 20);
+  p.set(10, 5, 20, 20, 20);
+});
+tile('fishing_rod', (p) => {
+  p.clear();
+  for (let i = 0; i <= 12; i++) p.set(2 + i, 15 - i, 120, 84, 48); // the rod
+  p.rect(4, 11, 2, 2, [110, 110, 118]); // the reel
+  for (let y = 4; y <= 12; y++) p.set(14, y, 235, 235, 235); // the line
+  p.rect(13, 12, 1, 2, [160, 160, 170]); // the hook
 });
 for (const pair of WOOL_COLOURS) {
   const rgb = [(pair[1] >> 16) & 255, (pair[1] >> 8) & 255, pair[1] & 255];
