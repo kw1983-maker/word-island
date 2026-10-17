@@ -14,6 +14,12 @@ const TEXT = {
     body: "Open Word Island, type your name and tap your class. Then come back to the quest.",
     buttons: [{ label: "Go to Word Island", href: HOME, gold: true }]
   },
+  // The island opens after the unit's five Word Island games (spec 0009).
+  finishGames: {
+    title: "Finish the five games first",
+    body: () => `Play all five Word Island games for Unit ${unitNumber}, then come back for the treasure.`,
+    buttons: [{ label: "Back to Word Island", href: HOME, gold: true }]
+  },
   notOpen: {
     title: "This island is not open",
     body: "Your teacher has not opened this island for your class yet.",
@@ -39,7 +45,8 @@ const TEXT = {
   pause: { title: "Paused", body: "", buttons: () => [{ label: "Carry on", act: "stay", gold: true }] }
 };
 
-const END_SCREENS = ["needsPupil", "notOpen", "unsupported", "slow", "lost"];
+const END_SCREENS = ["needsPupil", "notOpen", "finishGames", "unsupported", "slow", "lost"];
+let unitNumber = "";  // for the finishGames text
 
 const el = {
   screen: document.getElementById("screen"),
@@ -98,8 +105,9 @@ function render() {
     if (key) {
       const text = TEXT[key];
       el.title.textContent = text.title;
-      el.text.textContent = text.body;
-      el.text.hidden = !text.body;
+      const body = typeof text.body === "function" ? text.body() : text.body;
+      el.text.textContent = body;
+      el.text.hidden = !body;
       paintButtons();
       const first = el.buttons.querySelector("a, button");
       (first || el.title).focus({ preventScroll: true });
@@ -129,7 +137,12 @@ window.addEventListener("keydown", (event) => {
 }, true);
 
 export const screens = {
-  // base: loading, ready (the Play card), running, or an end screen (needsPupil, notOpen, unsupported, slow, lost).
+  // The unit's number, for screens that name it (finishGames).
+  setUnit(number) {
+    unitNumber = String(number);
+  },
+  // base: loading, ready (the Play card), running, or an end screen (needsPupil, notOpen, finishGames,
+  // unsupported, slow, lost).
   setBase(base) {
     if (END_SCREENS.includes(state.base)) return; // an end screen stays
     state.base = base;
