@@ -2,7 +2,7 @@
 // Three.js is only downloaded once the pupil and the island check out, so a pupil on a "not open"
 // screen never spends mobile data on it.
 import { screens } from "./screens.js";
-import { drawIsland, randomSeed, tagUnit, islandMax } from "./puzzles.js";
+import { drawIsland, randomSeed, tagUnit } from "./puzzles.js";
 import { sound } from "./sound.js";
 import { voice } from "./voice.js";
 import { hud } from "./hud.js";
@@ -217,6 +217,9 @@ async function boot() {
       voice.say(thing.say || thing.word);
     }
   }));
+  // Treasure chests at every puzzle spot (spec 0007); they keep the coin counter and "N left".
+  const { chests } = await import("./chests.js");
+  chests.start({ quest, world: built.world });
   // Every click, E or Use swings the hand, as in BlockWords, even with nothing in front.
   controls.onUse(() => hand.swing());
   const update = (dt) => {
@@ -237,10 +240,8 @@ async function boot() {
     voice.unlock();
     sound.play("click");
     screens.setBase("running");
-    // Coins and puzzles left: none won yet, until chests (feature 8) count them.
+    // Coins and puzzles left, as the chests keep them.
     hud.show();
-    hud.setCoins(0, islandMax(quest.island));
-    hud.setLeft(quest.island.spots.length);
     if (kit) kit.showKit(quest);
     // On a laptop, take the mouse now: the Play tap lets the browser allow it.
     controls.capture();

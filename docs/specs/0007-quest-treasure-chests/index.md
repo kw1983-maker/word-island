@@ -1,7 +1,7 @@
 # 0007. Put a chest at every puzzle spot that opens when the puzzle is done, with a gold chest for challenges and a Not now button
 
 **Date**: 2026-10-17
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 
