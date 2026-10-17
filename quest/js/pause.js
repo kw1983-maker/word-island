@@ -3,6 +3,7 @@
 // it over the island and pauses the game while it is open; this file gives it its buttons.
 import { screens } from "./screens.js";
 import { sound } from "./sound.js";
+import { controls } from "./controls.js";
 
 const onOff = (on) => (on ? "on" : "off");
 
@@ -42,6 +43,8 @@ window.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   const now = screens.state;
   if (now.base !== "running" || now.hush || now.portrait) return;
+  // Esc that freed a captured mouse has already opened the menu.
+  if (now.pause && controls.justLost()) return;
   event.preventDefault();
   screens.setPause(!now.pause);
 });

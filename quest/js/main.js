@@ -8,6 +8,7 @@ import { voice } from "./voice.js";
 import { hud } from "./hud.js";
 import { panel } from "./panel.js";
 import "./pause.js";
+import { controls } from "./controls.js";
 
 const UNIT_IDS = ["u1", "u2", "u3", "u4", "u5", "u6", "u7", "u8", "u9"];
 const WAIT = 8000; // ms for the class list and the unit file, the same patience Word Island has
@@ -174,6 +175,7 @@ async function boot() {
   quest.test = test;
   // The pupil walks from the island's start point (spec 0005); the sky follows the camera.
   walk.start(test.world, test.start, engine.camera);
+  controls.attach(document.getElementById("world"));
   const update = (dt) => {
     walk.update(dt);
     test.update(dt);
@@ -195,6 +197,8 @@ async function boot() {
     hud.setCoins(0, islandMax(island));
     hud.setLeft(island.spots.length);
     if (kit) kit.showKit(quest);
+    // On a laptop, take the mouse now: the Play tap lets the browser allow it.
+    controls.capture();
   });
   screens.setBase("ready");
   if (quest.debug) {
