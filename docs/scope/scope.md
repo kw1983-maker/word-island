@@ -33,7 +33,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 15 | Free time island (Unit 5) | Release 5 | planned |
 | 16 | Old house island (Unit 6) | Release 5 | planned |
 | 17 | Get dressed island (Unit 7) | Release 5 | in-progress |
-| 18 | Robot island (Unit 8) | Release 5 | planned |
+| 18 | Robot island (Unit 8) | Release 5 | in-progress |
 | 19 | School island (Unit 1) | Release 6 | planned |
 | 20 | Let's play island (Unit 2) | Release 6 | planned |
 | 21 | Pet show island (Unit 3) | Release 6 | in-progress |
@@ -226,7 +226,7 @@ A clothes shop and wardrobe island for clothes and colours.
 - [x] Verify it: all 8 checks passed in a browser on 2026-10-17 (scores reaching the results page waits for feature 10, as on the other islands)
 Spec [0012](../specs/0012-quest-get-dressed-island/index.md) · code in `quest/islands/u7.js`, `quest/islands/u7-map.js`
 
-### 18. Robot island (Unit 8)
+### 18. Robot island (Unit 8) · in-progress
 A toy workshop island for robot body parts and actions.
 **Done when:** the island plays end to end with Unit 8 content and scores reach the results page.
 - [ ] Build it: `/develop robot island`
