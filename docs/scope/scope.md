@@ -32,7 +32,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 14 | Pick your hero | Release 4 | planned |
 | 15 | Free time island (Unit 5) | Release 5 | planned |
 | 16 | Old house island (Unit 6) | Release 5 | planned |
-| 17 | Get dressed island (Unit 7) | Release 5 | planned |
+| 17 | Get dressed island (Unit 7) | Release 5 | in-progress |
 | 18 | Robot island (Unit 8) | Release 5 | planned |
 | 19 | School island (Unit 1) | Release 6 | planned |
 | 20 | Let's play island (Unit 2) | Release 6 | planned |
@@ -218,7 +218,7 @@ A spooky old house with rooms to search for treasure.
 **Done when:** the island plays end to end with Unit 6 content and scores reach the results page.
 - [ ] Build it: `/develop old house island`
 
-### 17. Get dressed island (Unit 7)
+### 17. Get dressed island (Unit 7) · in-progress
 A clothes shop and wardrobe island for clothes and colours.
 **Done when:** the island plays end to end with Unit 7 content and scores reach the results page.
 - [ ] Build it: `/develop get dressed island`
