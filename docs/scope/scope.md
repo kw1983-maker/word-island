@@ -143,10 +143,10 @@ Spec [0007](../specs/0007-quest-treasure-chests/index.md) · code in `quest/js/`
 When all puzzles are done, a treasure ending shows the score and stars, with play again and back to Word Island.
 **Done when:** finishing the island always shows the ending with the right score and stars, and both buttons work.
 - [x] Design it (spec): `/architect island finish & score`
-- [ ] Build it: `/develop island finish & score`
-   - [ ] The ending after the last chest: finishing bonus, fanfare, read aloud, Play again and Back to Word Island (AC-1, AC-2, AC-4, AC-5, AC-6)
-   - [ ] Stars: the rule and the three star row in the talk box (AC-3)
-   - [ ] Size check (AC-7)
+- [x] Build it: `/develop island finish & score`
+   - [x] The ending after the last chest: finishing bonus, fanfare, read aloud, Play again and Back to Word Island (AC-1, AC-2, AC-4, AC-5, AC-6)
+   - [x] Stars: the rule and the three star row in the talk box (AC-3)
+   - [x] Size check (AC-7)
 - [ ] Verify it: `/check verify island finish & score`
 Spec [0008](../specs/0008-quest-island-finish/index.md) · code in `quest/js/` (`finish.js`, `panel.js`, `main.js`)
 
