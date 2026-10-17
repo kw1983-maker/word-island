@@ -23,7 +23,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 7 | Beach island (Unit 9) | Release 1 | done |
 | 8 | Treasure chests | Release 1 | done |
 | 9 | Island finish & score | Release 1 | done |
-| 23 | Mining | Release 2 | planned |
+| 23 | Mining | Release 2 | in-progress |
 | 24 | Crafting unit things | Release 2 | planned |
 | 10 | Scores to your results page | Release 3 | planned |
 | 11 | Riddle characters | Release 4 | planned |
@@ -160,10 +160,17 @@ Spec [0008](../specs/0008-quest-island-finish/index.md) · code in `quest/js/` (
 
 Mining and crafting follow BlockWords but stay simple, and the island content stays as planned: only puzzles give coins.
 
-### 23. Mining · needs a decision
-Break blocks on the island and collect them in a hotbar, as in BlockWords; every block says its name when you collect it.
+### 23. Mining · in-progress
+Break blocks on the island and collect them in a hotbar, as in BlockWords; every block says its name when you collect it. Pupils can place them too.
 **Done when:** pupils can break and collect blocks on a phone and a laptop, each block's name shows and is read aloud, and puzzle spots, chests and villagers can never be broken away.
-- [ ] Design it (spec): `/architect mining`
+- [x] Design it (spec): `/architect mining`
+- [ ] Build it: `/develop mining`
+   - [ ] Hold to break and collect on a laptop: cracks, sounds, the name, a full hotbar, use wins (AC-1, AC-2, AC-3, AC-6, AC-9)
+   - [ ] Keep the puzzles and the island floor safe: protected blocks and one block deep digging (AC-7, AC-8)
+   - [ ] Place blocks: right click, and the phone's hold to break and Place button (AC-4, AC-5)
+   - [ ] Speed and size checks (AC-10)
+- [ ] Verify it: `/check verify mining`
+Spec [0010](../specs/0010-quest-mining/index.md) · code in `quest/js/` (`mining.js`, `controls.js`, `touchpad.js`, `hud.js`, `main.js`)
 
 ### 24. Crafting unit things · needs a decision
 Make things from the unit's words out of collected blocks (on the beach: a bucket, a spade, a sandcastle, a fishing rod); each thing is named and read aloud.
