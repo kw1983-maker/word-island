@@ -12,6 +12,17 @@ let root = null;
 let el = {};
 let current = null; // { puzzle, unit, onChoose, onClose, onButton, chosen }
 let opener = null;  // what had focus before, to give it back on close
+const changeListeners = []; // told when the talk box opens or closes (controls stop and the mouse is freed)
+
+function tellChange() {
+  changeListeners.forEach((fn) => {
+    try {
+      fn(Boolean(root && !root.hidden));
+    } catch (err) {
+      console.warn("Treasure Quest: talk box listener failed.", err);
+    }
+  });
+}
 
 function make(tag, cls, text) {
   const node = document.createElement(tag);
@@ -150,6 +161,7 @@ function show() {
   opener = document.activeElement;
   root.hidden = false;
   sound.play("open");
+  tellChange();
 }
 
 const panelApi = {
@@ -233,7 +245,11 @@ const panelApi = {
     sound.play("close");
     if (opener && document.contains(opener) && typeof opener.focus === "function") opener.focus({ preventScroll: true });
     opener = null;
+    tellChange();
   },
+
+  // fn(open): runs when the talk box opens (true) or closes (false).
+  onChange: (fn) => changeListeners.push(fn),
 
   isOpen: () => Boolean(root && !root.hidden)
 };

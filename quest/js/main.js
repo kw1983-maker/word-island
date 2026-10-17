@@ -176,6 +176,8 @@ async function boot() {
   // The pupil walks from the island's start point (spec 0005); the sky follows the camera.
   walk.start(test.world, test.start, engine.camera);
   controls.attach(document.getElementById("world"));
+  const { touchpad } = await import("./touchpad.js");
+  touchpad.attach(document.getElementById("world"));
   const update = (dt) => {
     walk.update(dt);
     test.update(dt);

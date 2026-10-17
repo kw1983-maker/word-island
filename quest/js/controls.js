@@ -202,6 +202,8 @@ export const controls = {
 
   // fn(dx, dy): turn the view by these many radians (right and down are positive).
   onLook: (fn) => lookListeners.push(fn),
+  // Turns the view (the phone's drag to look, touchpad.js).
+  look: (dx, dy) => lookListeners.forEach((fn) => fn(dx, dy)),
   // fn(): the pupil asked to use the thing in front (E, a click or the Use button).
   onUse: (fn) => useListeners.push(fn),
   use: () => useListeners.forEach((fn) => fn()),

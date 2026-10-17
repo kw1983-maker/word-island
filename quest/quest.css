@@ -123,6 +123,31 @@ html, body {
 }
 .clickhint[hidden] { display: none; }
 
+/* Phone controls: a joystick under the left thumb, Jump and Use at the bottom right (spec 0005). */
+.touchpad[hidden], .touchpad [hidden] { display: none; }
+.stick {
+  position: fixed; z-index: 4; width: 110px; height: 110px; margin: -55px 0 0 -55px;
+  border-radius: 50%; border: 3px solid rgba(255, 255, 255, .55); background: rgba(20, 20, 24, .35);
+  pointer-events: none;
+}
+.knob {
+  position: absolute; left: 50%; top: 50%; width: 52px; height: 52px;
+  border-radius: 50%; background: rgba(255, 255, 255, .75); border: 3px solid #14141a;
+  transform: translate(-50%, -50%);
+}
+.padbtn {
+  position: fixed; z-index: 5; width: 72px; height: 72px; padding: 0;
+  right: max(18px, env(safe-area-inset-right));
+  border-radius: 50%; border: 3px solid #14141a;
+  background: rgba(74, 74, 86, .85); color: #fff;
+  box-shadow: 0 0 0 2px #767686 inset, 0 4px 0 #2a2a33;
+  font: bold 17px/1 var(--font); text-shadow: 2px 2px 0 rgba(0, 0, 0, .5);
+  touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.padbtn.jump { bottom: max(18px, env(safe-area-inset-bottom)); }
+.padbtn.use { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 86px); background: rgba(75, 138, 63, .9); box-shadow: 0 0 0 2px #78bd68 inset, 0 4px 0 #2d5626; }
+.padbtn:active { transform: translateY(3px); }
+
 /* BlockWords' bottom of the screen (its #hud, #hotbar, .slot and .emeralds rules): the coins and
    puzzles left just above the hotbar. Only the slots take taps; the rest lets the island through. */
 .hud {
