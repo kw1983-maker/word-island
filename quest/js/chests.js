@@ -11,6 +11,8 @@ import { sound } from "./sound.js";
 import { targets } from "./targets.js";
 
 const list = [];         // one state per placed spot
+const finishers = [];    // feature 9's island finish, told once when the last chest is done
+let finished = false;
 let world = null;
 let unit = null;
 let max = 0;
@@ -40,12 +42,20 @@ function finish(chest) {
   chest.remove();
   sound.play("chest");
   paint();
+  if (!finished && list.every((c) => c.done)) {
+    finished = true;
+    const { coins, max: most } = state();
+    finishers.forEach((fn) => fn({ coins, max: most }));
+  }
 }
 
 function open(chest) {
   if (chest.done) return;
   panel.open(chest.puzzle, {
     unit,
+    title: chest.gold ? "Gold chest" : "Treasure chest",
+    // Not now: the chest stays closed with the same question, and its wrong tries still count.
+    onLeave() {},
     onChoose(choice) {
       if (chest.coins !== null) return;
       if (choice.ok) {
@@ -90,5 +100,10 @@ export const chests = {
     paint();
   },
 
-  state
+  state,
+
+  // fn({ coins, max }) runs once, after the last chest's talk box closes (feature 9's island finish).
+  onFinished(fn) {
+    finishers.push(fn);
+  }
 };

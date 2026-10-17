@@ -10,7 +10,7 @@ const NO_VOICE = "Read the words on the screen.";
 
 let root = null;
 let el = {};
-let current = null; // { puzzle, unit, onChoose, onClose, onButton, chosen }
+let current = null; // { puzzle, unit, onChoose, onClose, onLeave, onButton, chosen }
 let opener = null;  // what had focus before, to give it back on close
 const changeListeners = []; // told when the talk box opens or closes (controls stop and the mouse is freed)
 
@@ -87,6 +87,10 @@ function build() {
       const done = current.onClose;
       panelApi.close();
       if (done) done();
+    } else if (button.dataset.act === "leave") {
+      const left = current.onLeave;
+      panelApi.close();
+      if (left) left();
     } else if (current.onButton) {
       sound.play("click");
       current.onButton(button.dataset.act);
@@ -128,7 +132,7 @@ function setLine(text, kind) {
 
 function setButtons(list) {
   el.buttons.replaceChildren(...list.map((b, i) => {
-    const button = make("button", i === 0 ? "btn-big" : "btn-small", b.label);
+    const button = make("button", i === 0 && !b.small ? "btn-big" : "btn-small", b.label);
     button.type = "button";
     button.dataset.act = b.act;
     return button;
@@ -166,12 +170,14 @@ function show() {
 
 const panelApi = {
   // Opens a puzzle. onChoose gets { value, label, ok } for each pick; onClose runs after Carry on.
-  open(puzzle, { unit, onChoose, onClose } = {}) {
+  // title replaces the usual title ("Gold chest"). With onLeave, a Not now button closes the talk box
+  // before the puzzle is finished and then calls onLeave (spec 0007).
+  open(puzzle, { unit, title, onChoose, onClose, onLeave } = {}) {
     if (!root) build();
-    current = { puzzle, unit, onChoose, onClose, chosen: null };
+    current = { puzzle, unit, onChoose, onClose, onLeave, chosen: null };
     el.panel.className = "panel talk puzzle";
     const kind = puzzle.playAs || puzzle.type;
-    el.label.textContent = puzzle.by || LABELS[kind] || LABELS.chest;
+    el.label.textContent = title || puzzle.by || LABELS[kind] || LABELS.chest;
     el.head.hidden = false;
     el.question.textContent = puzzle.show;
     el.text.hidden = true;
@@ -184,7 +190,7 @@ const panelApi = {
     // Picture answers are cards side by side; word answers are full width buttons.
     el.choices.className = puzzle.look === "pic" || puzzle.look === "icon" ? "answers cards" : "answers";
     setLine("", "");
-    setButtons([]);
+    setButtons(onLeave ? [{ label: "Not now", act: "leave", small: true }] : []);
     show();
     el.panel.setAttribute("aria-describedby", "panellabel");
     el.choices.querySelector("button").focus({ preventScroll: true });
