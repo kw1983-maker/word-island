@@ -1,7 +1,7 @@
 // Copied from BlockWords js/atlas.js at commit 31a2bf4 (C:/Users/User/Documents/Claude/Minecraft).
 // Trimmed to the tiles the kept blocks use (spec 0004); tiles are seeded by name, so each one matches BlockWords.
-// Added: wet_sand, the beach things of spec 0006, and the gold and open chests of spec 0007 (drawn
-// here in the same 16 pixel style).
+// Added: wet_sand, the beach things of spec 0006, the gold and open chests of spec 0007 and the pet
+// show things of spec 0011 (drawn here in the same 16 pixel style).
 
 // Procedural 16x16 pixel-art texture atlas, drawn to a canvas at load time.
 // No image files: every tile is generated in code, then sampled with a NEAREST
@@ -414,6 +414,305 @@ tile('fishing_rod', (p) => {
   p.rect(4, 11, 2, 2, [110, 110, 118]); // the reel
   for (let y = 4; y <= 12; y++) p.set(14, y, 235, 235, 235); // the line
   p.rect(13, 12, 1, 2, [160, 160, 170]); // the hook
+});
+
+// ---- the pet show things of spec 0011 ------------------------------------
+// Pictures written as 16 rows of letters, top row first: '.' is see through and every other letter
+// takes its colour from the palette. A row of 8 letters is mirrored into 16, for things seen from the front.
+function art(name, palette, rows) {
+  tile(name, (p) => {
+    p.clear();
+    rows.forEach((row, y) => {
+      const full = row.length === 8 ? row + row.split('').reverse().join('') : row;
+      [...full].forEach((ch, x) => { if (palette[ch]) p.set(x, y, ...palette[ch]); });
+    });
+  });
+}
+const INK = [24, 24, 28];
+art('cat', { o: [232, 140, 52], d: [190, 100, 30], k: INK, p: [240, 150, 170], w: [250, 246, 236] }, [
+  '................',
+  '................',
+  '................',
+  '..........o...o.',
+  '..........oo.oo.',
+  '..........ooooo.',
+  '..........okoko.',
+  '..........oopoo.',
+  '...........www..',
+  '..o.......oww...',
+  '.o.....oooooo...',
+  '.o....oodoodo...',
+  '.oo..oooooooo...',
+  '..ooooodoodoo...',
+  '....ooooooooo...',
+  '....ww..ww.ww...',
+]);
+art('dog', { b: [156, 102, 56], d: [100, 62, 34], w: [242, 236, 224], k: INK, r: [220, 60, 60] }, [
+  '................',
+  '................',
+  '................',
+  '..........bbbb..',
+  '.........dbbbbb.',
+  '.........dbkbbbb',
+  '.........dbbbwwk',
+  '.........dbbwww.',
+  '..b.......rrr...',
+  '..b.......bbb...',
+  '...bbbbbbbbbbb..',
+  '...bbbbbbbbbbb..',
+  '...bbwwwwwwbbb..',
+  '...bb..bb.bb.bb.',
+  '...bb..bb.bb.bb.',
+  '...kk..kk.kk.kk.',
+]);
+art('rat', { g: [146, 146, 154], d: [112, 112, 120], p: [236, 150, 162], k: INK, w: [236, 236, 240] }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '..........pp....',
+  '.........pddg...',
+  '......gggggggg..',
+  '.....ggggggggkg.',
+  '....gggggggggggp',
+  'p...gwwwwwwgggg.',
+  '.p..ggggggggg...',
+  '..pppg.g..g.g...',
+  '.....p.p..p.p...',
+]);
+art('frog', { g: [86, 170, 60], d: [52, 118, 38], y: [214, 226, 120], k: INK, w: [250, 250, 250] }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '...ww...',
+  '..wkkw..',
+  '..wkkwgg',
+  '.ggggggg',
+  '.gdddddd',
+  '.ggyyyyy',
+  'ggyyyyyy',
+  'ggdyyyyy',
+  'gg.ddgg.',
+  'g...gg..',
+]);
+art('duck', { w: [246, 246, 240], s: [206, 206, 200], o: [242, 150, 40], k: INK }, [
+  '................',
+  '................',
+  '................',
+  '..........www...',
+  '.........wwwww..',
+  '.........wwkwwoo',
+  '.........wwwwooo',
+  '..........www...',
+  '..........ww....',
+  'w........www....',
+  'ww....wwwwwww...',
+  'wwwwwwwwsswwww..',
+  '.wwwwwssssswww..',
+  '..wwwwwwwwwww...',
+  '....wwwwwww.....',
+  '......oo.oo.....',
+]);
+art('lizard', { l: [120, 182, 60], d: [78, 128, 40], y: [204, 216, 96], k: INK }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '...........lll..',
+  'll........llkll.',
+  '.lllllllllllllll',
+  '...ldlldlldlyy..',
+  '...ll.l...l.l...',
+  '..l..l...l...l..',
+]);
+art('spider', { k: [34, 34, 38], g: [84, 84, 92], w: [250, 250, 250] }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '..k.....',
+  '...k..kk',
+  'k...kkkg',
+  '.k..kkkk',
+  '..kkkkkk',
+  '.k..kkwk',
+  'k..k.kkk',
+  '..k...kk',
+  '.k......',
+  'k.......',
+  '................',
+]);
+art('snake', { g: [72, 162, 60], k: [30, 52, 26], r: [224, 44, 44], y: [204, 222, 96] }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '...........ggg..',
+  '..........gkggg.',
+  '..........ggggrr',
+  '...........gg...',
+  '...........gk...',
+  '....gkggkggkg...',
+  '...gggggggggkg..',
+  '..gk.......ygg..',
+  '..gg........kg..',
+  '...kggkggkggg...',
+  '.ggggkggkgggk...',
+  'gkgyyyyyyyyyg...',
+]);
+art('butterfly', { o: [244, 140, 40], y: [250, 222, 80], b: [58, 104, 214], k: [30, 30, 30] }, [
+  '................',
+  '................',
+  '....k...',
+  '.....k..',
+  '.oooo.k.',
+  'oobboo.k',
+  'obyybook',
+  'obyybook',
+  'oobboook',
+  '.oooookk',
+  '..ooyook',
+  '..oyyook',
+  '...ooo.k',
+  '........',
+  '................',
+  '................',
+]);
+art('tiger', { o: [236, 138, 38], k: INK, w: [250, 246, 236], p: [240, 150, 170] }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '...........o..o.',
+  '..........oooooo',
+  '..........okookk',
+  '..........owwpww',
+  '...........www..',
+  'k.....ookokokoo.',
+  '.o.ookokokokooo.',
+  '.o.oooooooooooo.',
+  '..oookokokokoo..',
+  '...oowwwwwwwoo..',
+  '...oo.oo..oo.oo.',
+  '...kk.kk..kk.kk.',
+]);
+const GIRAFFE = { y: [234, 192, 82], b: [150, 92, 42], k: INK };
+art('giraffe', GIRAFFE, [
+  '..........yyb...',
+  '..........yyy...',
+  '..........byy...',
+  '..........yyy...',
+  '..yybyybyyyyb...',
+  '.yyyyyyyyyybyy..',
+  'y.ybyybyyyyyyy..',
+  'y.yyyyyyybyyy...',
+  '...yy.......yy..',
+  '...yy.......yy..',
+  '...yb.......yb..',
+  '...yy.......yy..',
+  '...yy.......yy..',
+  '...by.......yy..',
+  '...yy.......by..',
+  '...kk.......kk..',
+]);
+art('giraffe_neck', GIRAFFE, [
+  '................',
+  '................',
+  '..........k.k...',
+  '..........b.b...',
+  '.........yyyyy..',
+  '.........ykyyyy.',
+  '.........yyyyyyy',
+  '..........yyyyb.',
+  '..........yyb...',
+  '..........yyy...',
+  '..........byy...',
+  '..........yyy...',
+  '..........yby...',
+  '..........yyy...',
+  '..........byy...',
+  '..........yyy...',
+]);
+art('crocodile', { g: [72, 132, 52], d: [46, 96, 34], w: [250, 250, 250], k: INK, y: [176, 194, 96] }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '..........gk....',
+  '.d.d.d.d.ggggggg',
+  'gggggggggggwgwgw',
+  '.ggggggggggggggg',
+  '..yyyyyyyyyyy...',
+  '...gg.gg...gg.gg',
+  '................',
+]);
+art('school_bag', { b: [58, 112, 216], d: [38, 78, 166], y: [242, 210, 60] }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '......dddd......',
+  '.....d....d.....',
+  '....bbbbbbbb....',
+  '...bbbbbbbbbb...',
+  '...bddddddddb...',
+  '...bbbbyybbbb...',
+  '...bbbbbbbbbb...',
+  '...bbddddddbb...',
+  '...bbd....dbb...',
+  '...bbddddddbb...',
+  '...bbbbbbbbbb...',
+  '....bbbbbbbb....',
+]);
+art('pencil_case', { r: [214, 50, 50], d: [156, 28, 28], y: [240, 210, 70] }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '...rrrrrrrrrr...',
+  '..rddddddddddry.',
+  '..rrrrrrrrrrrr..',
+  '..rrrrrrrrrrrr..',
+  '..rrrrrrrrrrrr..',
+  '...rrrrrrrrrr...',
+]);
+tile('spider_web', (p) => {
+  p.clear();
+  const silk = [236, 236, 240];
+  for (let a = 0; a < 8; a++) { // threads out from the middle
+    const ang = (a / 8) * Math.PI * 2;
+    for (let r = 0; r < 8; r += 0.5) p.set(Math.round(7.5 + Math.cos(ang) * r), Math.round(7.5 + Math.sin(ang) * r), ...silk, 220);
+  }
+  [2.5, 4.5, 6.5].forEach((r) => { // rings across the threads
+    for (let a = 0; a < 64; a++) {
+      const ang = (a / 64) * Math.PI * 2;
+      p.set(Math.round(7.5 + Math.cos(ang) * r), Math.round(7.5 + Math.sin(ang) * r), ...silk, 200);
+    }
+  });
 });
 for (const pair of WOOL_COLOURS) {
   const rgb = [(pair[1] >> 16) & 255, (pair[1] >> 8) & 255, pair[1] & 255];

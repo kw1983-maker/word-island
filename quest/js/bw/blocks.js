@@ -3,7 +3,8 @@
 // snow, ice, cactus, pumpkin, crops, farmland, torches, glowstone, furnace or bed. Leaves and tall
 // grass drop nothing (BlockWords drops apples and wheat). Added: wet_sand, and the beach things of
 // spec 0006 (palm leaves, shells, fish, a football, kites, a bucket and spade, flags, a towel, a koala
-// and a fishing rod), and the gold and open chests of spec 0007.
+// and a fishing rod), the gold and open chests of spec 0007, and the pet show things of spec 0011
+// (twelve animals, a giraffe's neck, a spider web, a school bag and a pencil case).
 
 // The block registry. Every voxel in the world is one byte — an index into
 // BLOCKS. Ids are assigned in registration order, so ALWAYS refer to blocks by
@@ -111,6 +112,15 @@ def('flag_au', { label: 'Australia Flag', render: 'cross', solid: false, hardnes
 def('towel', { label: 'Beach Towel', solid: false, opaque: false, height: 1 / 16, hardness: 0.1 });
 def('koala', { render: 'cross', solid: false, hardness: 0.05 });
 def('fishing_rod', { label: 'Fishing Rod', render: 'cross', solid: false, hardness: 0.05 });
+
+// ---- pet show things (spec 0011): animals, a web, a school bag and a pencil case, all sprites ------
+for (const name of ['cat', 'dog', 'rat', 'frog', 'duck', 'lizard', 'spider', 'snake', 'butterfly', 'tiger', 'giraffe', 'crocodile']) {
+  def(name, { render: 'cross', solid: false, hardness: 0.05 });
+}
+def('giraffe_neck', { label: 'Giraffe', render: 'cross', solid: false, hardness: 0.05 }); // stands on top of a giraffe
+def('spider_web', { label: 'Spider Web', render: 'cross', solid: false, hardness: 0.05, drops: null });
+def('school_bag', { label: 'School Bag', render: 'cross', solid: false, hardness: 0.05 });
+def('pencil_case', { label: 'Pencil Case', render: 'cross', solid: false, hardness: 0.05 });
 
 // ---- wool: the colour vocabulary, one block per colour -------------------
 export const WOOL_COLOURS = [
