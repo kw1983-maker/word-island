@@ -100,10 +100,10 @@ Spec [0004](../specs/0004-quest-blockwords-look/index.md) (replaces [0003](../sp
 A Treasure Quest button on Word Island that opens only the islands the pupil's class is allowed, and respects Pause class. Each unit's island stays locked until the pupil finishes that unit's five games.
 **Done when:** a pupil who taps their class sees Treasure Quest with only their units, and the teacher's Pause freezes the quest too.
 - [x] Design it (spec): `/architect quest entry in Word Island`
-- [ ] Build it: `/develop quest entry in Word Island`
-   - [ ] The locked sixth card on the unit page, opening after the five games, with the open all link (AC-1 to AC-4, AC-6, AC-7)
-   - [ ] The quest page's Finish the five games first screen (AC-4, AC-5)
-   - [ ] The island checker's island list check (AC-8)
+- [x] Build it: `/develop quest entry in Word Island`
+   - [x] The locked sixth card on the unit page, opening after the five games, with the open all link (AC-1 to AC-4, AC-6, AC-7)
+   - [x] The quest page's Finish the five games first screen (AC-4, AC-5)
+   - [x] The island checker's island list check (AC-8)
 - [ ] Verify it: `/check verify quest entry in Word Island`
 Spec [0009](../specs/0009-quest-entry-word-island/index.md) · code in `index.html`, `shared/quest.js`, `quest/js/` (`main.js`, `screens.js`), `tools/check-quests.mjs`
 
