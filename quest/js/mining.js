@@ -15,12 +15,14 @@ import { hand } from "./hand.js";
 import { sound } from "./sound.js";
 import { voice } from "./voice.js";
 import { notice } from "./notice.js";
+import { walk } from "./walk.js";
 
 const REACH = 4;          // blocks, the same reach as using things (spec 0005)
 const BREAK = 1.0;        // seconds to break any solid block; sprites break at once
 const DIG_EVERY = 0.22;   // BlockWords' dig sound and swing rhythm
 const REFUSE_EVERY = 2000; // ms between "You can't break this." lines
 const SIZE = 64;           // an island is at most 64 by 64 blocks
+const BODY = { half: 0.3, height: 1.8 }; // BlockWords' player box, for "never place inside the pupil"
 // The kinds that make up the island's land; the highest one in a column is its starting ground.
 const GROUND = ["grass_block", "dirt", "dirt_path", "sand", "wet_sand", "stone", "gravel", "clay", "cobblestone"];
 const CHESTS = ["chest", "gold_chest", "chest_open", "gold_chest_open"];
@@ -72,10 +74,40 @@ function reset() {
   if (crack) crack.visible = false;
 }
 
-// The block in the middle of the view, within reach (water is looked through, as in BlockWords).
-function lookedAt() {
+// The block in the middle of the view, within reach. Mining looks through water, as in BlockWords;
+// placing stops at water, so a block can go onto the sea.
+function lookedAt(includeWater = false) {
   camera.getWorldDirection(dir);
-  return world.raycast(camera.position, dir, REACH);
+  return world.raycast(camera.position, dir, REACH, includeWater);
+}
+
+function insidePupil(x, y, z) {
+  const p = walk.player();
+  if (!p) return false;
+  return x < p.pos.x + BODY.half && x + 1 > p.pos.x - BODY.half &&
+    z < p.pos.z + BODY.half && z + 1 > p.pos.z - BODY.half &&
+    y < p.pos.y + BODY.height && y + 1 > p.pos.y;
+}
+
+// Places the selected hotbar block against the face in front, or into water. Never inside the pupil,
+// outside the island, or into a protected block.
+function place() {
+  if (!world || !controls.playing()) return false;
+  const item = hud.selectedItem();
+  if (!item) return false;
+  const hit = lookedAt(true);
+  if (!hit) return false;
+  const [fx, fy, fz] = hit.face;
+  const [x, y, z] = hit.id === B.WATER ? [hit.x, hit.y, hit.z] : [hit.x + fx, hit.y + fy, hit.z + fz];
+  if (x < 0 || z < 0 || x >= SIZE || z >= SIZE || y < 1 || y >= CHUNK_Y - 1) return false;
+  const here = world.getBlock(x, y, z);
+  if ((here !== B.AIR && here !== B.WATER) || protectedCells.has(key(x, y, z)) || insidePupil(x, y, z)) return false;
+  world.setBlock(x, y, z, B[item.toUpperCase()]);
+  world.rebuildDirty();
+  hud.take();
+  sound.play("place", { block: item });
+  hand.swing();
+  return true;
 }
 
 const key = (x, y, z) => `${x},${y},${z}`;
@@ -160,7 +192,9 @@ export const mining = {
     );
     crack.visible = false;
     scene.add(crack);
+    controls.onPlace(place);
   },
+  place,
 
   // Every game step: while the pupil holds to mine, crack the block in front, then break it.
   update(dt) {

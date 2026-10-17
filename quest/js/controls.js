@@ -31,6 +31,7 @@ let dragMoved = 0;
 const touch = { forward: 0, strafe: 0, jump: false };
 const lookListeners = [];
 const useListeners = [];
+const placeListeners = [];
 
 const isLaptop = () => Boolean(fine && fine.matches);
 const captured = () => Boolean(canvas) && document.pointerLockElement === canvas;
@@ -112,10 +113,16 @@ function attachMouse() {
       if (event.button === 0) {
         controls.use();
         input.mine = true;
+      } else if (event.button === 2) {
+        controls.place();
       }
       return;
     }
     if (dragOnly) {
+      if (event.button === 2) {
+        controls.place();
+        return;
+      }
       dragging = true;
       dragMoved = 0;
       if (event.button === 0) input.mine = true;
@@ -123,6 +130,8 @@ function attachMouse() {
     }
     controls.capture();
   });
+  // Right click places a block (spec 0010), so the browser's menu must not open over the island.
+  canvas.addEventListener("contextmenu", (event) => event.preventDefault());
   window.addEventListener("mouseup", (event) => {
     dragging = false;
     if (event.button === 0) input.mine = false;
@@ -249,5 +258,8 @@ export const controls = {
   // fn(): the pupil asked to use the thing in front (E, a click or the Use button).
   onUse: (fn) => useListeners.push(fn),
   use: () => useListeners.forEach((fn) => fn()),
+  // fn(): the pupil asked to place the selected block (right click, or the phone's Place button).
+  onPlace: (fn) => placeListeners.push(fn),
+  place: () => placeListeners.forEach((fn) => fn()),
   playing
 };
