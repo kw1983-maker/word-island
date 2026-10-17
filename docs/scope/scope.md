@@ -18,7 +18,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 2 | Game engine & page structure | Foundation | in-progress |
 | 3 | Quest content model | Foundation | done |
 | 4 | Retro look & sound kit | Foundation | done |
-| 5 | Quest entry in Word Island | Release 1 | planned |
+| 5 | Quest entry in Word Island | Release 1 | in-progress |
 | 6 | Movement & controls | Release 1 | done |
 | 7 | Beach island (Unit 9) | Release 1 | done |
 | 8 | Treasure chests | Release 1 | done |
@@ -96,10 +96,16 @@ Spec [0004](../specs/0004-quest-blockwords-look/index.md) (replaces [0003](../sp
 
 ## Release 1: Beach treasure hunt (the first playable island)
 
-### 5. Quest entry in Word Island
-A Treasure Quest button on Word Island that opens only the islands the pupil's class is allowed, and respects Pause class.
+### 5. Quest entry in Word Island · in-progress
+A Treasure Quest button on Word Island that opens only the islands the pupil's class is allowed, and respects Pause class. Each unit's island stays locked until the pupil finishes that unit's five games.
 **Done when:** a pupil who taps their class sees Treasure Quest with only their units, and the teacher's Pause freezes the quest too.
+- [x] Design it (spec): `/architect quest entry in Word Island`
 - [ ] Build it: `/develop quest entry in Word Island`
+   - [ ] The locked sixth card on the unit page, opening after the five games, with the open all link (AC-1 to AC-4, AC-6, AC-7)
+   - [ ] The quest page's Finish the five games first screen (AC-4, AC-5)
+   - [ ] The island checker's island list check (AC-8)
+- [ ] Verify it: `/check verify quest entry in Word Island`
+Spec [0009](../specs/0009-quest-entry-word-island/index.md) · code in `index.html`, `shared/quest.js`, `quest/js/` (`main.js`, `screens.js`), `tools/check-quests.mjs`
 
 ### 6. Movement & controls · done
 Walk, look around and jump like in BlockWords, in first person; touch controls on phones, mouse and keys on laptops; nothing can hurt you, and pupils can never fall off or get stuck.
