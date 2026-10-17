@@ -1,6 +1,6 @@
 // Treasure Quest · the Unit 7 clothes town map (spec 0012). One round grassy island with a sandy rim:
 // a pier where you start, a hat stall, a striped stage for the cool cat song, a sheep pen and a cow pen
-// beside a cotton field (the materials lesson), the park bench with Gary's cap, the big tree on the hill
+// near a cotton field (the materials lesson), the park bench with Gary's cap, the big tree on the hill
 // with the bird from the story, a washing line of clothes, stairs with six spiders, a clothes shop and
 // a clothes rail by the houses. A path loops round the island and crosses it over the hill.
 // The layout follows the Unit 3 park (spec 0011), so the same path and puzzle places are proven walkable.
@@ -96,13 +96,14 @@ function blocks() {
   m.set(44, GRASS + 1, 27, "sheep");
   pen(m, { x0: 42, z0: 32, groundY: GRASS, gate: "n" });
   m.set(43, GRASS + 1, 34, "cow");
-  plants(m, { x0: 43, x1: 47, z0: 19, z1: 23, kind: "cotton_plant" });
-  m.set(44, GRASS + 1, 21, "cotton_plant");
+  // The cotton field is three plants wide, so a plant that says its word stands on each edge: one seen
+  // from the path to the east, one seen from the park to the west.
+  plants(m, { x0: 42, x1: 44, z0: 19, z1: 23, kind: "cotton_plant" });
 
   // The park in the north east: Gary's cap on the bench, and a tree.
   bench(m, { x: 36, z: 20, groundY: GRASS });
   m.set(37, GRASS + 2, 20, "cap");
-  tree(m, { x: 42, z: 22, height: 5 });
+  tree(m, { x: 38, z: 23, height: 5 });
 
   // The hill top: the big tree with the bird that takes Gary's cap.
   tree(m, { x: 33, z: 28, height: 6, radius: 3 });
@@ -122,8 +123,7 @@ function blocks() {
   house(m, { x0: 12, z0: 27, floorY: GRASS, door: "e", walls: "white_wool" });
   m.set(13, GRASS + 1, 28, "shoes");
   m.set(13, GRASS + 1, 30, "hat");
-  m.set(13, GRASS + 1, 29, "jeans");
-  m.set(14, GRASS + 1, 28, "tshirt");
+  m.set(13, GRASS + 1, 29, "jeans"); // all along the back wall, so nothing hides the ones that speak
   house(m, { x0: 12, z0: 34, floorY: GRASS, door: "e" });
   house(m, { x0: 13, z0: 20, floorY: GRASS, door: "e" });
   rail(m, { x: 21, z: 35, groundY: GRASS, hang: ["gloves", "sweater", "jacket"], under: ["shoes", "boots", "socks"] });
@@ -149,6 +149,7 @@ export default {
     { at: { x: 43, y: 9, z: 26 }, word: "sheep", say: "a sheep" },
     { at: { x: 43, y: 9, z: 34 }, word: "cow", say: "a cow" },
     { at: { x: 44, y: 9, z: 21 }, word: "cotton", say: "a cotton plant" },
+    { at: { x: 42, y: 9, z: 22 }, word: "cotton", say: "a cotton plant" },
     { at: { x: 37, y: 10, z: 20 }, word: "cap", say: "a cap" },
     { at: { x: 34, y: 13, z: 27 }, word: "bird", say: "a bird" },
     { at: { x: 27, y: 11, z: 18 }, word: "T-shirt", say: "a T-shirt" },
