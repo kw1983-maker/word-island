@@ -35,6 +35,7 @@ function showEnding() {
   panel.message({
     title: "Island finished!",
     text: `+${result.bonus} bonus for finishing! ${line}`,
+    stars: { got: result.stars, of: 3 },
     buttons: [{ label: "Play again", act: "again" }, { label: "Back to Word Island", act: "home" }],
     onButton(act) {
       if (act === "again") location.assign(againAddress());

@@ -7,6 +7,8 @@ import { voice } from "./voice.js";
 
 const LABELS = { chest: "Treasure chest", find: "Listen and find", riddle: "Riddle" };
 const NO_VOICE = "Read the words on the screen.";
+// A five point star, drawn gold when earned and grey when not (the island finish, spec 0008).
+const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,1 15,9 23,9 17,14 19,23 12,18 5,23 7,14 1,9 9,9"/></svg>';
 
 let root = null;
 let el = {};
@@ -56,15 +58,18 @@ function build() {
   const choices = make("div", "answers");
   body.append(pic, choices);
   const text = make("p", "quest-sub");
+  const stars = make("div", "stars");
+  stars.setAttribute("role", "img");
+  stars.hidden = true;
   const foot = make("div", "talk-foot");
   const line = make("p", "result");
   line.setAttribute("role", "status");
   const buttons = make("div", "talk-buttons");
   foot.append(line, buttons);
-  panel.append(head, question, text, body, foot);
+  panel.append(head, question, text, stars, body, foot);
   root.append(panel);
   document.body.append(root);
-  el = { panel, head, label, hear, question, text, body, pic, choices, line, buttons };
+  el = { panel, head, label, hear, question, text, stars, body, pic, choices, line, buttons };
 
   hear.addEventListener("click", () => {
     if (!current || !current.puzzle) return;
@@ -181,6 +186,7 @@ const panelApi = {
     el.head.hidden = false;
     el.question.textContent = puzzle.show;
     el.text.hidden = true;
+    el.stars.hidden = true;
     el.body.hidden = false;
     el.pic.hidden = !puzzle.pic;
     if (puzzle.pic && typeof picture === "function") el.pic.innerHTML = picture(puzzle.pic, true, "../img/");
@@ -226,7 +232,8 @@ const panelApi = {
 
   // A plain talk box with buttons, for the island finish and other features.
   // onButton(act) runs when a button is tapped; the caller closes the panel.
-  message({ title = "", text = "", buttons = [], onButton } = {}) {
+  // stars: { got, of } shows a row of `of` stars, `got` of them gold (spec 0008).
+  message({ title = "", text = "", stars = null, buttons = [], onButton } = {}) {
     if (!root) build();
     current = { puzzle: null, onButton };
     el.panel.className = "panel talk message";
@@ -234,6 +241,11 @@ const panelApi = {
     el.question.textContent = title;
     el.text.textContent = text;
     el.text.hidden = !text;
+    el.stars.hidden = !stars;
+    if (stars) {
+      el.stars.innerHTML = Array.from({ length: stars.of }, (_, i) => STAR.replace("<svg", `<svg class="${i < stars.got ? "on" : "off"}"`)).join("");
+      el.stars.setAttribute("aria-label", `${stars.got} of ${stars.of} stars`);
+    }
     el.body.hidden = true;
     setLine("", "");
     setButtons(buttons);

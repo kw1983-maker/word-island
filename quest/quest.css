@@ -237,6 +237,12 @@ html, body {
 .talk.message .quest-text { font-size: 30px; }
 .quest-sub { margin: 0; font-size: 20px; line-height: 1.4; }
 .quest-sub[hidden] { display: none; }
+/* The island finish's stars (spec 0008): gold when earned, grey when not. */
+.stars { display: flex; justify-content: center; gap: 12px; margin: 4px 0 10px; }
+.stars[hidden] { display: none; }
+.stars svg { width: 48px; height: 48px; filter: drop-shadow(3px 3px 0 #000); }
+.stars .on { fill: #ffd23f; }
+.stars .off { fill: #5d5d66; }
 .talk-body { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 14px; align-items: center; }
 .talk-body.nopic { grid-template-columns: minmax(0, 1fr); }
 .talk-body[hidden], .quest-visual[hidden] { display: none; }
