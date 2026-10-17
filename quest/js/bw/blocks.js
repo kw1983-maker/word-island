@@ -4,7 +4,8 @@
 // grass drop nothing (BlockWords drops apples and wheat). Added: wet_sand, and the beach things of
 // spec 0006 (palm leaves, shells, fish, a football, kites, a bucket and spade, flags, a towel, a koala
 // and a fishing rod), the gold and open chests of spec 0007, and the pet show things of spec 0011
-// (twelve animals, a giraffe's neck, a spider web, a school bag and a pencil case).
+// (twelve animals, a giraffe's neck, a spider web, a school bag and a pencil case), and the clothes
+// town things of spec 0012 (eleven clothes, a sheep, a cow, a cotton plant, a bird and the cool cat).
 
 // The block registry. Every voxel in the world is one byte — an index into
 // BLOCKS. Ids are assigned in registration order, so ALWAYS refer to blocks by
@@ -121,6 +122,14 @@ def('giraffe_neck', { label: 'Giraffe', render: 'cross', solid: false, hardness:
 def('spider_web', { label: 'Spider Web', render: 'cross', solid: false, hardness: 0.05, drops: null });
 def('school_bag', { label: 'School Bag', render: 'cross', solid: false, hardness: 0.05 });
 def('pencil_case', { label: 'Pencil Case', render: 'cross', solid: false, hardness: 0.05 });
+
+// ---- clothes town things (spec 0012): clothes, farm animals, a cotton plant, a bird and the cool cat ----
+for (const name of ['jeans', 'socks', 'shoes', 'boots', 'cap', 'hat', 'jacket', 'sweater', 'skirt', 'gloves', 'sheep', 'cow', 'bird']) {
+  def(name, { render: 'cross', solid: false, hardness: 0.05 });
+}
+def('tshirt', { label: 'T-shirt', render: 'cross', solid: false, hardness: 0.05 });
+def('cotton_plant', { label: 'Cotton Plant', render: 'cross', solid: false, hardness: 0.05 });
+def('cool_cat', { label: 'Cool Cat', render: 'cross', solid: false, hardness: 0.05 });
 
 // ---- wool: the colour vocabulary, one block per colour -------------------
 export const WOOL_COLOURS = [
