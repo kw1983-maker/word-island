@@ -1,7 +1,7 @@
 # 0008. End the island with a happy ending: a finishing bonus, up to 3 stars, Play again and Back to Word Island
 
 **Date**: 2026-10-17
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

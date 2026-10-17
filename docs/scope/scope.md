@@ -18,11 +18,11 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 2 | Game engine & page structure | Foundation | in-progress |
 | 3 | Quest content model | Foundation | done |
 | 4 | Retro look & sound kit | Foundation | done |
-| 5 | Quest entry in Word Island | Release 1 | in-progress |
+| 5 | Quest entry in Word Island | Release 1 | done |
 | 6 | Movement & controls | Release 1 | done |
 | 7 | Beach island (Unit 9) | Release 1 | done |
 | 8 | Treasure chests | Release 1 | done |
-| 9 | Island finish & score | Release 1 | in-progress |
+| 9 | Island finish & score | Release 1 | done |
 | 23 | Mining | Release 2 | planned |
 | 24 | Crafting unit things | Release 2 | planned |
 | 10 | Scores to your results page | Release 3 | planned |
@@ -96,7 +96,7 @@ Spec [0004](../specs/0004-quest-blockwords-look/index.md) (replaces [0003](../sp
 
 ## Release 1: Beach treasure hunt (the first playable island)
 
-### 5. Quest entry in Word Island · in-progress
+### 5. Quest entry in Word Island · done
 A Treasure Quest button on Word Island that opens only the islands the pupil's class is allowed, and respects Pause class. Each unit's island stays locked until the pupil finishes that unit's five games.
 **Done when:** a pupil who taps their class sees Treasure Quest with only their units, and the teacher's Pause freezes the quest too.
 - [x] Design it (spec): `/architect quest entry in Word Island`
@@ -145,7 +145,7 @@ Walk to a chest, hear a Unit 9 picture question, tap the right answer to open it
 - [x] Verify it: `/check verify treasure chests` (all 16 steps passed in a browser on 2026-10-17; the real phone check is still owed with features 4, 6 and 7)
 Spec [0007](../specs/0007-quest-treasure-chests/index.md) · code in `quest/js/` (`chests.js`, `panel.js`, `hud.js`), `quest/js/bw/` (`blocks.js`, `atlas.js`)
 
-### 9. Island finish & score · in-progress
+### 9. Island finish & score · done
 When all puzzles are done, a treasure ending shows the score and stars, with play again and back to Word Island.
 **Done when:** finishing the island always shows the ending with the right score and stars, and both buttons work.
 - [x] Design it (spec): `/architect island finish & score`
