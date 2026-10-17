@@ -20,7 +20,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 4 | Retro look & sound kit | Foundation | done |
 | 5 | Quest entry in Word Island | Release 1 | planned |
 | 6 | Movement & controls | Release 1 | done |
-| 7 | Beach island (Unit 9) | Release 1 | planned |
+| 7 | Beach island (Unit 9) | Release 1 | in-progress |
 | 8 | Treasure chests | Release 1 | planned |
 | 9 | Island finish & score | Release 1 | planned |
 | 23 | Mining | Release 2 | planned |
@@ -114,10 +114,18 @@ Walk, look around and jump like in BlockWords, in first person; touch controls o
 - [x] Verify it: `/check verify movement & controls` (24 of 25 steps passed in a browser on 2026-10-17; the real iPhone and budget Android check is still owed, together with feature 4's)
 Spec [0005](../specs/0005-quest-movement-controls/index.md) · code in `quest/js/bw/player.js`, `quest/js/` (`walk.js`, `controls.js`, `touchpad.js`, `targets.js`, `notice.js`)
 
-### 7. Beach island (Unit 9) · needs a decision
+### 7. Beach island (Unit 9) · in-progress
 A blocky beach (sand, sea, rocks, shells, sandcastles, beach things from the unit) with spots for about 10 to 12 puzzles.
 **Done when:** the island is explorable in about 10 minutes, its objects match Unit 9 words, and every puzzle spot can be reached.
-- [ ] Design it (spec): `/architect beach island`
+- [x] Design it (spec): `/architect beach island`
+- [ ] Build it: `/develop beach island`
+   - [ ] Walk the real island: map file, shape helpers, island builder, hill, path loop and start; test beach gone (AC-1, AC-3, AC-4)
+   - [ ] Landmarks and the 12 anchors, with `&debug` labels (AC-1, AC-2, AC-10)
+   - [ ] Island checker: anchors, walk only reachability, no traps, path, and missing anchors left out (AC-3, AC-5, AC-11)
+   - [ ] Beach things with the new tiles, word things that speak, and 3 villagers (AC-6, AC-7, AC-8, AC-9)
+   - [ ] Build time, slowed phone speed and size checks (AC-12)
+- [ ] Verify it: `/check verify beach island`
+Spec [0006](../specs/0006-quest-beach-island/index.md) · code in `quest/islands/u9-map.js`, `quest/js/` (`mapkit.js`, `island.js`), `tools/check-quests.mjs`
 
 ### 8. Treasure chests
 Walk to a chest, hear a Unit 9 picture question, tap the right answer to open it and win coins.
