@@ -3,7 +3,7 @@
 // snow, ice, cactus, pumpkin, crops, farmland, torches, glowstone, furnace or bed. Leaves and tall
 // grass drop nothing (BlockWords drops apples and wheat). Added: wet_sand, and the beach things of
 // spec 0006 (palm leaves, shells, fish, a football, kites, a bucket and spade, flags, a towel, a koala
-// and a fishing rod).
+// and a fishing rod), and the gold and open chests of spec 0007.
 
 // The block registry. Every voxel in the world is one byte — an index into
 // BLOCKS. Ids are assigned in registration order, so ALWAYS refer to blocks by
@@ -90,6 +90,10 @@ def('chest', {
   hardness: 2.5, tool: 'axe', interact: 'chest',
   tiles: { top: 'chest_top', bottom: 'chest_top', side: 'chest_side' },
 });
+// Treasure chests (spec 0007): a gold one for challenge questions, and open, empty ones once done.
+def('gold_chest', { label: 'Gold Chest', hardness: 2.5, tool: 'axe', interact: 'chest', tiles: { top: 'gold_chest_top', bottom: 'gold_chest_top', side: 'gold_chest_side' } });
+def('chest_open', { label: 'Open Chest', hardness: 2.5, tool: 'axe', tiles: { top: 'chest_open_top', bottom: 'chest_top', side: 'chest_open_side' } });
+def('gold_chest_open', { label: 'Open Gold Chest', hardness: 2.5, tool: 'axe', tiles: { top: 'gold_chest_open_top', bottom: 'gold_chest_top', side: 'gold_chest_open_side' } });
 def('sign', { render: 'cross', solid: false, hardness: 1, tool: 'axe', interact: 'sign', tiles: 'sign' });
 def('bookshelf', { hardness: 1.5, tool: 'axe', tiles: { top: 'oak_planks', bottom: 'oak_planks', side: 'bookshelf' } });
 

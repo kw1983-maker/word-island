@@ -23,16 +23,16 @@ function state() {
   return { coins: Math.min(coins, max), left: list.length - done, max, done, total: list.length };
 }
 
-function paint() {
+function paint(pop = false) {
   const now = state();
-  hud.setCoins(now.coins, now.max);
+  hud.setCoins(now.coins, now.max, { pop });
   hud.setLeft(now.left);
 }
 
 // The puzzle is finished (right, or the answer shown): its coins are decided now, once.
 function answered(chest) {
   chest.coins = coinsFor(chest.tries);
-  paint();
+  paint(chest.coins > 0);
 }
 
 // The talk box closed on a finished puzzle: the chest is done and can't be used again.
@@ -40,6 +40,10 @@ function finish(chest) {
   if (chest.done) return;
   chest.done = true;
   chest.remove();
+  // The chest opens where it stands: an open, empty chest of the same colour.
+  const { x, y, z } = chest.at;
+  world.setBlock(x, y, z, chest.gold ? B.GOLD_CHEST_OPEN : B.CHEST_OPEN);
+  world.rebuildDirty();
   sound.play("chest");
   paint();
   if (!finished && list.every((c) => c.done)) {
@@ -92,7 +96,7 @@ export const chests = {
       if (!anchor || !puzzle) return;
       const { x, y, z } = anchor.at;
       const chest = { spot: spot.id, puzzle, at: { x, y, z }, gold: Boolean(puzzle.challenge), tries: 0, coins: null, done: false };
-      world.setBlock(x, y, z, B.CHEST);
+      world.setBlock(x, y, z, chest.gold ? B.GOLD_CHEST : B.CHEST);
       chest.remove = targets.add({ at: chest.at, label: "Open the chest", onUse: () => open(chest) });
       list.push(chest);
     });

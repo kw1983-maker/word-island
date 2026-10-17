@@ -101,10 +101,17 @@ export const hud = {
   hide() {
     if (root) root.hidden = true;
   },
-  setCoins(n, max) {
+  // pop: the coin icon pops for a moment, when coins were just won (spec 0007; CSS skips it with
+  // reduced motion).
+  setCoins(n, max, { pop = false } = {}) {
     if (!root) build();
     el.coinText.textContent = `${n} / ${max}`;
     el.coins.setAttribute("aria-label", `${n} coins out of ${max}`);
+    if (pop) {
+      el.coins.classList.remove("pop");
+      void el.coins.offsetWidth; // start the animation again if it is already running
+      el.coins.classList.add("pop");
+    }
   },
   setLeft(n) {
     if (!root) build();

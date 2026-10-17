@@ -182,6 +182,12 @@ html, body {
   font: bold 20px/1 var(--font); text-shadow: 2px 2px 0 #000;
 }
 .counter svg { width: 20px; height: 20px; shape-rendering: crispEdges; filter: drop-shadow(2px 2px 0 #000); }
+/* Coins just won: the coin icon pops (spec 0007). */
+.counter .pop svg { animation: coinpop 0.45s ease-out; }
+@keyframes coinpop { 40% { transform: scale(1.6); } }
+@media (prefers-reduced-motion: reduce) {
+  .counter .pop svg { animation: none; }
+}
 .hotbar {
   display: flex; gap: 0; padding: 3px;
   background: rgba(20, 20, 24, .72);

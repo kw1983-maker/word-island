@@ -1,6 +1,7 @@
 // Copied from BlockWords js/atlas.js at commit 31a2bf4 (C:/Users/User/Documents/Claude/Minecraft).
 // Trimmed to the tiles the kept blocks use (spec 0004); tiles are seeded by name, so each one matches BlockWords.
-// Added: wet_sand, and the beach things of spec 0006 (drawn here in the same 16 pixel style).
+// Added: wet_sand, the beach things of spec 0006, and the gold and open chests of spec 0007 (drawn
+// here in the same 16 pixel style).
 
 // Procedural 16x16 pixel-art texture atlas, drawn to a canvas at load time.
 // No image files: every tile is generated in code, then sampled with a NEAREST
@@ -219,6 +220,39 @@ tile('chest_side', (p) => {
   p.rect(0, 4, TILE, 1, [104, 74, 36]);
   p.rect(6, 4, 4, 4, [70, 70, 74]);
   p.rect(7, 5, 2, 2, [212, 190, 90]);
+});
+// Treasure chests (spec 0007): the same chest drawn in gold, and open chests that show a dark empty
+// inside on top and no lock on the sides.
+function chestTiles(prefix, wood, band, lock) {
+  tile(prefix + 'chest_top', (p) => { p.fill(wood, 10); p.rect(0, 0, TILE, 1, band); p.rect(0, 15, TILE, 1, band); });
+  tile(prefix + 'chest_side', (p) => {
+    p.fill(wood, 10);
+    p.rect(0, 4, TILE, 1, band);
+    p.rect(6, 4, 4, 4, [70, 70, 74]);
+    p.rect(7, 5, 2, 2, lock);
+  });
+  tile(prefix + 'chest_open_top', (p) => {
+    p.fill(wood, 10);
+    p.rect(2, 2, 12, 12, [44, 30, 18], 6);  // the empty inside
+    p.rect(2, 2, 12, 1, [24, 16, 10]);      // its shadowed back edge
+  });
+  tile(prefix + 'chest_open_side', (p) => {
+    p.fill(wood, 10);
+    p.rect(0, 0, TILE, 2, band);            // the rim where the lid lifted off
+    p.rect(0, 15, TILE, 1, band);
+  });
+}
+chestTiles('gold_', [214, 172, 56], [150, 110, 30], [250, 244, 200]);
+// The wooden open chest reuses chest_top and chest_side's colours.
+tile('chest_open_top', (p) => {
+  p.fill([150, 108, 56], 10);
+  p.rect(2, 2, 12, 12, [44, 30, 18], 6);
+  p.rect(2, 2, 12, 1, [24, 16, 10]);
+});
+tile('chest_open_side', (p) => {
+  p.fill([150, 108, 56], 10);
+  p.rect(0, 0, TILE, 2, [104, 74, 36]);
+  p.rect(0, 15, TILE, 1, [104, 74, 36]);
 });
 tile('sign', (p) => {
   p.clear();
