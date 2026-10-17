@@ -5,6 +5,7 @@
 import { blockIconUrl, blockLabel } from "./bw/icons.js";
 
 const SLOTS = 9;
+const STACK = 64;   // BlockWords' stack size
 const COIN = '<svg viewBox="0 0 8 8" aria-hidden="true"><path d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1z" fill="#8a6200"/><path d="M2 1h4v1h1v4H6v1H2V6H1V2h1z" fill="#ffd23f"/><path d="M3 2h2v4H3z" fill="#c99400"/></svg>';
 
 let root = null;
@@ -118,6 +119,47 @@ export const hud = {
     el.left.textContent = `${n} left`;
     el.left.setAttribute("aria-label", `${n} puzzles left`);
   },
+  // Mining (spec 0010): whether these blocks (one of each name given) all fit in the hotbar.
+  canAdd(names) {
+    const room = slots.map((s) => (s ? { item: s.item, free: STACK - s.count } : null));
+    return names.every((name) => {
+      const stack = room.find((s) => s && s.item === name && s.free > 0);
+      if (stack) {
+        stack.free -= 1;
+        return true;
+      }
+      const empty = room.indexOf(null);
+      if (empty < 0) return false;
+      room[empty] = { item: name, free: STACK - 1 };
+      return true;
+    });
+  },
+  // Puts one block into the hotbar: onto a stack of its kind with room, else the first empty slot.
+  add(name) {
+    if (!root) build();
+    const stack = slots.find((s) => s && s.item === name && s.count < STACK);
+    if (stack) stack.count += 1;
+    else {
+      const empty = slots.indexOf(null);
+      if (empty < 0) return false;
+      slots[empty] = { item: name, count: 1 };
+    }
+    paint();
+    tell();
+    return true;
+  },
+  // Takes one block from the selected slot (to place it); null when that slot is empty.
+  take() {
+    const stack = slots[selected];
+    if (!stack) return null;
+    stack.count -= 1;
+    if (stack.count <= 0) slots[selected] = null;
+    paint();
+    tell();
+    return stack.item;
+  },
+  selectedItem: () => (slots[selected] ? slots[selected].item : null),
+  slots: () => slots.map((s) => (s ? { ...s } : null)),
   // slots: up to 9 of { item: a block name, count } or null.
   setHotbar(list) {
     if (!root) build();

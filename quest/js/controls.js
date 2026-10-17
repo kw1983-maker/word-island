@@ -23,7 +23,10 @@ const keys = new Set();
 // key is let go and pressed again, so a held W does not walk on after a pause, a talk box or a rescue.
 const stale = new Set();
 const clearListeners = [];
-const input = { forward: 0, strafe: 0, turn: 0, jump: false, use: false };
+// mine: the pupil is holding to break a block (mining, spec 0010).
+const input = { forward: 0, strafe: 0, turn: 0, jump: false, use: false, mine: false };
+const DRAG_CANCEL = 6;   // px a drag to look may move before it stops mining (BlockWords)
+let dragMoved = 0;
 // The phone joystick and buttons add to the keys (touchpad.js).
 const touch = { forward: 0, strafe: 0, jump: false };
 const lookListeners = [];
@@ -106,18 +109,30 @@ function attachMouse() {
   canvas.addEventListener("mousedown", (event) => {
     if (!playing() || !isLaptop()) return;
     if (captured()) {
-      if (event.button === 0) controls.use();
+      if (event.button === 0) {
+        controls.use();
+        input.mine = true;
+      }
       return;
     }
     if (dragOnly) {
       dragging = true;
+      dragMoved = 0;
+      if (event.button === 0) input.mine = true;
       return;
     }
     controls.capture();
   });
-  window.addEventListener("mouseup", () => { dragging = false; });
+  window.addEventListener("mouseup", (event) => {
+    dragging = false;
+    if (event.button === 0) input.mine = false;
+  });
   document.addEventListener("mousemove", (event) => {
     if (!playing()) return;
+    if (dragOnly && dragging) {
+      dragMoved += Math.abs(event.movementX) + Math.abs(event.movementY);
+      if (dragMoved > DRAG_CANCEL) input.mine = false; // a drag to look, not a hold to mine
+    }
     if (captured() || (dragOnly && dragging)) {
       lookListeners.forEach((fn) => fn(event.movementX * MOUSE, event.movementY * MOUSE));
     }
@@ -209,7 +224,12 @@ export const controls = {
     touch.forward = 0;
     touch.strafe = 0;
     touch.jump = false;
+    input.mine = false;
     read();
+  },
+  // The phone's hold on Use (touchpad.js) mines too.
+  setMine(on) {
+    input.mine = Boolean(on);
   },
 
   // The phone joystick and Jump button (touchpad.js).

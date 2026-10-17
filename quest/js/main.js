@@ -227,6 +227,9 @@ async function boot() {
   // Treasure chests at every puzzle spot (spec 0007); they keep the coin counter and "N left".
   const { chests } = await import("./chests.js");
   chests.start({ quest, world: built.world });
+  // Mining after the chests, so their blocks are already in the world (spec 0010).
+  const { mining } = await import("./mining.js");
+  mining.start({ quest, world: built.world, scene: built.scene, camera: engine.camera });
   // The island ending after the last chest (spec 0008).
   const { finish } = await import("./finish.js");
   finish.start({ quest, engine });
@@ -235,6 +238,7 @@ async function boot() {
   const update = (dt) => {
     walk.update(dt);
     targets.update();
+    mining.update(dt);
     hand.update(dt, walk.state().bob);
     built.update(dt);
   };

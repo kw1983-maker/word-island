@@ -1,7 +1,7 @@
 # 0010. Break, collect and place blocks like BlockWords, in about a second, with the puzzles and the island floor kept safe
 
 **Date**: 2026-10-17
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 
