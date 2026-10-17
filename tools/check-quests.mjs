@@ -4,6 +4,10 @@
 //   node tools/check-quests.mjs          every island
 //   node tools/check-quests.mjs u9       one island
 //   node tools/check-quests.mjs path.js  a copy of an island file (for testing the checker)
+//   add --map path.js                    check against a copy of the island's map (for testing)
+//
+// Each island's map (quest/islands/uN-map.js, spec 0006) is walked too: every anchor the island
+// names must exist and be reachable from the start on foot, and nowhere may trap a pupil.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -22,6 +26,8 @@ runScript("shared/bank.js");
 runScript("shared/picture.js");
 
 const { TYPES, SUPPORTED, drawIsland, poolSizes, tagUnit } = await import(pathToFileURL(join(ROOT, "quest", "js", "puzzles.js")).href);
+const { B, BLOCKS } = await import(pathToFileURL(join(ROOT, "quest", "js", "bw", "blocks.js")).href);
+const { MAP_SIZE, MAP_HEIGHT } = await import(pathToFileURL(join(ROOT, "quest", "js", "mapkit.js")).href);
 
 const SPOT_COUNT = { chest: 6, riddle: 2, find: 2, blocks: 2 };
 const FIELDS = {
@@ -153,14 +159,254 @@ function checkIsland(file) {
         }
       }
     }
-    return [...new Set(problems)];
+    return checkMap(island, unit, mapFile || join(dirname(file), `${unitId}-map.js`)).then((lines) => {
+      lines.forEach(say);
+      return [...new Set(problems)];
+    });
   }, (err) => {
     say(`the file could not be read: ${err.message}`);
     return problems;
   });
 }
 
-const arg = process.argv[2];
+// ------------------------------------------------------------------ the island map (spec 0006)
+const MAP_FIELDS = ["unit", "seaLevel", "start", "blocks", "anchors", "things", "villagers", "kit"];
+const ANCHOR_NEAR = 2;    // a standing place this close to an anchor lets a pupil use it
+const PATH_NEAR = 3;      // the path passes this close to every anchor
+const KEEP_CLEAR = 3;     // word things and villagers stay this far from every anchor
+const PATH_LENGTH = [150, 350];
+
+// The map's blocks in one grid, so it can be walked.
+function gridOf(placed, say) {
+  const cells = new Uint8Array(MAP_SIZE * MAP_HEIGHT * MAP_SIZE);
+  const inside = (x, y, z) => x >= 0 && z >= 0 && y >= 0 && x < MAP_SIZE && z < MAP_SIZE && y < MAP_HEIGHT;
+  const at = (x, y, z) => (x * MAP_SIZE + z) * MAP_HEIGHT + y;
+  placed.forEach((block) => {
+    const id = B[String(block.kind).toUpperCase()];
+    if (id === undefined) {
+      say(`there is no block called "${block.kind}".`);
+      return;
+    }
+    const box = block.x0 !== undefined ? block : { x0: block.x, x1: block.x, y0: block.y, y1: block.y, z0: block.z, z1: block.z };
+    for (let x = box.x0; x <= box.x1; x += 1) {
+      for (let y = box.y0; y <= box.y1; y += 1) {
+        for (let z = box.z0; z <= box.z1; z += 1) if (inside(x, y, z)) cells[at(x, y, z)] = id;
+      }
+    }
+  });
+  const get = (x, y, z) => (inside(x, y, z) ? cells[at(x, y, z)] : B.AIR);
+  const solid = (x, y, z) => BLOCKS[get(x, y, z)].solid;
+  // A standing place: feet and head in open cells, solid ground under the feet, and not deep water
+  // (water at the feet with more water over it, which walk.js rescues the pupil from).
+  const stand = (x, y, z) => inside(x, y, z) && y > 0 && !solid(x, y, z) && !solid(x, y + 1, z) && solid(x, y - 1, z) &&
+    !(get(x, y, z) === B.WATER && get(x, y + 1, z) === B.WATER);
+  return { get, solid, stand };
+}
+
+// Walking as the pupil can without jumping: to the four neighbours on the same level, up one block
+// (with room for the head), or down any height.
+function walkGraph(grid) {
+  const key = (x, y, z) => `${x},${y},${z}`;
+  const moves = (x, y, z) => {
+    const out = [];
+    [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dz]) => {
+      const nx = x + dx;
+      const nz = z + dz;
+      if (grid.stand(nx, y, nz)) out.push([nx, y, nz]);
+      else if (grid.stand(nx, y + 1, nz) && !grid.solid(x, y + 2, z)) out.push([nx, y + 1, nz]);
+      else if (!grid.solid(nx, y, nz) && !grid.solid(nx, y + 1, nz)) {
+        for (let ny = y - 1; ny > 0; ny -= 1) {
+          if (grid.solid(nx, ny, nz)) break;
+          if (grid.stand(nx, ny, nz)) {
+            out.push([nx, ny, nz]);
+            break;
+          }
+        }
+      }
+    });
+    return out;
+  };
+  // Everywhere the start can walk to, and for each place the places one move before it.
+  const reach = (from) => {
+    const seen = new Map([[key(...from), from]]);
+    const back = new Map();
+    const queue = [from];
+    while (queue.length) {
+      const here = queue.shift();
+      moves(...here).forEach((next) => {
+        const k = key(...next);
+        if (!back.has(k)) back.set(k, []);
+        back.get(k).push(here);
+        if (!seen.has(k)) {
+          seen.set(k, next);
+          queue.push(next);
+        }
+      });
+    }
+    return { seen, back };
+  };
+  return { key, reach };
+}
+
+async function checkMap(island, unit, mapFile) {
+  const problems = [];
+  const say = (line) => problems.push(`map: ${line}`);
+  if (!existsSync(mapFile)) return [`there is no map file ${basename(mapFile)}.`];
+  let map;
+  try {
+    map = (await import(pathToFileURL(mapFile).href)).default;
+  } catch (err) {
+    return [`the map ${basename(mapFile)} could not be read: ${err.message}`];
+  }
+  if (!map || typeof map !== "object") return [`the map ${basename(mapFile)} has no "export default { … }".`];
+  Object.keys(map).filter((k) => !MAP_FIELDS.includes(k)).forEach((k) => say(`unknown field "${k}".`));
+  if (map.unit !== island.unit) say(`unit is ${JSON.stringify(map.unit)}, not "${island.unit}".`);
+  if (!Number.isInteger(map.seaLevel)) say("seaLevel must be a whole number.");
+  if (typeof map.blocks !== "function") return [...problems, "map: blocks() is missing."];
+  const anchors = Array.isArray(map.anchors) ? map.anchors : [];
+  const things = Array.isArray(map.things) ? map.things : [];
+  const villagers = Array.isArray(map.villagers) ? map.villagers : [];
+
+  let placed;
+  try {
+    placed = map.blocks();
+  } catch (err) {
+    return [...problems, `map: blocks() failed: ${err.message}`];
+  }
+  const grid = gridOf(placed, say);
+  const cell = (p) => [Math.floor(p.x), Math.floor(p.y), Math.floor(p.z)];
+  const where = (p) => cell(p).join(", ");
+  const flat = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
+
+  // Anchors: one per spot, each an empty block on solid ground, off the path.
+  const names = new Map();
+  anchors.forEach((anchor) => {
+    if (names.has(anchor.name)) say(`anchor "${anchor.name}" is defined twice.`);
+    names.set(anchor.name, anchor);
+    const { x, y, z } = anchor.at || {};
+    if (![x, y, z].every(Number.isInteger)) say(`anchor "${anchor.name}": at needs whole x, y and z.`);
+    else if (grid.get(x, y, z) !== B.AIR) say(`anchor "${anchor.name}" at ${x}, ${y}, ${z} is inside a ${BLOCKS[grid.get(x, y, z)].name} block, not open air.`);
+    else if (!grid.solid(x, y - 1, z)) say(`anchor "${anchor.name}" at ${x}, ${y}, ${z} has nothing solid under it.`);
+    else if (grid.get(x, y - 1, z) === B.DIRT_PATH) say(`anchor "${anchor.name}" at ${x}, ${y}, ${z} sits on the path and would block it.`);
+    if (typeof anchor.face !== "number") say(`anchor "${anchor.name}": face (which way it faces) must be a number.`);
+  });
+  island.spots.forEach((spot) => {
+    if (!names.has(spot.anchor)) say(`${spot.id} needs anchor "${spot.anchor}", which the map does not have.`);
+  });
+
+  // Walking from the start.
+  const start = map.start || {};
+  if (![start.x, start.y, start.z, start.yaw].every((v) => typeof v === "number")) {
+    say("start needs x, y, z and yaw.");
+    return problems;
+  }
+  const from = cell(start);
+  if (!grid.stand(...from)) {
+    say(`the start ${where(start)} is not a place a pupil can stand.`);
+    return problems;
+  }
+  const walk = walkGraph(grid);
+  const { seen, back } = walk.reach(from);
+  const places = [...seen.values()];
+
+  anchors.forEach((anchor) => {
+    const a = anchor.at || {};
+    const near = places.some(([x, y, z]) => Math.abs(x - a.x) <= ANCHOR_NEAR && Math.abs(z - a.z) <= ANCHOR_NEAR && Math.abs(y - a.y) <= 1);
+    if (!near) say(`anchor "${anchor.name}" at ${where(a)} can't be reached on foot from the start (no jumping).`);
+  });
+
+  // No traps: from everywhere a pupil can walk to, they can walk back to the start.
+  const home = new Set([walk.key(...from)]);
+  const queue = [from];
+  while (queue.length) {
+    const here = queue.shift();
+    (back.get(walk.key(...here)) || []).forEach((prev) => {
+      const k = walk.key(...prev);
+      if (!home.has(k)) {
+        home.add(k);
+        queue.push(prev);
+      }
+    });
+  }
+  const traps = places.filter((c) => !home.has(walk.key(...c)));
+  traps.slice(0, 5).forEach((c) => say(`a pupil can walk to ${c.join(", ")} but can't walk back to the start from there.`));
+  if (traps.length > 5) say(`… and ${traps.length - 5} more places like that.`);
+
+  // The path: path blocks joined into one line from the start, near every anchor.
+  const pathCells = [];
+  for (let x = 0; x < MAP_SIZE; x += 1) {
+    for (let z = 0; z < MAP_SIZE; z += 1) {
+      for (let y = MAP_HEIGHT - 1; y >= 0; y -= 1) {
+        if (grid.get(x, y, z) === B.DIRT_PATH && !grid.solid(x, y + 1, z)) pathCells.push({ x: x + 0.5, y: y + 1, z: z + 0.5 });
+      }
+    }
+  }
+  if (pathCells.length < PATH_LENGTH[0] || pathCells.length > PATH_LENGTH[1]) {
+    say(`the path is ${pathCells.length} blocks long; it should be ${PATH_LENGTH[0]} to ${PATH_LENGTH[1]}.`);
+  }
+  const flatKey = (p) => `${Math.floor(p.x)},${Math.floor(p.z)}`;
+  const onPath = new Set(pathCells.map(flatKey));
+  const first = pathCells.find((p) => flat(p, start) < 1.5);
+  if (!first) say(`the path does not start at the start ${where(start)}.`);
+  else {
+    const linked = new Set([flatKey(first)]);
+    const todo = [first];
+    while (todo.length) {
+      const p = todo.pop();
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dz]) => {
+        const next = { x: p.x + dx, z: p.z + dz };
+        if (onPath.has(flatKey(next)) && !linked.has(flatKey(next))) {
+          linked.add(flatKey(next));
+          todo.push(next);
+        }
+      });
+    }
+    if (linked.size < onPath.size) say(`${onPath.size - linked.size} path blocks are not joined to the path from the start.`);
+  }
+  pathCells.forEach((p) => {
+    if (!seen.has(walk.key(...cell(p)))) say(`the path at ${where(p)} can't be walked to from the start.`);
+  });
+  anchors.forEach((anchor) => {
+    if (!anchor.at) return;
+    const centre = { x: anchor.at.x + 0.5, z: anchor.at.z + 0.5 };
+    if (!pathCells.some((p) => flat(p, centre) <= PATH_NEAR)) say(`the path does not pass within ${PATH_NEAR} blocks of anchor "${anchor.name}".`);
+  });
+
+  // Word things say a Unit word; word things and villagers stay clear of the puzzles.
+  const bankText = JSON.stringify(unit.banks).toLowerCase();
+  const tooClose = (p) => anchors.find((a) => a.at && flat({ x: a.at.x + 0.5, z: a.at.z + 0.5 }, p) < KEEP_CLEAR);
+  things.forEach((thing, i) => {
+    const what = `word thing ${JSON.stringify(thing.word || i + 1)}`;
+    if (!isText(thing.word)) say(`${what}: word is missing.`);
+    else if (!bankText.includes(thing.word.toLowerCase())) say(`${what}: "${thing.word}" is not in the Unit ${unit.number} questions.`);
+    if (thing.say !== undefined && !isText(thing.say)) say(`${what}: say must be text.`);
+    const { x, y, z } = thing.at || {};
+    if (![x, y, z].every(Number.isInteger)) say(`${what}: at needs whole x, y and z.`);
+    else {
+      if (grid.get(x, y, z) === B.AIR) say(`${what} at ${x}, ${y}, ${z} has no block there to look at.`);
+      const close = tooClose({ x: x + 0.5, z: z + 0.5 });
+      if (close) say(`${what} at ${x}, ${y}, ${z} is closer than ${KEEP_CLEAR} blocks to anchor "${close.name}".`);
+    }
+  });
+  villagers.forEach((villager, i) => {
+    const what = `villager ${i + 1}`;
+    const p = villager.at || {};
+    if (![p.x, p.y, p.z, villager.yaw].every((v) => typeof v === "number")) {
+      say(`${what}: needs at { x, y, z } and yaw.`);
+      return;
+    }
+    if (!grid.stand(...cell(p))) say(`${what} at ${where(p)} is not standing on open ground.`);
+    if (onPath.has(flatKey(p))) say(`${what} at ${where(p)} stands on the path.`);
+    const close = tooClose(p);
+    if (close) say(`${what} at ${where(p)} is closer than ${KEEP_CLEAR} blocks to anchor "${close.name}".`);
+  });
+  return problems;
+}
+
+const args = process.argv.slice(2);
+const mapAt = args.indexOf("--map");
+const mapFile = mapAt >= 0 ? resolve(args.splice(mapAt, 2)[1]) : null;
+const arg = args[0];
 let files;
 if (!arg) files = readdirSync(ISLANDS).filter((f) => /^u[1-9]\.js$/.test(f)).sort().map((f) => join(ISLANDS, f));
 else if (/^u[1-9]$/.test(arg)) files = [join(ISLANDS, `${arg}.js`)];

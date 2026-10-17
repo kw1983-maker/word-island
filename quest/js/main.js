@@ -68,6 +68,16 @@ function loadIsland(id) {
   return Promise.race([loaded, later(WAIT, null)]);
 }
 
+// A spot whose anchor the map does not have is left out, so the island still plays and the coins and
+// "N left" count only the spots that are there. tools/check-quests.mjs stops this before going live.
+function placedSpots(island, map) {
+  const names = new Set(map.anchors.map((anchor) => anchor.name));
+  const missing = island.spots.filter((spot) => !names.has(spot.anchor));
+  if (!missing.length) return island;
+  console.warn(`Treasure Quest: the map has no anchor for ${missing.map((spot) => `${spot.id} (${spot.anchor})`).join(", ")}; left out.`);
+  return { ...island, spots: island.spots.filter((spot) => names.has(spot.anchor)) };
+}
+
 // The island's map (quest/islands/uN-map.js, spec 0006): its land, buildings and puzzle anchors.
 function loadMap(id) {
   const loaded = import(`../islands/${id}-map.js`).then((mod) => mod.default || null, () => null);
@@ -157,9 +167,9 @@ async function boot() {
     return;
   }
   quest.map = map;
-  quest.island = island;
+  quest.island = placedSpots(island, map);
   try {
-    quest.plan = drawIsland(island, unit, quest.seed);
+    quest.plan = drawIsland(quest.island, unit, quest.seed);
   } catch (err) {
     // tools/check-quests.mjs stops this before an island goes live; never show pupils a broken island.
     console.warn("Treasure Quest: the island's puzzles could not be drawn.", err);
@@ -219,8 +229,8 @@ async function boot() {
     screens.setBase("running");
     // Coins and puzzles left: none won yet, until chests (feature 8) count them.
     hud.show();
-    hud.setCoins(0, islandMax(island));
-    hud.setLeft(island.spots.length);
+    hud.setCoins(0, islandMax(quest.island));
+    hud.setLeft(quest.island.spots.length);
     if (kit) kit.showKit(quest);
     // On a laptop, take the mouse now: the Play tap lets the browser allow it.
     controls.capture();

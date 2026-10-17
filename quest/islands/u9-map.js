@@ -35,7 +35,7 @@ const ANCHORS = [
   { name: "ice-cream-cart", at: { x: 13, y: 8, z: 38 }, face: EAST },
   { name: "rock-pool", at: { x: 42, y: 8, z: 50 }, face: WEST },
   { name: "beach-towel", at: { x: 45, y: 8, z: 46 }, face: WEST },
-  { name: "bench", at: { x: 24, y: 8, z: 15 }, face: SOUTH },
+  { name: "bench", at: { x: 24, y: 9, z: 15 }, face: SOUTH },
   { name: "sandcastle", at: { x: 36, y: 8, z: 51 }, face: EAST }
 ];
 
@@ -52,6 +52,9 @@ function blocks() {
   pier(m, { x: 32, z0: 56, z1: 60, deckY: BEACH });
   boat(m, { x0: 20, z: 55, floorY: SEA });
 
+  // The path goes down before the trees and beach things, so it follows the ground, not the leaves.
+  path(m, PATH);
+
   // The village in the west: the riddle hut and two beach houses, doors facing the path.
   house(m, { x0: 14, z0: 25, floorY: GRASS, door: "e" });
   house(m, { x0: 13, z0: 32, floorY: GRASS, door: "e" });
@@ -64,8 +67,6 @@ function blocks() {
   rock(m, { x: 53, z: 32, groundY: BEACH });
   rockPool(m, { x0: 43, z0: 49, waterY: BEACH, rocks: [[46, 49], [46, 51], [44, 52], [43, 48]] });
   sandcastle(m, { x: 33, z: 49, groundY: BEACH });
-
-  path(m, PATH);
   return m.blocks();
 }
 

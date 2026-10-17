@@ -7,16 +7,16 @@
 export const SUPPORTED = ["chest"];
 export const TYPES = ["chest", "riddle", "find", "blocks"];
 
-const SPOTS = 12;
 const COINS = 10;
 const YEAR_RULES = {
   1: { choices: 2, challenges: 0, letters: 5, sentence: false },
   2: { choices: 3, challenges: 2, letters: 8, sentence: true }
 };
 
-// The most coins an island can give, the same in every release.
+// The most coins an island can give: 10 for each spot plus the bonus. Every island has 12 spots;
+// it has fewer only when its map left a spot out because the anchor was missing (spec 0006).
 export function islandMax(island) {
-  return SPOTS * COINS + island.bonus;
+  return island.spots.length * COINS + island.bonus;
 }
 
 // tries: wrong tries before the right answer, or 2 when the answer had to be shown.
