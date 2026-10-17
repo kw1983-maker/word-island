@@ -148,6 +148,16 @@ html, body {
 .padbtn.use { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 86px); background: rgba(75, 138, 63, .9); box-shadow: 0 0 0 2px #78bd68 inset, 0 4px 0 #2d5626; }
 .padbtn:active { transform: translateY(3px); }
 
+/* A short line above the hotbar ("Back to the beach!"), in BlockWords' hint bar style. */
+.notice {
+  position: fixed; left: 50%; bottom: 118px; z-index: 4; transform: translateX(-50%);
+  margin: 0; padding: 8px 16px; max-width: 70vw; text-align: center;
+  background: rgba(10, 12, 18, .82); border: 2px solid #6a6a72; border-radius: 6px;
+  font-size: 19px; font-weight: bold; text-shadow: 1px 1px 0 #000; pointer-events: none;
+}
+.notice[hidden] { display: none; }
+@media (max-height: 460px) { .notice { bottom: 92px; } }
+
 /* BlockWords' bottom of the screen (its #hud, #hotbar, .slot and .emeralds rules): the coins and
    puzzles left just above the hotbar. Only the slots take taps; the rest lets the island through. */
 .hud {

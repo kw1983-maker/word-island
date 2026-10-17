@@ -150,6 +150,12 @@ export const touchpad = {
     holdButton(el.use, () => controls.use());
     screens.onChange(paint);
     panel.onChange(paint);
+    controls.onClear(() => {
+      stick = null;
+      lookers = new Map();
+      jumpHeld = false;
+      if (el.base) el.base.hidden = true;
+    });
     paint();
   },
 

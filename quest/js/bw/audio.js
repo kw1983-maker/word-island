@@ -89,6 +89,7 @@ export const Sfx = {
   },
   pickup() { tone(880, 0.07, 'square', 0.09); tone(1320, 0.08, 'square', 0.07, null, 0.05); },
   craft() { tone(660, 0.08, 'triangle', 0.12); tone(880, 0.1, 'triangle', 0.12, null, 0.07); },
+  splash() { noise(0.4, 0.18, 900, 0.4, 0, 'lowpass'); },
   levelUp() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.22, 'triangle', 0.13, null, i * 0.09)); },
   correct() { [659, 880].forEach((f, i) => tone(f, 0.18, 'sine', 0.15, null, i * 0.1)); },
   wrong() { tone(300, 0.2, 'sine', 0.12, 220); },
@@ -117,6 +118,7 @@ export const QuestSfx = {
   pickup: () => Sfx.pickup(),
   craft: () => Sfx.craft(),
   villager: () => Sfx.villager(),
+  splash: () => Sfx.splash(),
 };
 
 // ------------------------------------------------------------------- music

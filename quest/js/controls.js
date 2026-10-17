@@ -19,6 +19,10 @@ let hadLock = false;      // the browser really gave us the mouse (so losing it 
 const el = {};
 
 const keys = new Set();
+// Keys still held down when the controls were cleared: their automatic repeats are ignored until the
+// key is let go and pressed again, so a held W does not walk on after a pause, a talk box or a rescue.
+const stale = new Set();
+const clearListeners = [];
 const input = { forward: 0, strafe: 0, turn: 0, jump: false, use: false };
 // The phone joystick and buttons add to the keys (touchpad.js).
 const touch = { forward: 0, strafe: 0, jump: false };
@@ -52,6 +56,7 @@ window.addEventListener("keydown", (event) => {
   if (!playing() || event.ctrlKey || event.metaKey || event.altKey) return;
   if (MOVE_KEYS.includes(event.code)) {
     event.preventDefault(); // arrows and Space must not scroll or press a focused button
+    if (event.repeat && stale.has(event.code)) return;
     keys.add(event.code);
     read();
   } else if (event.code === "KeyE" && !event.repeat) {
@@ -60,6 +65,7 @@ window.addEventListener("keydown", (event) => {
 });
 window.addEventListener("keyup", (event) => {
   keys.delete(event.code);
+  stale.delete(event.code);
   read();
 });
 // A key let go while the window is in the background never sends keyup.
@@ -185,7 +191,9 @@ export const controls = {
 
   // Empties every held key and thumb, so nothing keeps walking after a pause or a talk box.
   clear() {
+    keys.forEach((code) => stale.add(code));
     keys.clear();
+    clearListeners.forEach((fn) => fn());
     touch.forward = 0;
     touch.strafe = 0;
     touch.jump = false;
@@ -200,6 +208,8 @@ export const controls = {
     read();
   },
 
+  // fn(): runs when the controls are cleared (the joystick lets go too).
+  onClear: (fn) => clearListeners.push(fn),
   // fn(dx, dy): turn the view by these many radians (right and down are positive).
   onLook: (fn) => lookListeners.push(fn),
   // Turns the view (the phone's drag to look, touchpad.js).

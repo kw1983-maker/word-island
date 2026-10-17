@@ -44,6 +44,10 @@ function beachBlocks() {
       if (r >= 26) {
         fill(x, x, 1, 3, z, z, "sand");
         fill(x, x, 4, SEA_LEVEL, z, z, "water");
+      } else if (r >= 23 && x < 24 && z > 40) {
+        // A shallow cove to paddle in: one block of water over the sand.
+        fill(x, x, 1, 5, z, z, "sand");
+        put(x, SEA_LEVEL, z, "water");
       } else if (r >= 23) {
         fill(x, x, 1, 5, z, z, "sand");
         put(x, SEA_LEVEL, z, "wet_sand");
