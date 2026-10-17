@@ -256,7 +256,10 @@ Spec [0011](../specs/0011-quest-pet-show-island/index.md) · code in `quest/isla
 ### 22. Lunchtime island (Unit 4) · in-progress
 A picnic and lunchbox island for food words.
 **Done when:** the island plays end to end with Unit 4 content at Year 1 difficulty and scores reach the results page.
-- [ ] Build it: `/develop lunchtime island`
+- [x] Design it (spec): the teacher asked for "the same game for unit 4" (lunchtime town, push live straight away)
+- [x] Build it: `/develop lunchtime island` (island file, 19 new tiles, map with canteen, kitchen, picnic, garden, coconut palm, apple tree, fruit stall, pizza oven, shop and lunch table, Word Island card)
+- [x] Verify it: all 8 checks passed in a browser on 2026-10-17 (scores reaching the results page waits for feature 10, as on the other islands)
+Spec [0013](../specs/0013-quest-lunchtime-island/index.md) · code in `quest/islands/u4.js`, `quest/islands/u4-map.js`
 
 ## Deferred
 Out of scope for the current build pass, kept so the plan stays honest.
