@@ -21,7 +21,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 5 | Quest entry in Word Island | Release 1 | planned |
 | 6 | Movement & controls | Release 1 | done |
 | 7 | Beach island (Unit 9) | Release 1 | done |
-| 8 | Treasure chests | Release 1 | planned |
+| 8 | Treasure chests | Release 1 | in-progress |
 | 9 | Island finish & score | Release 1 | planned |
 | 23 | Mining | Release 2 | planned |
 | 24 | Crafting unit things | Release 2 | planned |
@@ -127,10 +127,17 @@ A blocky beach (sand, sea, rocks, shells, sandcastles, beach things from the uni
 - [x] Verify it: `/check verify beach island` (all 22 steps passed in a browser on 2026-10-17; the real iPhone and budget Android check is still owed, together with features 4 and 6)
 Spec [0006](../specs/0006-quest-beach-island/index.md) · code in `quest/islands/u9-map.js`, `quest/js/` (`mapkit.js`, `island.js`), `tools/check-quests.mjs`
 
-### 8. Treasure chests
+### 8. Treasure chests · in-progress
 Walk to a chest, hear a Unit 9 picture question, tap the right answer to open it and win coins.
 **Done when:** each chest reads its question aloud, a right answer opens it with coins and a sound, a wrong answer gives a hint and a retry, and the score counts up.
+- [x] Design it (spec): `/architect treasure chests`
 - [ ] Build it: `/develop treasure chests`
+   - [ ] A chest at every spot that opens with its puzzle: coins, hint, answer shown, open chest, N left (AC-1 to AC-5, AC-8)
+   - [ ] Talk box title and Not now, tries kept, and the finished hook for feature 9 (AC-2, AC-6, AC-7)
+   - [ ] Gold chest and open chest looks, and the coin pop (AC-1, AC-3, AC-5)
+   - [ ] Kit counter, debug line, size and speed checks (AC-9, AC-10)
+- [ ] Verify it: `/check verify treasure chests`
+Spec [0007](../specs/0007-quest-treasure-chests/index.md) · code in `quest/js/` (`chests.js`, `panel.js`, `hud.js`), `quest/js/bw/` (`blocks.js`, `atlas.js`)
 
 ### 9. Island finish & score
 When all puzzles are done, a treasure ending shows the score and stars, with play again and back to Word Island.
