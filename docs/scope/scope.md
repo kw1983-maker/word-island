@@ -221,7 +221,10 @@ A spooky old house with rooms to search for treasure.
 ### 17. Get dressed island (Unit 7) · in-progress
 A clothes shop and wardrobe island for clothes and colours.
 **Done when:** the island plays end to end with Unit 7 content and scores reach the results page.
-- [ ] Build it: `/develop get dressed island`
+- [x] Design it (spec): the teacher asked for "the same game for unit 7" (clothes town, push live straight away)
+- [x] Build it: `/develop get dressed island` (island file with 6 sentences, 16 new tiles, map with shop, washing line, stage, farm, park, spider stairs and clothes rail, Word Island card)
+- [x] Verify it: all 8 checks passed in a browser on 2026-10-17 (scores reaching the results page waits for feature 10, as on the other islands)
+Spec [0012](../specs/0012-quest-get-dressed-island/index.md) · code in `quest/islands/u7.js`, `quest/islands/u7-map.js`
 
 ### 18. Robot island (Unit 8)
 A toy workshop island for robot body parts and actions.
