@@ -2,7 +2,7 @@
 // Island's sixth card and by the quest page, so both always agree. Classic script: globals.
 
 // Units with an island file in quest/islands/ (tools/check-quests.mjs checks the two match).
-const wiQuestIslands = ["u3", "u7", "u9"];
+const wiQuestIslands = ["u3", "u4", "u7", "u9"];
 
 // The five games a pupil finishes before the island opens, as Word Island's record names them.
 const WI_QUEST_GAMES = ["maze", "moles", "hangman", "runner", "planes"];
