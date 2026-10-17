@@ -245,7 +245,10 @@ A toy room and playground island.
 ### 21. Pet show island (Unit 3) · in-progress
 A pet show island with animals to find.
 **Done when:** the island plays end to end with Unit 3 content at Year 1 difficulty and scores reach the results page.
-- [ ] Build it: `/develop pet show island`
+- [x] Design it (spec): the teacher asked for "the same game for unit 3" (pet show park, about 12 animal tiles, push live straight away)
+- [x] Build it: `/develop pet show island` (island file, 16 new tiles, `tree`/`tent`/`pen`/`table`/`log` helpers, map, Word Island card)
+- [x] Verify it: all 8 checks passed in a browser on 2026-10-17 (scores reaching the results page waits for feature 10, as on Unit 9)
+Spec [0011](../specs/0011-quest-pet-show-island/index.md) · code in `quest/islands/u3.js`, `quest/islands/u3-map.js`
 
 ### 22. Lunchtime island (Unit 4)
 A picnic and lunchbox island for food words.
