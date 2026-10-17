@@ -1,7 +1,7 @@
 # 0006. Build the Unit 9 beach island from a map file with shared shape helpers, checked so every spot can be walked to
 
 **Date**: 2026-10-17
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 

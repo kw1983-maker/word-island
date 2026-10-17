@@ -212,3 +212,99 @@ export function pier(m, { x, z0, z1, deckY, width = 3 }) {
     });
   });
 }
+
+// A rocky platform (stone under a cobblestone top) of the given radius, its top at topY.
+export function rockShelf(m, { x, z, radius, topY }) {
+  for (let cx = Math.floor(x - radius); cx <= Math.ceil(x + radius); cx += 1) {
+    for (let cz = Math.floor(z - radius); cz <= Math.ceil(z + radius); cz += 1) {
+      if (Math.hypot(cx + 0.5 - x, cz + 0.5 - z) > radius) continue;
+      m.fill(cx, cx, 1, topY - 1, cz, cz, "stone");
+      m.set(cx, topY, cz, "cobblestone");
+      m.fill(cx, cx, topY + 1, MAP_HEIGHT - 1, cz, cz, "air");
+    }
+  }
+}
+
+// A white and red striped lighthouse on solid ground at baseY, with a glass lamp room and a red roof.
+// The door is a closed plank door on one side (door: "n", "s", "e" or "w"): there is no way in.
+export function lighthouse(m, { x, z, baseY, height = 10, door = "w" }) {
+  const ring = (r) => {
+    const cells = [];
+    for (let dx = -r; dx <= r; dx += 1) {
+      for (let dz = -r; dz <= r; dz += 1) if (Math.abs(dx) + Math.abs(dz) <= r + 1) cells.push([x + dx, z + dz]);
+    }
+    return cells;
+  };
+  for (let i = 0; i < height; i += 1) {
+    const kind = Math.floor(i / 2) % 2 === 0 ? "white_wool" : "red_wool";
+    ring(2).forEach(([cx, cz]) => m.set(cx, baseY + i, cz, kind));
+  }
+  const lamp = baseY + height;
+  ring(1).forEach(([cx, cz]) => m.fill(cx, cx, lamp, lamp + 1, cz, cz, "glass"));
+  m.fill(x, x, lamp, lamp + 1, z, z, "yellow_wool");
+  ring(2).forEach(([cx, cz]) => m.set(cx, lamp + 2, cz, "red_wool"));
+  ring(1).forEach(([cx, cz]) => m.set(cx, lamp + 3, cz, "red_wool"));
+  const [dx, dz] = { n: [0, -2], s: [0, 2], e: [2, 0], w: [-2, 0] }[door];
+  m.fill(x + dx, x + dx, baseY, baseY + 1, z + dz, z + dz, "oak_planks");
+}
+
+// A rowing boat pulled up on the shore: a plank floor at floorY with a one block rim round it.
+// It runs along x from x0 for length blocks and is 3 blocks wide, centred on z.
+export function boat(m, { x0, z, floorY, length = 5 }) {
+  const x1 = x0 + length - 1;
+  for (let x = x0; x <= x1; x += 1) {
+    for (let dz = -1; dz <= 1; dz += 1) {
+      const bow = (x === x0 || x === x1) && dz !== 0; // round off the ends
+      if (bow) continue;
+      m.set(x, floorY, z + dz, "oak_planks");
+      const rim = x === x0 || x === x1 || dz !== 0;
+      m.set(x, floorY + 1, z + dz, rim ? "oak_planks" : "air");
+      m.fill(x, x, floorY + 2, floorY + 3, z + dz, z + dz, "air");
+    }
+  }
+}
+
+// A big rock: a block of stone with a cobblestone lump on top.
+export function rock(m, { x, z, groundY, w = 3, d = 3, h = 2 }) {
+  m.fill(x, x + w - 1, groundY + 1, groundY + h, z, z + d - 1, "stone");
+  m.set(x + Math.floor(w / 2), groundY + h + 1, z + Math.floor(d / 2), "cobblestone");
+}
+
+// A rock pool dug one block into the beach: water over sand, with a few rocks round it. The pool
+// is shallow, so a pupil can paddle in it. Returns the pool's cells (for fish, feature things).
+export function rockPool(m, { x0, z0, w = 3, d = 3, waterY, rocks = [] }) {
+  const cells = [];
+  for (let x = x0; x < x0 + w; x += 1) {
+    for (let z = z0; z < z0 + d; z += 1) {
+      m.set(x, waterY - 1, z, "sand");
+      m.set(x, waterY, z, "water");
+      cells.push([x, z]);
+    }
+  }
+  rocks.forEach(([x, z]) => m.set(x, waterY + 1, z, "cobblestone"));
+  return cells;
+}
+
+// A sandcastle: a 3 by 3 sandstone base with four corner towers and a keep in the middle.
+export function sandcastle(m, { x, z, groundY }) {
+  m.fill(x, x + 2, groundY + 1, groundY + 1, z, z + 2, "sandstone");
+  [[0, 0], [2, 0], [0, 2], [2, 2]].forEach(([dx, dz]) => m.set(x + dx, groundY + 2, z + dz, "sandstone"));
+  m.fill(x + 1, x + 1, groundY + 2, groundY + 3, z + 1, z + 1, "sandstone");
+}
+
+// An ice cream cart: a white counter with two posts holding a pink and white striped canopy.
+export function cart(m, { x, z, groundY }) {
+  m.fill(x, x + 1, groundY + 1, groundY + 1, z, z, "white_wool");
+  m.set(x, groundY + 2, z, "oak_log");
+  m.set(x + 1, groundY + 2, z, "oak_log");
+  for (let dx = -1; dx <= 2; dx += 1) {
+    for (let dz = -1; dz <= 1; dz += 1) m.set(x + dx, groundY + 3, z + dz, (dx + dz) % 2 === 0 ? "pink_wool" : "white_wool");
+  }
+}
+
+// A bench along x: a plank seat with log arms at each end.
+export function bench(m, { x, z, groundY, length = 3 }) {
+  m.fill(x, x + length - 1, groundY + 1, groundY + 1, z, z, "oak_planks");
+  m.set(x - 1, groundY + 1, z, "oak_log");
+  m.set(x + length, groundY + 1, z, "oak_log");
+}
