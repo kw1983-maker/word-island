@@ -220,6 +220,9 @@ async function boot() {
   // Treasure chests at every puzzle spot (spec 0007); they keep the coin counter and "N left".
   const { chests } = await import("./chests.js");
   chests.start({ quest, world: built.world });
+  // The island ending after the last chest (spec 0008).
+  const { finish } = await import("./finish.js");
+  finish.start({ quest, engine });
   // Every click, E or Use swings the hand, as in BlockWords, even with nothing in front.
   controls.onUse(() => hand.swing());
   const update = (dt) => {
