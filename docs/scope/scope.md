@@ -122,7 +122,7 @@ A blocky beach (sand, sea, rocks, shells, sandcastles, beach things from the uni
    - [x] Walk the real island: map file, shape helpers, island builder, hill, path loop and start; test beach gone (AC-1, AC-3, AC-4)
    - [x] Landmarks and the 12 anchors, with `&debug` labels (AC-1, AC-2, AC-10)
    - [x] Island checker: anchors, walk only reachability, no traps, path, and missing anchors left out (AC-3, AC-5, AC-11)
-   - [ ] Beach things with the new tiles, word things that speak, and 3 villagers (AC-6, AC-7, AC-8, AC-9)
+   - [x] Beach things with the new tiles, word things that speak, and 3 villagers (AC-6, AC-7, AC-8, AC-9)
    - [ ] Build time, slowed phone speed and size checks (AC-12)
 - [ ] Verify it: `/check verify beach island`
 Spec [0006](../specs/0006-quest-beach-island/index.md) · code in `quest/islands/u9-map.js`, `quest/js/` (`mapkit.js`, `island.js`), `tools/check-quests.mjs`

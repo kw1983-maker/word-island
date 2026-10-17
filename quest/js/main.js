@@ -207,6 +207,16 @@ async function boot() {
   // Using things: chests, villagers and later finds (spec 0005).
   const { targets } = await import("./targets.js");
   targets.attach(built.scene, engine.camera, built.world);
+  // Word things: use one to see its word in the hint bar and hear it read aloud. No coins (spec 0006).
+  const { notice } = await import("./notice.js");
+  map.things.forEach((thing) => targets.add({
+    at: thing.at,
+    label: thing.word,
+    onUse: () => {
+      notice(thing.word);
+      voice.say(thing.say || thing.word);
+    }
+  }));
   // Every click, E or Use swings the hand, as in BlockWords, even with nothing in front.
   controls.onUse(() => hand.swing());
   const update = (dt) => {

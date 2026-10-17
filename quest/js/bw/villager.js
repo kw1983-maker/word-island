@@ -1,6 +1,8 @@
 // Adapted from BlockWords js/entities.js at commit 31a2bf4 (C:/Users/User/Documents/Claude/Minecraft).
 // Only the villager's look is kept (its boxes and the floating "!"); walking, quests and other
 // animals stay in BlockWords. Riddle characters (feature 11) give it a job.
+// Changed for spec 0006: the head, nose and eyes sit in their own group (userData.head) so the head
+// can turn to look at the pupil.
 
 import * as THREE from 'three';
 
@@ -19,10 +21,14 @@ export function villagerModel() {
   const robe = 0x6b4a30, skin = 0xc9a07a;
   g.add(box(0.5, 0.9, 0.34, robe, 0, 0.9, 0));       // robe
   g.add(box(0.52, 0.2, 0.36, 0x4a3220, 0, 1.02, 0));  // sash
-  g.add(box(0.46, 0.46, 0.42, skin, 0, 1.58, 0));     // head
-  g.add(box(0.12, 0.2, 0.16, skin, 0, 1.54, -0.26));  // the famous nose
-  g.add(box(0.08, 0.08, 0.04, 0x2a2a3a, -0.13, 1.66, -0.22));
-  g.add(box(0.08, 0.08, 0.04, 0x2a2a3a, 0.13, 1.66, -0.22));
+  const head = new THREE.Group();                     // turns at the neck
+  head.position.y = 1.35;
+  head.add(box(0.46, 0.46, 0.42, skin, 0, 0.23, 0));   // head
+  head.add(box(0.12, 0.2, 0.16, skin, 0, 0.19, -0.26)); // the famous nose
+  head.add(box(0.08, 0.08, 0.04, 0x2a2a3a, -0.13, 0.31, -0.22));
+  head.add(box(0.08, 0.08, 0.04, 0x2a2a3a, 0.13, 0.31, -0.22));
+  g.add(head);
+  g.userData.head = head;
   g.add(box(0.12, 0.6, 0.12, robe, -0.3, 0.95, 0));
   g.add(box(0.12, 0.6, 0.12, robe, 0.3, 0.95, 0));
   g.add(box(0.16, 0.5, 0.16, 0x3a2a1c, -0.13, 0.25, 0));

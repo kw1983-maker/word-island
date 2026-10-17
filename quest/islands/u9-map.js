@@ -103,8 +103,26 @@ export default {
   start: { x: 32.5, y: 7, z: 55.5, yaw: 0 },
   blocks,
   anchors: ANCHORS,
-  things: [],
-  villagers: [],
+  // Beach things that say their word when you use them (each word is in the Unit 9 questions).
+  things: [
+    { at: { x: 20, y: 8, z: 50 }, word: "shells" },
+    { at: { x: 12, y: 8, z: 23 }, word: "shells" },
+    { at: { x: 51, y: 12, z: 40 }, word: "koala", say: "a koala" },
+    { at: { x: 44, y: 9, z: 36 }, word: "football" },
+    { at: { x: 48, y: 11, z: 42 }, word: "kite", say: "a kite" },
+    { at: { x: 32, y: 11, z: 10 }, word: "kite", say: "a kite" },
+    { at: { x: 27, y: 10, z: 52 }, word: "the UK" },
+    { at: { x: 29, y: 10, z: 52 }, word: "Canada" },
+    { at: { x: 31, y: 10, z: 52 }, word: "Australia" },
+    { at: { x: 10, y: 10, z: 31 }, word: "a sandcastle" },
+    { at: { x: 27, y: 10, z: 10 }, word: "a sandcastle" }
+  ],
+  // Three villagers in the village, off the path and clear of the puzzles.
+  villagers: [
+    { at: { x: 17.5, y: 9, z: 23.5 }, yaw: EAST },
+    { at: { x: 19.5, y: 9, z: 31.5 }, yaw: EAST },
+    { at: { x: 18.5, y: 9, z: 40.5 }, yaw: WEST }
+  ],
   // Only on the &kit page: a sample chest and villager on the beach just west of the start.
   kit: { chest: { x: 30, y: 8, z: 49 }, villager: { x: 28.5, y: 8, z: 48.5 } }
 };
