@@ -229,7 +229,10 @@ Spec [0012](../specs/0012-quest-get-dressed-island/index.md) · code in `quest/i
 ### 18. Robot island (Unit 8) · in-progress
 A toy workshop island for robot body parts and actions.
 **Done when:** the island plays end to end with Unit 8 content and scores reach the results page.
-- [ ] Build it: `/develop robot island`
+- [x] Design it (spec): the teacher asked to "do unit 8, same thing" (robot town, push live straight away)
+- [x] Build it: `/develop robot island` (island file with 6 sentences, 15 new tiles, map with robot workshop, horse field, tennis court, animal park, music stage, dolphin pool, museum and go-kart, Word Island card)
+- [x] Verify it: all 8 checks passed in a browser on 2026-10-17 (scores reaching the results page waits for feature 10, as on the other islands)
+Spec [0014](../specs/0014-quest-robot-island/index.md) · code in `quest/islands/u8.js`, `quest/islands/u8-map.js`
 
 ## Release 6: Year 1 islands
 
