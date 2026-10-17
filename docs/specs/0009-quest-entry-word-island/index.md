@@ -1,7 +1,7 @@
 # 0009. Open each unit's island from a locked sixth card on Word Island, unlocked by finishing the five games
 
 **Date**: 2026-10-17
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 

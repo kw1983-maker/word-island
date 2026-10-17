@@ -159,6 +159,15 @@
       radial-gradient(circle at 50% 38%, #ffe14a 0 14px, #ff2d95 15px, transparent 16px),
       linear-gradient(#2a0a52 0 38%, #14003a 38%);
   }
+  /* The Treasure Quest card (spec 0009): a sandy island with a palm and a gold chest in the sea. */
+  .scene-quest {
+    background:
+      linear-gradient(#ffd60a, #ffd60a) 62% 62% / 14px 10px no-repeat,
+      linear-gradient(#7a4a1e, #7a4a1e) 38% 58% / 4px 20px no-repeat,
+      radial-gradient(ellipse 16px 8px at 38% 30%, #2a9d3a 98%, transparent),
+      radial-gradient(ellipse 46px 14px at 50% 74%, #f2d48a 98%, transparent),
+      linear-gradient(#7ec8f8 0 55%, #2f8fd8 55%);
+  }
   .partner { margin: 14px 0 0; }
   .linkish { background: none; border: 0; box-shadow: none; padding: 0; font-weight: 700; text-decoration: underline; }
   .playwrap { width: min(760px, 100%); margin: 0 auto; }
@@ -663,6 +672,7 @@
 <script src="shared/bank.js"></script>
 <script src="shared/settings.js"></script>
 <script src="shared/picture.js"></script>
+<script src="shared/quest.js"></script>
 <script>
 const CAPTION = {
   name: "Write your name. Your teacher will see your stars.",
@@ -682,6 +692,9 @@ const GATES = [
   { id: "runner", n: "04", title: "Run and pick", line: "Listen. Run through the right gate.", need: "Finish the spelling first." },
   { id: "planes", n: "05", title: "Listen and shoot", line: "Listen. Shoot the right plane.", need: "Finish Run and pick first." }
 ];
+
+// The sixth card on units with an island (spec 0009): it opens once the five games are done.
+const QUEST_GATE = { id: "quest", n: "06", title: "Treasure Quest", line: "Find the treasure on the island.", need: "Finish all five games first." };
 
 const GAME = {
   maze: "Game 1 · Word maze",
@@ -1235,10 +1248,26 @@ function showHub() {
     </div>
     <div class="gates">
       ${GATES.map((gate) => gateCard(gate)).join("")}
+      ${wiQuestHasIsland(U.id) ? questCard() : ""}
     </div>
     <p class="partner">Playing as <b>${esc(state.name)}</b>${state.cls ? ` · ${esc(state.cls)}` : ""}.
       <button type="button" class="linkish" data-act="rename">Not you?</button>
       · <button type="button" class="linkish" data-act="reset">Start over</button>${more}</p>
+  `;
+}
+
+// Locked like the game cards until the five games are done on this device (or ?open=all).
+function questCard() {
+  const gate = QUEST_GATE;
+  const open = wiQuestOpen(U.id, location.search);
+  return `
+    <button type="button" class="gate" data-act="${open ? "quest" : "soon"}" data-gate="${gate.id}" data-need="${esc(gate.need)}" ${open ? "" : 'aria-disabled="true"'}>
+      <span class="scene scene-quest" aria-hidden="true"></span>
+      <span class="num">${gate.n}</span>
+      <span class="gt">${esc(gate.title)}</span>
+      <span class="gl">${esc(gate.line)}</span>
+      <span class="gs">${esc(open ? "Play" : gate.need)}</span>
+    </button>
   `;
 }
 
@@ -2367,6 +2396,7 @@ document.body.addEventListener("click", (event) => {
   }
   if (!document.getElementById("ask").hidden) return;
   if (act === "play") start(el.dataset.gate, "full");
+  else if (act === "quest") location.assign(`quest/?unit=${U.id}${openAll ? "&open=all" : ""}`);
   else if (act === "soon") {
     setFeedback(el.dataset.need, "tip");
     setCaption(el.dataset.need);
