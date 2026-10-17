@@ -111,7 +111,7 @@ Walk, look around and jump like in BlockWords, in first person; touch controls o
    - [x] Safety net: shallow water, back to the beach from deep water (AC-5)
    - [x] Use things: glow, label, click, E, tap and Use, with the kit chest and villager (AC-6, AC-10)
    - [x] Pauses clear the controls, steps, jump sound, head bob, debug and the size and speed checks (AC-7, AC-8, AC-10, AC-11)
-- [ ] Verify it: `/check verify movement & controls`
+- [x] Verify it: `/check verify movement & controls` (24 of 25 steps passed in a browser on 2026-10-17; the real iPhone and budget Android check is still owed, together with feature 4's)
 Spec [0005](../specs/0005-quest-movement-controls/index.md) · code in `quest/js/bw/player.js`, `quest/js/` (`walk.js`, `controls.js`, `touchpad.js`, `targets.js`, `notice.js`)
 
 ### 7. Beach island (Unit 9) · needs a decision
