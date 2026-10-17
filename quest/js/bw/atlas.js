@@ -1,8 +1,8 @@
 // Copied from BlockWords js/atlas.js at commit 31a2bf4 (C:/Users/User/Documents/Claude/Minecraft).
 // Trimmed to the tiles the kept blocks use (spec 0004); tiles are seeded by name, so each one matches BlockWords.
 // Added: wet_sand, the beach things of spec 0006, the gold and open chests of spec 0007, the pet
-// show things of spec 0011, the clothes town things of spec 0012 and the lunchtime town things of
-// spec 0013 (drawn here in the same 16 pixel style).
+// show things of spec 0011, the clothes town things of spec 0012, the lunchtime town things of
+// spec 0013 and the robot town things of spec 0014 (drawn here in the same 16 pixel style).
 
 // Procedural 16x16 pixel-art texture atlas, drawn to a canvas at load time.
 // No image files: every tile is generated in code, then sampled with a NEAREST
@@ -1346,6 +1346,282 @@ art('lunchbox', { r: [214, 60, 60], d: [160, 36, 36], k: [64, 64, 70], y: [246, 
   '.rrrrrrr',
   '.ddddddd',
   '................',
+  '................',
+]);
+
+// ---- the robot town things of spec 0014 ----------------------------------
+const METAL = { g: [172, 178, 190], d: [118, 124, 138], b: [70, 140, 232], r: [222, 60, 60], k: [52, 56, 64] };
+art('robot', METAL, [
+  'dd.ggggg',
+  'dd.gbgrg',
+  'dd.ggggg',
+  'kk.gdddd',
+  '...ggggg',
+  '...ggggg',
+  '...ddddd',
+  '...ggg..',
+  '...ggg..',
+  '...ddd..',
+  '...ggg..',
+  '...ggg..',
+  '...ggg..',
+  '..kkkk..',
+  '..kkkk..',
+  '................',
+]);
+art('robot_head', METAL, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '.......r',
+  '.......k',
+  '.......k',
+  '..gggggg',
+  '..gbbggg',
+  '..gbbggg',
+  '..gggggg',
+  '..gkkkkk',
+  '..gggggg',
+  '...ddddd',
+  '.....kkk',
+  '.....kkk',
+]);
+art('battery', { y: [244, 200, 40], k: [44, 44, 50], w: [196, 196, 204], r: [222, 60, 60] }, [
+  '................',
+  '................',
+  '................',
+  '......ww',
+  '....kkkk',
+  '....yyyy',
+  '....yyyr',
+  '....yyyy',
+  '....kkkk',
+  '....kkkk',
+  '....kkkk',
+  '....kkkk',
+  '....kkkk',
+  '....kkkk',
+  '................',
+  '................',
+]);
+art('horse', { b: [146, 94, 52], d: [104, 64, 32], k: [52, 34, 20], w: [244, 236, 226] }, [
+  '................',
+  '................',
+  '...........kb...',
+  '..........kbbb..',
+  '.........kbbkbb.',
+  '.........kbbbbbb',
+  '........kbbb..bw',
+  '.......kbbb.....',
+  '..bbbbbbbbb.....',
+  '.bbbbbbbbbb.....',
+  'kbbbbbbbbbb.....',
+  'k.bbbbbbbbb.....',
+  'k.bb.bb..bb.bb..',
+  '..bb.bb..bb.bb..',
+  '..bb.bb..bb.bb..',
+  '..dd.dd..dd.dd..',
+]);
+art('tennis', { r: [214, 60, 60], w: [240, 240, 240], h: [60, 60, 66], y: [212, 232, 60] }, [
+  '................',
+  '...rrrr.........',
+  '..rwwwwr........',
+  '.rwwwwwwr.......',
+  '.rwwwwwwr.......',
+  '.rwwwwwwr.......',
+  '.rwwwwwwr.......',
+  '..rwwwwr........',
+  '...rrrr.........',
+  '....hh..........',
+  '....hh..........',
+  '....hh....yyy...',
+  '....hh...yyyyy..',
+  '....hh...yyyyy..',
+  '....hh....yyy...',
+  '................',
+]);
+tile('bike', (p) => {
+  p.clear();
+  const tyre = [40, 40, 46];
+  const frame = [214, 52, 52];
+  const line = (x0, y0, x1, y1, col) => {
+    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    for (let i = 0; i <= n; i++) p.set(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n), ...col);
+  };
+  [3.5, 12.5].forEach((cx) => { // the two wheels
+    for (let a = 0; a < 48; a++) p.set(Math.round(cx + Math.cos(a / 48 * Math.PI * 2) * 3), Math.round(11.5 + Math.sin(a / 48 * Math.PI * 2) * 3), ...tyre);
+  });
+  line(4, 12, 7, 7, frame);   // the back of the frame
+  line(4, 12, 9, 12, frame);
+  line(9, 12, 7, 7, frame);
+  line(7, 7, 11, 7, frame);   // the top bar
+  line(11, 7, 9, 12, frame);
+  line(11, 7, 12, 11, frame); // the front fork
+  line(11, 7, 11, 5, frame);
+  p.rect(10, 4, 3, 1, tyre);  // the handlebar
+  p.rect(5, 6, 3, 1, tyre);   // the seat
+});
+art('piano', { b: [70, 44, 32], w: [244, 244, 240], k: [30, 30, 34] }, [
+  '................',
+  '................',
+  '................',
+  '..bbbbbbbbbbbb..',
+  '..bbbbbbbbbbbb..',
+  '..bbbbbbbbbbbb..',
+  '..bbbbbbbbbbbb..',
+  '.bbbbbbbbbbbbbb.',
+  '.wkwkwwkwkwkwww.',
+  '.wkwkwwkwkwkwww.',
+  '.wwwwwwwwwwwwww.',
+  '.bbbbbbbbbbbbbb.',
+  '.b............b.',
+  '.b............b.',
+  '.b............b.',
+  '.b............b.',
+]);
+art('guitar', { o: [218, 142, 62], d: [150, 92, 32], k: [52, 40, 30], w: [236, 236, 236] }, [
+  '.......kk.......',
+  '.......kk.......',
+  '.......dw.......',
+  '.......dw.......',
+  '.......dw.......',
+  '.......dw.......',
+  '.....oooooo.....',
+  '....oooowooo....',
+  '.....ookkoo.....',
+  '......oowo......',
+  '....oooowooo....',
+  '...ooooowoooo...',
+  '...oookkkkooo...',
+  '...ooooooooooo..',
+  '....oooooooo....',
+  '......oooo......',
+]);
+art('dolphin', { g: [120, 152, 184], l: [206, 222, 238], k: [30, 34, 44] }, [
+  '................',
+  '................',
+  '.......gg.......',
+  '......ggg.......',
+  '....ggggggg.....',
+  '...gggggggggg...',
+  '..ggglllllgkgg..',
+  '.ggg.....lllggg.',
+  'gg..............',
+  'ggg.............',
+  'g.g.............',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+]);
+art('kangaroo', { b: [182, 122, 72], d: [140, 90, 50], l: [222, 184, 142], k: [36, 30, 28] }, [
+  '..........b.....',
+  '.........bb.....',
+  '........bbbb....',
+  '........bkbbb...',
+  '........bbbbbk..',
+  '.........bbb....',
+  '........bbbb....',
+  '.......bbbbbb...',
+  '.......bllbbb.b.',
+  '.......bllbbbb..',
+  '......bbllbbb...',
+  '.....bbbbbbbb...',
+  '....bb..bbbb....',
+  '...bb...bb.bb...',
+  '..bb....bb..bbbb',
+  '.bb.............',
+]);
+art('cheetah', { y: [236, 190, 80], k: [36, 30, 26], w: [250, 244, 230] }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '...........y..y.',
+  '..........yyyyyy',
+  '..........ykyykk',
+  '..........ywwyww',
+  '...........www..',
+  'k.....ykyyykyyy.',
+  '.y.yyyyyykyyyky.',
+  '.y.yykyyyyyyyyy.',
+  '..yyyyyykyyykyy.',
+  '...yywwwwwwwyy..',
+  '...yy.yy..yy.yy.',
+  '...kk.kk..kk.kk.',
+]);
+art('ladybird', { r: [222, 44, 44], k: [30, 30, 34], w: [250, 250, 250] }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '......kk',
+  '.....kwk',
+  '....kkkk',
+  '...rrrrk',
+  '..rkrrrk',
+  '..rrrrrk',
+  '..rrkrrk',
+  '..rrrrrk',
+  '...rrrrk',
+  '....rrrk',
+  '................',
+  '................',
+]);
+art('monkey', { b: [130, 84, 50], f: [232, 192, 150], k: [36, 28, 24] }, [
+  '................',
+  '.....bbbbbb.....',
+  '...fbbbbbbbbf...',
+  '...fbffffffbf...',
+  '....ffkffkff....',
+  '....ffffffff....',
+  '.....ffkkff.....',
+  '......bbbb......',
+  '....bbbbbbbb....',
+  '...bb.bffb.bb...',
+  '..bb..bffb..bb..',
+  '..ff..bbbb..ff..',
+  '......bbbb....b.',
+  '.....bb..bb..b..',
+  '....ff....ff.b..',
+  '..............b.',
+]);
+art('skeleton', { w: [242, 242, 234], s: [192, 192, 186], k: [40, 40, 44] }, [
+  '.....www',
+  '....wwww',
+  '....wkww',
+  '....wwww',
+  '.....wsw',
+  '.......w',
+  '..wwwwww',
+  '..w.wsww',
+  '..w.w.sw',
+  '..w.wsww',
+  '..w..sww',
+  '.....www',
+  '.....w..',
+  '.....w..',
+  '.....w..',
+  '....ww..',
+]);
+art('go_kart', { g: [70, 172, 60], d: [40, 122, 40], k: [40, 40, 46], s: [60, 60, 70], y: [244, 210, 60] }, [
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '........kk......',
+  '.......k........',
+  '..ss...k........',
+  '..ssgggggggg....',
+  '.gggggggggyyg...',
+  'ggdgggggggdggg..',
+  '.kkk......kkk...',
+  'kkkkk....kkkkk..',
+  '.kkk......kkk...',
   '................',
 ]);
 

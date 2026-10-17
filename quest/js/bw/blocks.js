@@ -6,7 +6,9 @@
 // and a fishing rod), the gold and open chests of spec 0007, and the pet show things of spec 0011
 // (twelve animals, a giraffe's neck, a spider web, a school bag and a pencil case), and the clothes
 // town things of spec 0012 (eleven clothes, a sheep, a cow, a cotton plant, a bird and the cool cat),
-// and the lunchtime town things of spec 0013 (sixteen foods, a hot dog, corn and bean plants).
+// the lunchtime town things of spec 0013 (sixteen foods, a hot dog, corn and bean plants), and the
+// robot town things of spec 0014 (a robot and its head, a battery, a horse, tennis, a bike, a piano,
+// a guitar, the song animals, a monkey, a skeleton and a go-kart).
 
 // The block registry. Every voxel in the world is one byte — an index into
 // BLOCKS. Ids are assigned in registration order, so ALWAYS refer to blocks by
@@ -139,6 +141,13 @@ for (const name of ['pizza', 'sandwich', 'apple', 'banana', 'orange', 'cheese', 
 def('hot_dog', { label: 'Hot Dog', render: 'cross', solid: false, hardness: 0.05 });
 def('corn_plant', { label: 'Corn', render: 'cross', solid: false, hardness: 0.05 });
 def('bean_plant', { label: 'Beans', render: 'cross', solid: false, hardness: 0.05 });
+
+// ---- robot town things (spec 0014): the robot, things you can do, the song animals, a skeleton ----
+for (const name of ['robot', 'battery', 'horse', 'tennis', 'bike', 'piano', 'guitar', 'dolphin', 'kangaroo', 'cheetah', 'ladybird', 'monkey', 'skeleton']) {
+  def(name, { render: 'cross', solid: false, hardness: 0.05 });
+}
+def('robot_head', { label: 'Robot', render: 'cross', solid: false, hardness: 0.05 }); // stands on top of a robot
+def('go_kart', { label: 'Go-kart', render: 'cross', solid: false, hardness: 0.05 });
 
 // ---- wool: the colour vocabulary, one block per colour -------------------
 export const WOOL_COLOURS = [
