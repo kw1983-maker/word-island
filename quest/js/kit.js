@@ -8,6 +8,7 @@ import { sound, EFFECTS } from "./sound.js";
 import { voice, CAST } from "./voice.js";
 import { atlasCanvas } from "./bw/atlas.js";
 import { targets } from "./targets.js";
+import { controls } from "./controls.js";
 
 const VOICE_LINES = [
   { by: "", line: "Hello! I am the narrator. Let's find the treasure." },
@@ -66,6 +67,14 @@ export function showKit(quest) {
   }, "btn-small kittoggle");
   toggle.setAttribute("aria-controls", "kitsheet");
   toggle.setAttribute("aria-expanded", "false");
+
+  // K opens and closes the kit sheet, freeing the mouse so its buttons can be clicked (spec 0005).
+  window.addEventListener("keydown", (event) => {
+    if (event.code !== "KeyK" || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (!controls.playing() && sheet.hidden) return;
+    controls.release();
+    toggle.click();
+  });
 
   const closeSheet = () => {
     sheet.hidden = true;
