@@ -49,10 +49,11 @@ export function showKit(quest) {
   hud.setCoins(coins, max);
   hud.setLeft(left);
   hud.setHotbar(SAMPLE_HOTBAR);
-  // The test beach's chest and villager are usable: they open the sample chest and riddle (spec 0005).
+  // The kit's chest and villager on the island (the map's kit places) open the sample chest and riddle.
   const sample = (type) => samples.find((p) => p.playAs === type);
-  if (quest.test && sample("chest")) targets.add({ at: quest.test.chest, label: "Open the chest", onUse: () => play(sample("chest")) });
-  if (quest.test && sample("riddle")) targets.add({ at: quest.test.villager, label: "Talk to the villager", onUse: () => play(sample("riddle")) });
+  const kitPlaces = quest.kitPlaces;
+  if (kitPlaces && sample("chest")) targets.add({ at: kitPlaces.chest, label: "Open the chest", onUse: () => play(sample("chest")) });
+  if (kitPlaces && sample("riddle")) targets.add({ at: kitPlaces.villager, label: "Talk to the villager", onUse: () => play(sample("riddle")) });
 
   const sheet = make("section", "panel kitsheet");
   sheet.id = "kitsheet";

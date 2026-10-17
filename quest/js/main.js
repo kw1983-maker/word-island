@@ -21,7 +21,7 @@ function seedFromAddress() {
 }
 
 // What later features read: the loaded unit bank, its island file, this play's puzzles and the pupil.
-export const quest = { unit: null, island: null, plan: null, world: null, test: null, seed: seedFromAddress(), pupil: null, debug: params.has("debug") };
+export const quest = { unit: null, island: null, map: null, plan: null, world: null, scene: null, anchors: null, kitPlaces: null, seed: seedFromAddress(), pupil: null, debug: params.has("debug") };
 
 function readJson(key) {
   try {
@@ -65,6 +65,12 @@ function loadUnit(id) {
 // A unit without an island file (quest/islands/uN.js) is not open in the quest yet.
 function loadIsland(id) {
   const loaded = import(`../islands/${id}.js`).then((mod) => mod.default || null, () => null);
+  return Promise.race([loaded, later(WAIT, null)]);
+}
+
+// The island's map (quest/islands/uN-map.js, spec 0006): its land, buildings and puzzle anchors.
+function loadMap(id) {
+  const loaded = import(`../islands/${id}-map.js`).then((mod) => mod.default || null, () => null);
   return Promise.race([loaded, later(WAIT, null)]);
 }
 
@@ -125,11 +131,12 @@ async function boot() {
     return;
   }
 
-  const enginePart = Promise.all([import("./engine.js"), import("./testscene.js"), import("./hand.js"), import("./walk.js")]).catch((err) => {
+  const enginePart = Promise.all([import("./engine.js"), import("./island.js"), import("./hand.js"), import("./walk.js")]).catch((err) => {
     console.warn("Treasure Quest: Three.js did not load.", err);
     return null;
   });
   const islandPart = loadIsland(unitId);
+  const mapPart = loadMap(unitId);
   const unit = await loadUnit(unitId);
   if (!unit) {
     console.warn(`Treasure Quest: units/${unitId}.js did not load.`);
@@ -143,6 +150,13 @@ async function boot() {
     screens.setBase("notOpen");
     return;
   }
+  const map = await mapPart;
+  if (!map) {
+    console.warn(`Treasure Quest: quest/islands/${unitId}-map.js did not load.`);
+    screens.setBase("notOpen");
+    return;
+  }
+  quest.map = map;
   quest.island = island;
   try {
     quest.plan = drawIsland(island, unit, quest.seed);
@@ -164,33 +178,35 @@ async function boot() {
     screens.setBase("unsupported");
     return;
   }
-  const [{ engine }, { buildTestScene }, { hand }, { walk }] = parts;
+  const [{ engine }, { buildIsland }, { hand }, { walk }] = parts;
   if (!engine.init(document.getElementById("world"))) {
     screens.setBase("unsupported");
     return;
   }
   wireEngine(engine);
-  const test = buildTestScene(engine.camera);
-  quest.world = test.world;
-  quest.test = test;
+  const built = buildIsland(engine.camera, map, { kit: params.has("kit") });
+  quest.world = built.world;
+  quest.scene = built.scene;
+  quest.anchors = built.anchors;
+  quest.kitPlaces = built.kit;
   // The pupil walks from the island's start point (spec 0005); the sky follows the camera.
-  walk.start(test.world, test.start, engine.camera);
+  walk.start(built.world, built.start, engine.camera);
   controls.attach(document.getElementById("world"));
   const { touchpad } = await import("./touchpad.js");
   touchpad.attach(document.getElementById("world"));
   // Using things: chests, villagers and later finds (spec 0005).
   const { targets } = await import("./targets.js");
-  targets.attach(test.scene, engine.camera, test.world);
+  targets.attach(built.scene, engine.camera, built.world);
   // Every click, E or Use swings the hand, as in BlockWords, even with nothing in front.
   controls.onUse(() => hand.swing());
   const update = (dt) => {
     walk.update(dt);
     targets.update();
     hand.update(dt, walk.state().bob);
-    test.update(dt);
+    built.update(dt);
   };
   update(0);
-  engine.start(test.scene, update, { overlay: hand });
+  engine.start(built.scene, update, { overlay: hand });
   // The hotbar and the hand: the selected slot is what the hand holds.
   hud.onSelect((item) => hand.setItem(item));
   hud.blockWhile(() => screens.state.covered || panel.isOpen());
