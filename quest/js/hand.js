@@ -70,12 +70,15 @@ export const hand = {
     swingT = SWING;
   },
 
-  // Every frame: move the arm and held item through the swing.
-  update(dt) {
+  // Every frame: move the arm and held item through the swing, and bob them a little while
+  // walking (bobPhase from walk.js, 0 when standing), as BlockWords' held item does.
+  update(dt, bobPhase = 0) {
     if (swingT > 0) swingT = Math.max(0, swingT - dt);
     const s = swingT / SWING;
-    arm.position.set(armRest.x - s * 0.08, armRest.y - s * 0.18, armRest.z);
-    held.position.set(heldRest.x - s * 0.08, heldRest.y - s * 0.22, heldRest.z);
+    const bobY = Math.sin(bobPhase * 2) * 0.02;
+    const bobX = Math.cos(bobPhase) * 0.015;
+    arm.position.set(armRest.x - s * 0.08 + bobX, armRest.y - s * 0.18 + bobY, armRest.z);
+    held.position.set(heldRest.x - s * 0.08 + bobX, heldRest.y - s * 0.22 + bobY, heldRest.z);
     held.material.rotation = -0.25 + s * 0.9;
   }
 };

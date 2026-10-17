@@ -77,7 +77,8 @@ export const walk = {
 
   player: () => player,
   // For the debug view.
-  state: () => ({ lastSafe, rescues })
+  // bob: where the walking bob is (0 while standing or with reduced motion), for the hand.
+  state: () => ({ lastSafe, rescues, bob: still && still.matches ? 0 : bobPhase })
 };
 
 // Steps sound like the block underfoot (BlockWords' step sounds), and the view bobs a little while

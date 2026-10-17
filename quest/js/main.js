@@ -181,10 +181,12 @@ async function boot() {
   // Using things: chests, villagers and later finds (spec 0005).
   const { targets } = await import("./targets.js");
   targets.attach(test.scene, engine.camera, test.world);
+  // Every click, E or Use swings the hand, as in BlockWords, even with nothing in front.
+  controls.onUse(() => hand.swing());
   const update = (dt) => {
     walk.update(dt);
     targets.update();
-    hand.update(dt);
+    hand.update(dt, walk.state().bob);
     test.update(dt);
   };
   update(0);
