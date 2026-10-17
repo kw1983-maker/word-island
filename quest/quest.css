@@ -146,6 +146,12 @@ html, body {
 }
 .padbtn.jump { bottom: max(18px, env(safe-area-inset-bottom)); }
 .padbtn.use { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 86px); background: rgba(75, 138, 63, .9); box-shadow: 0 0 0 2px #78bd68 inset, 0 4px 0 #2d5626; }
+/* Mining (spec 0010): Place sits left of Jump while the selected slot holds a block. */
+.padbtn.place {
+  bottom: max(18px, env(safe-area-inset-bottom));
+  right: calc(max(18px, env(safe-area-inset-right)) + 86px);
+  background: rgba(58, 111, 216, .9); box-shadow: 0 0 0 2px #7aa2ef inset, 0 4px 0 #24467f;
+}
 .padbtn:active { transform: translateY(3px); }
 
 /* A short line above the hotbar ("Back to the beach!"), in BlockWords' hint bar style. */

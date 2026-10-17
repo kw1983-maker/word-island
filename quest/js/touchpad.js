@@ -2,9 +2,12 @@
 // player, dragging on the right half turns the view, and Jump and Use buttons sit at the bottom right.
 // Two thumbs work at once (each touch is followed by its own pointer id). Touches that start on the
 // hotbar, Pause or any button never reach here, because those are not the island's canvas.
+// Mining (spec 0010): holding Use breaks the block in the middle of the view (a quick tap still uses a
+// chest or word thing), and a Place button shows while the selected hotbar slot holds a block.
 import { controls } from "./controls.js";
 import { screens } from "./screens.js";
 import { panel } from "./panel.js";
+import { hud } from "./hud.js";
 
 const coarse = typeof matchMedia === "function" && matchMedia("(pointer: coarse)");
 const RADIUS = 50;     // CSS pixels from the centre to a full push
@@ -12,12 +15,16 @@ const DEAD = 0.15;     // a push smaller than this does not walk
 const LOOK = 0.005;    // radians per CSS pixel dragged (spec 0004's drag speed)
 const TAP_MS = 250;    // a touch shorter than this that hardly moves is a tap
 const TAP_MOVE = 10;
+const HOLD_MS = 300;   // holding Use this long mines (spec 0010)
 
 let root = null;
 let el = {};
 let stick = null;      // { id, x, y } of the thumb on the joystick
 let lookers = new Map(); // pointer id → { x, y } of a thumb dragging to look
 let jumpHeld = false;
+let useOn = false;     // a chest or word thing is in front (targets.js)
+let mineOn = false;    // a block that can break is in front (mining.js)
+let holdTimer = 0;
 const starts = new Map(); // pointer id → { x, y, t } for spotting taps
 const tapListeners = [];
 
@@ -71,6 +78,28 @@ function paint() {
   if (!root) return;
   root.hidden = !controls.playing();
   if (root.hidden) reset();
+  paintButtons();
+}
+
+function paintButtons() {
+  if (!el.use) return;
+  el.use.hidden = !(useOn || mineOn);
+  el.place.hidden = !hud.selectedItem();
+}
+
+// Use: a chest or word thing in front is used at once; otherwise a hold mines until let go.
+function useDown() {
+  clearTimeout(holdTimer);
+  if (useOn) {
+    controls.use();
+    return;
+  }
+  holdTimer = setTimeout(() => controls.setMine(true), HOLD_MS);
+}
+
+function useUp() {
+  clearTimeout(holdTimer);
+  controls.setMine(false);
 }
 
 function onDown(event) {
@@ -139,7 +168,10 @@ export const touchpad = {
     el.use = make("button", "padbtn use", "Use");
     el.use.type = "button";
     el.use.hidden = true;
-    root.append(el.base, el.use, el.jump);
+    el.place = make("button", "padbtn place", "Place");
+    el.place.type = "button";
+    el.place.hidden = true;
+    root.append(el.base, el.use, el.place, el.jump);
     document.body.append(root);
 
     canvas.addEventListener("pointerdown", onDown);
@@ -147,7 +179,9 @@ export const touchpad = {
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointercancel", onUp);
     holdButton(el.jump, () => { jumpHeld = true; send(); }, () => { jumpHeld = false; send(); });
-    holdButton(el.use, () => controls.use());
+    holdButton(el.use, useDown, useUp);
+    holdButton(el.place, () => controls.place());
+    hud.onSelect(paintButtons);
     screens.onChange(paint);
     panel.onChange(paint);
     controls.onClear(() => {
@@ -159,9 +193,16 @@ export const touchpad = {
     paint();
   },
 
-  // The Use button shows only while something usable is in front (targets.js).
+  // The Use button shows while something usable (targets.js) or a block that can break (mining.js)
+  // is in front.
   setUse(on) {
-    if (el.use) el.use.hidden = !on;
+    useOn = Boolean(on);
+    paintButtons();
+  },
+  setMineable(on) {
+    if (mineOn === Boolean(on)) return;
+    mineOn = Boolean(on);
+    paintButtons();
   },
 
   // fn(x, y): the pupil tapped this point of the island.

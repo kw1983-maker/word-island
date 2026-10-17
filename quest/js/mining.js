@@ -16,6 +16,7 @@ import { sound } from "./sound.js";
 import { voice } from "./voice.js";
 import { notice } from "./notice.js";
 import { walk } from "./walk.js";
+import { touchpad } from "./touchpad.js";
 
 const REACH = 4;          // blocks, the same reach as using things (spec 0005)
 const BREAK = 1.0;        // seconds to break any solid block; sprites break at once
@@ -198,7 +199,13 @@ export const mining = {
 
   // Every game step: while the pupil holds to mine, crack the block in front, then break it.
   update(dt) {
-    if (!world || !controls.playing() || !controls.input.mine) {
+    if (!world) return;
+    // The phone's Use button also shows while a block that can break is in front.
+    if (touchpad.isPhone()) {
+      const ahead = controls.playing() && !targets.current() ? lookedAt() : null;
+      touchpad.setMineable(Boolean(ahead && breakable(ahead)));
+    }
+    if (!controls.playing() || !controls.input.mine) {
       reset();
       return;
     }
