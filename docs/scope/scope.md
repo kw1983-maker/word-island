@@ -104,7 +104,7 @@ A Treasure Quest button on Word Island that opens only the islands the pupil's c
    - [x] The locked sixth card on the unit page, opening after the five games, with the open all link (AC-1 to AC-4, AC-6, AC-7)
    - [x] The quest page's Finish the five games first screen (AC-4, AC-5)
    - [x] The island checker's island list check (AC-8)
-- [ ] Verify it: `/check verify quest entry in Word Island`
+- [x] Verify it: `/check verify quest entry in Word Island` (all 20 steps passed in a browser on 2026-10-17, with a stand in for Firebase; the real phone check is still owed with features 4, 6, 7, 8 and 9)
 Spec [0009](../specs/0009-quest-entry-word-island/index.md) · code in `index.html`, `shared/quest.js`, `quest/js/` (`main.js`, `screens.js`), `tools/check-quests.mjs`
 
 ### 6. Movement & controls · done
