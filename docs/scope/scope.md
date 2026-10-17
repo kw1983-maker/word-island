@@ -19,7 +19,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 3 | Quest content model | Foundation | done |
 | 4 | Retro look & sound kit | Foundation | done |
 | 5 | Quest entry in Word Island | Release 1 | planned |
-| 6 | Movement & controls | Release 1 | in-progress |
+| 6 | Movement & controls | Release 1 | done |
 | 7 | Beach island (Unit 9) | Release 1 | planned |
 | 8 | Treasure chests | Release 1 | planned |
 | 9 | Island finish & score | Release 1 | planned |
@@ -101,7 +101,7 @@ A Treasure Quest button on Word Island that opens only the islands the pupil's c
 **Done when:** a pupil who taps their class sees Treasure Quest with only their units, and the teacher's Pause freezes the quest too.
 - [ ] Build it: `/develop quest entry in Word Island`
 
-### 6. Movement & controls · in-progress
+### 6. Movement & controls · done
 Walk, look around and jump like in BlockWords, in first person; touch controls on phones, mouse and keys on laptops; nothing can hurt you, and pupils can never fall off or get stuck.
 **Done when:** a 7 year old can walk around the island on a phone and a laptop without help, and falling into the sea puts them back on land.
 - [x] Design it (spec): `/architect movement & controls`
