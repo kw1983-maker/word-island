@@ -178,8 +178,13 @@ async function boot() {
   controls.attach(document.getElementById("world"));
   const { touchpad } = await import("./touchpad.js");
   touchpad.attach(document.getElementById("world"));
+  // Using things: chests, villagers and later finds (spec 0005).
+  const { targets } = await import("./targets.js");
+  targets.attach(test.scene, engine.camera, test.world);
   const update = (dt) => {
     walk.update(dt);
+    targets.update();
+    hand.update(dt);
     test.update(dt);
   };
   update(0);

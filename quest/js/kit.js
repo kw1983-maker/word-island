@@ -7,6 +7,7 @@ import { hud } from "./hud.js";
 import { sound, EFFECTS } from "./sound.js";
 import { voice, CAST } from "./voice.js";
 import { atlasCanvas } from "./bw/atlas.js";
+import { targets } from "./targets.js";
 
 const VOICE_LINES = [
   { by: "", line: "Hello! I am the narrator. Let's find the treasure." },
@@ -47,6 +48,10 @@ export function showKit(quest) {
   hud.setCoins(coins, max);
   hud.setLeft(left);
   hud.setHotbar(SAMPLE_HOTBAR);
+  // The test beach's chest and villager are usable: they open the sample chest and riddle (spec 0005).
+  const sample = (type) => samples.find((p) => p.playAs === type);
+  if (quest.test && sample("chest")) targets.add({ at: quest.test.chest, label: "Open the chest", onUse: () => play(sample("chest")) });
+  if (quest.test && sample("riddle")) targets.add({ at: quest.test.villager, label: "Talk to the villager", onUse: () => play(sample("riddle")) });
 
   const sheet = make("section", "panel kitsheet");
   sheet.id = "kitsheet";

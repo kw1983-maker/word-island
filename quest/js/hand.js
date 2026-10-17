@@ -36,6 +36,10 @@ held.visible = false;
 scene.add(held);
 
 let current = null;
+let swingT = 0;          // seconds left of a swing (using something)
+const SWING = 0.28;      // BlockWords' swing length
+const armRest = arm.position.clone();
+const heldRest = held.position.clone();
 
 export const hand = {
   scene,
@@ -59,5 +63,19 @@ export const hand = {
     held.visible = true;
   },
 
-  item: () => current
+  item: () => current,
+
+  // The hand swings when the pupil uses something, as BlockWords' does.
+  swing() {
+    swingT = SWING;
+  },
+
+  // Every frame: move the arm and held item through the swing.
+  update(dt) {
+    if (swingT > 0) swingT = Math.max(0, swingT - dt);
+    const s = swingT / SWING;
+    arm.position.set(armRest.x - s * 0.08, armRest.y - s * 0.18, armRest.z);
+    held.position.set(heldRest.x - s * 0.08, heldRest.y - s * 0.22, heldRest.z);
+    held.material.rotation = -0.25 + s * 0.9;
+  }
 };

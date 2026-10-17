@@ -150,13 +150,22 @@ html, body {
 
 /* A short line above the hotbar ("Back to the beach!"), in BlockWords' hint bar style. */
 .notice {
-  position: fixed; left: 50%; bottom: 118px; z-index: 4; transform: translateX(-50%);
+  position: fixed; left: 50%; bottom: 162px; z-index: 4; transform: translateX(-50%);
   margin: 0; padding: 8px 16px; max-width: 70vw; text-align: center;
   background: rgba(10, 12, 18, .82); border: 2px solid #6a6a72; border-radius: 6px;
   font-size: 19px; font-weight: bold; text-shadow: 1px 1px 0 #000; pointer-events: none;
 }
 .notice[hidden] { display: none; }
-@media (max-height: 460px) { .notice { bottom: 92px; } }
+@media (max-height: 460px) { .notice { bottom: 128px; } }
+/* What the thing in front is and how to use it ("Open the chest · click or E"). */
+.uselabel {
+  position: fixed; left: 50%; bottom: 118px; z-index: 4; transform: translateX(-50%);
+  margin: 0; padding: 6px 14px; white-space: nowrap;
+  background: rgba(10, 12, 18, .82); border: 2px solid #6a6a72; border-radius: 6px;
+  font-size: 17px; text-shadow: 1px 1px 0 #000; pointer-events: none;
+}
+.uselabel[hidden] { display: none; }
+@media (max-height: 460px) { .uselabel { bottom: 92px; } }
 
 /* BlockWords' bottom of the screen (its #hud, #hotbar, .slot and .emeralds rules): the coins and
    puzzles left just above the hotbar. Only the slots take taps; the rest lets the island through. */
