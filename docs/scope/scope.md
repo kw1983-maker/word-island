@@ -147,7 +147,7 @@ When all puzzles are done, a treasure ending shows the score and stars, with pla
    - [x] The ending after the last chest: finishing bonus, fanfare, read aloud, Play again and Back to Word Island (AC-1, AC-2, AC-4, AC-5, AC-6)
    - [x] Stars: the rule and the three star row in the talk box (AC-3)
    - [x] Size check (AC-7)
-- [ ] Verify it: `/check verify island finish & score`
+- [x] Verify it: `/check verify island finish & score` (all 11 steps passed in a browser on 2026-10-17; the real phone check is still owed with features 4, 6, 7 and 8)
 Spec [0008](../specs/0008-quest-island-finish/index.md) · code in `quest/js/` (`finish.js`, `panel.js`, `main.js`)
 
 ## Release 2: Mine and craft
