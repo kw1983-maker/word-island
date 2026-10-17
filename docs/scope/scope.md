@@ -37,7 +37,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 19 | School island (Unit 1) | Release 6 | planned |
 | 20 | Let's play island (Unit 2) | Release 6 | planned |
 | 21 | Pet show island (Unit 3) | Release 6 | in-progress |
-| 22 | Lunchtime island (Unit 4) | Release 6 | planned |
+| 22 | Lunchtime island (Unit 4) | Release 6 | in-progress |
 
 ## Already built (for context)
 
@@ -253,7 +253,7 @@ A pet show island with animals to find.
 - [x] Verify it: all 8 checks passed in a browser on 2026-10-17 (scores reaching the results page waits for feature 10, as on Unit 9)
 Spec [0011](../specs/0011-quest-pet-show-island/index.md) · code in `quest/islands/u3.js`, `quest/islands/u3-map.js`
 
-### 22. Lunchtime island (Unit 4)
+### 22. Lunchtime island (Unit 4) · in-progress
 A picnic and lunchbox island for food words.
 **Done when:** the island plays end to end with Unit 4 content at Year 1 difficulty and scores reach the results page.
 - [ ] Build it: `/develop lunchtime island`
