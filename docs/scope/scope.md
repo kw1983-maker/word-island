@@ -165,8 +165,8 @@ Break blocks on the island and collect them in a hotbar, as in BlockWords; every
 **Done when:** pupils can break and collect blocks on a phone and a laptop, each block's name shows and is read aloud, and puzzle spots, chests and villagers can never be broken away.
 - [x] Design it (spec): `/architect mining`
 - [ ] Build it: `/develop mining`
-   - [ ] Hold to break and collect on a laptop: cracks, sounds, the name, a full hotbar, use wins (AC-1, AC-2, AC-3, AC-6, AC-9)
-   - [ ] Keep the puzzles and the island floor safe: protected blocks and one block deep digging (AC-7, AC-8)
+   - [x] Hold to break and collect on a laptop: cracks, sounds, the name, a full hotbar, use wins (AC-1, AC-2, AC-3, AC-6, AC-9)
+   - [x] Keep the puzzles and the island floor safe: protected blocks and one block deep digging (AC-7, AC-8)
    - [ ] Place blocks: right click, and the phone's hold to break and Place button (AC-4, AC-5)
    - [ ] Speed and size checks (AC-10)
 - [ ] Verify it: `/check verify mining`

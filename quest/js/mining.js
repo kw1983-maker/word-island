@@ -1,9 +1,12 @@
 // Treasure Quest · mining (spec 0010): hold on a block to crack it, BlockWords style, and after about
 // a second it breaks and goes into the hotbar; its name shows above the hotbar and is read aloud the
 // first time that kind is collected. Using a chest or word thing always wins over mining.
+// Chests, word things, the bottom of the world and anything below the island's starting ground can
+// never break, so every puzzle stays reachable and no dip is deeper than one block.
 // The crack textures and the timing loop are adapted from BlockWords js/main.js at commit 31a2bf4.
 import * as THREE from "three";
 import { B, BLOCKS } from "./bw/blocks.js";
+import { CHUNK_Y } from "./bw/worldgen.js";
 import { mulberry32 } from "./bw/noise.js";
 import { controls } from "./controls.js";
 import { targets } from "./targets.js";
@@ -17,6 +20,10 @@ const REACH = 4;          // blocks, the same reach as using things (spec 0005)
 const BREAK = 1.0;        // seconds to break any solid block; sprites break at once
 const DIG_EVERY = 0.22;   // BlockWords' dig sound and swing rhythm
 const REFUSE_EVERY = 2000; // ms between "You can't break this." lines
+const SIZE = 64;           // an island is at most 64 by 64 blocks
+// The kinds that make up the island's land; the highest one in a column is its starting ground.
+const GROUND = ["grass_block", "dirt", "dirt_path", "sand", "wet_sand", "stone", "gravel", "clay", "cobblestone"];
+const CHESTS = ["chest", "gold_chest", "chest_open", "gold_chest_open"];
 
 let world = null;
 let camera = null;
@@ -24,6 +31,9 @@ let crack = null;
 let textures = [];
 const state = { target: null, progress: 0, digTimer: 0 };
 const collected = new Set();   // block kinds already read aloud this play
+const protectedCells = new Set(); // "x,y,z" of blocks that never break
+let groundY = null;            // per column (x * SIZE + z): the starting ground's height
+let refusedAt = 0;
 const dir = new THREE.Vector3();
 
 // Ten stages of cracking, drawn the same way the block textures are (BlockWords).
@@ -68,8 +78,48 @@ function lookedAt() {
   return world.raycast(camera.position, dir, REACH);
 }
 
+const key = (x, y, z) => `${x},${y},${z}`;
+
+// The island as built: each column's starting ground, and the chests and word things kept safe.
+function survey(quest) {
+  const groundIds = new Set(GROUND.map((name) => B[name.toUpperCase()]));
+  groundY = new Int16Array(SIZE * SIZE).fill(-1);
+  for (let x = 0; x < SIZE; x++) {
+    for (let z = 0; z < SIZE; z++) {
+      for (let y = CHUNK_Y - 1; y >= 0; y--) {
+        if (groundIds.has(world.getBlock(x, y, z))) {
+          groundY[x * SIZE + z] = y;
+          break;
+        }
+      }
+    }
+  }
+  const keepUnder = ({ x, y, z }, toGround) => {
+    protectedCells.add(key(x, y, z));
+    const bottom = toGround ? groundY[x * SIZE + z] : y - 1;
+    for (let below = y - 1; below >= Math.max(0, bottom); below--) protectedCells.add(key(x, below, z));
+  };
+  quest.anchors.forEach((anchor) => keepUnder(anchor.at, false));
+  if (quest.kitPlaces) keepUnder(quest.kitPlaces.chest, false);
+  (quest.map.things || []).forEach((thing) => keepUnder(thing.at, true));
+}
+
+// Whether this block may break: not air, bedrock or water; not a chest or what it stands on; not a
+// word thing or what holds it up; not under water; and not below the column's starting ground.
 function breakable(hit) {
-  return hit.id !== B.AIR && BLOCKS[hit.id].hardness >= 0;
+  const bdef = BLOCKS[hit.id];
+  if (hit.id === B.AIR || bdef.hardness < 0 || CHESTS.includes(bdef.name)) return false;
+  if (protectedCells.has(key(hit.x, hit.y, hit.z))) return false;
+  if (world.getBlock(hit.x, hit.y + 1, hit.z) === B.WATER) return false;
+  const inside = hit.x >= 0 && hit.z >= 0 && hit.x < SIZE && hit.z < SIZE;
+  return !inside || hit.y >= groundY[hit.x * SIZE + hit.z];
+}
+
+function refuse() {
+  const now = performance.now();
+  if (now - refusedAt < REFUSE_EVERY) return;
+  refusedAt = now;
+  notice("You can't break this.");
 }
 
 // Collects the block (and any sprite resting on it) into the hotbar, or refuses when there is no room.
@@ -99,9 +149,10 @@ function breakBlock(hit) {
 
 export const mining = {
   // Call once the island and its chests are built.
-  start({ world: islandWorld, scene, camera: cam }) {
+  start({ quest, world: islandWorld, scene, camera: cam }) {
     world = islandWorld;
     camera = cam;
+    survey(quest);
     textures = makeCrackTextures();
     crack = new THREE.Mesh(
       new THREE.BoxGeometry(1.01, 1.01, 1.01),
@@ -120,6 +171,7 @@ export const mining = {
     // Using a chest or word thing always wins (spec 0005): never crack what can be used.
     const hit = targets.current() ? null : lookedAt();
     if (!hit || !breakable(hit)) {
+      if (hit) refuse();
       reset();
       return;
     }
@@ -148,5 +200,7 @@ export const mining = {
   },
 
   // For the debug view and tests.
-  state: () => ({ target: state.target, progress: +state.progress.toFixed(2), collected: [...collected] })
+  state: () => ({ target: state.target, progress: +state.progress.toFixed(2), collected: [...collected] }),
+  canBreak: (x, y, z) => breakable({ x, y, z, id: world.getBlock(x, y, z) }),
+  isProtected: (x, y, z) => protectedCells.has(key(x, y, z))
 };
