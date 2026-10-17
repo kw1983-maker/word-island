@@ -241,6 +241,8 @@ function wireEngine(engine) {
   engine.onPause(() => {
     sound.pause();
     voice.pause();
+    // Nothing keeps walking after play resumes (spec 0005).
+    controls.clear();
   });
   engine.onResume(() => {
     sound.resume();

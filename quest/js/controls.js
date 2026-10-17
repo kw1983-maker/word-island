@@ -134,6 +134,18 @@ function attachMouse() {
     wasPlaying = now;
     paint();
   });
+  // A talk box stops the player and frees the mouse so its answers can be clicked; Carry on (a click,
+  // so the browser allows it) takes the mouse back.
+  panel.onChange((open) => {
+    if (open) {
+      controls.clear();
+      controls.release();
+    } else if (playing() && isLaptop()) {
+      controls.capture();
+    }
+    wasPlaying = playing();
+    paint();
+  });
 }
 
 export const controls = {

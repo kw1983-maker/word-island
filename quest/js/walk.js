@@ -14,6 +14,11 @@ let camera = null;
 let world = null;
 let lastSafe = null;   // the last feet position on dry, solid ground
 let rescues = 0;
+let stepTimer = 0;     // seconds walked since the last step sound
+let bobPhase = 0;      // where the gentle head bob is in its swing
+const STEP_EVERY = 0.4;
+const BOB = 0.045;     // blocks up and down
+const still = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)");
 
 function blockAt(x, y, z) {
   return world.getBlock(Math.floor(x), Math.floor(y), Math.floor(z));
@@ -62,9 +67,11 @@ export const walk = {
   update(dt) {
     if (!player) return;
     controls.step(dt);
-    player.update(dt, controls.input);
+    const moving = player.update(dt, controls.input);
+    if (player.jumped) sound.play("jump");
     if (inDanger(player.pos)) rescue();
     else rememberSafe();
+    feel(dt, moving);
     place();
   },
 
@@ -73,9 +80,28 @@ export const walk = {
   state: () => ({ lastSafe, rescues })
 };
 
+// Steps sound like the block underfoot (BlockWords' step sounds), and the view bobs a little while
+// walking on the ground, unless the device asks for reduced motion.
+function feel(dt, moving) {
+  const walking = moving && player.onGround && !player.inWater;
+  if (!walking) {
+    stepTimer = STEP_EVERY * 0.75; // the first step sounds soon after setting off
+    bobPhase = 0;
+    return;
+  }
+  stepTimer += dt;
+  if (stepTimer >= STEP_EVERY) {
+    stepTimer = 0;
+    const id = blockAt(player.pos.x, player.pos.y - 0.08, player.pos.z);
+    sound.play("step", { block: BLOCKS[id].name });
+  }
+  bobPhase += dt * 8;
+}
+
 // The camera sits at the eye, looking where the player looks.
 function place() {
   player.eye(camera.position);
+  if (!(still && still.matches)) camera.position.y += Math.sin(bobPhase * 2) * BOB;
   camera.rotation.order = "YXZ";
   camera.rotation.set(player.pitch, player.yaw, 0);
 }
