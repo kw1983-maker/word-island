@@ -124,7 +124,7 @@ A blocky beach (sand, sea, rocks, shells, sandcastles, beach things from the uni
    - [x] Island checker: anchors, walk only reachability, no traps, path, and missing anchors left out (AC-3, AC-5, AC-11)
    - [x] Beach things with the new tiles, word things that speak, and 3 villagers (AC-6, AC-7, AC-8, AC-9)
    - [x] Build time, slowed phone speed and size checks (AC-12)
-- [ ] Verify it: `/check verify beach island`
+- [x] Verify it: `/check verify beach island` (all 22 steps passed in a browser on 2026-10-17; the real iPhone and budget Android check is still owed, together with features 4 and 6)
 Spec [0006](../specs/0006-quest-beach-island/index.md) · code in `quest/islands/u9-map.js`, `quest/js/` (`mapkit.js`, `island.js`), `tools/check-quests.mjs`
 
 ### 8. Treasure chests
