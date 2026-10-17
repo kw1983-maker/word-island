@@ -5,9 +5,13 @@
 //   node tools/check-quests.mjs u9       one island
 //   node tools/check-quests.mjs path.js  a copy of an island file (for testing the checker)
 //   add --map path.js                    check against a copy of the island's map (for testing)
+//   add --list path.js                   check against a copy of shared/quest.js (for testing)
 //
 // Each island's map (quest/islands/uN-map.js, spec 0006) is walked too: every anchor the island
 // names must exist and be reachable from the start on foot, and nowhere may trap a pupil.
+//
+// The island list in shared/quest.js (spec 0009) must name exactly the units with an island file,
+// or Word Island would show a card for a missing island, or hide one that exists.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -403,9 +407,31 @@ async function checkMap(island, unit, mapFile) {
   return problems;
 }
 
+// Every island file's unit must be in the island list, and every unit in the list must have a file.
+// `only` limits it to one unit, when one island is checked.
+function checkIslandList(listFile, only) {
+  const problems = [];
+  const say = (line) => problems.push(`island list: ${line}`);
+  const code = readFileSync(listFile, "utf8").replace(/^const (\w+)\b/gm, "var $1");
+  const box = {};
+  vm.runInNewContext(`${code}
+;this.list = wiQuestIslands;`, box, { filename: basename(listFile) });
+  const list = box.list;
+  if (!Array.isArray(list)) return [`island list: wiQuestIslands is missing from ${basename(listFile)}.`];
+  const files = readdirSync(ISLANDS).filter((f) => /^u[1-9]\.js$/.test(f)).map((f) => f.replace(/\.js$/, ""));
+  const keep = (id) => !only || id === only;
+  files.filter(keep).filter((id) => !list.includes(id))
+    .forEach((id) => say(`${id} has an island file but is not in wiQuestIslands (shared/quest.js), so Word Island shows no card for it.`));
+  list.filter(keep).filter((id) => !files.includes(id))
+    .forEach((id) => say(`${id} is in wiQuestIslands (shared/quest.js) but has no island file quest/islands/${id}.js.`));
+  return problems;
+}
+
 const args = process.argv.slice(2);
 const mapAt = args.indexOf("--map");
 const mapFile = mapAt >= 0 ? resolve(args.splice(mapAt, 2)[1]) : null;
+const listAt = args.indexOf("--list");
+const listFile = listAt >= 0 ? resolve(args.splice(listAt, 2)[1]) : join(ROOT, "shared", "quest.js");
 const arg = args[0];
 let files;
 if (!arg) files = readdirSync(ISLANDS).filter((f) => /^u[1-9]\.js$/.test(f)).sort().map((f) => join(ISLANDS, f));
@@ -423,6 +449,13 @@ for (const file of files) {
   problems.forEach((line) => console.log(line));
   if (!problems.length) console.log(`${basename(file)}: OK`);
   total += problems.length;
+}
+// A copy of an island file is a test of the checker, so only the real islands are held to the list.
+if (!arg || /^u[1-9]$/.test(arg)) {
+  const listProblems = checkIslandList(listFile, arg || null);
+  listProblems.forEach((line) => console.log(line));
+  if (!listProblems.length) console.log("island list: OK");
+  total += listProblems.length;
 }
 if (total) {
   console.log(`${total} problem${total === 1 ? "" : "s"} found.`);
