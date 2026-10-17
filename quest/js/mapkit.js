@@ -343,3 +343,65 @@ export function flagPost(m, { x, z, groundY, flag }) {
   m.set(x, groundY + 3, z, flag);
   return { x, y: groundY + 3, z };
 }
+
+// ---- pet show park helpers (spec 0011) ------------------------------------------------------------
+
+// A leafy oak tree: a log trunk and a round crown of oak leaves. The lowest leaves are one block
+// below the top of the trunk, so a trunk of 4 or more leaves room to walk under the crown.
+export function tree(m, { x, z, height = 5, radius = 2.5 }) {
+  const g = m.ground(x, z);
+  const top = g + height;
+  m.fill(x, x, g + 1, top, z, z, "oak_log");
+  [[-1, radius - 0.5], [0, radius], [1, radius], [2, radius - 1]].forEach(([dy, r]) => {
+    for (let dx = -Math.ceil(r); dx <= Math.ceil(r); dx += 1) {
+      for (let dz = -Math.ceil(r); dz <= Math.ceil(r); dz += 1) {
+        if (dx * dx + dz * dz > r * r) continue;
+        if (m.get(x + dx, top + dy, z + dz) === "air") m.set(x + dx, top + dy, z + dz, "oak_leaves");
+      }
+    }
+  });
+  return { top };
+}
+
+// A pet show tent: log posts at the corners holding a striped wool roof, open on every side so a
+// pupil can walk in. It covers x0 to x0 + w - 1 and z0 to z0 + d - 1; the roof hangs one block over.
+export function tent(m, { x0, z0, w = 7, d = 7, groundY, colours = ["red_wool", "white_wool"] }) {
+  const x1 = x0 + w - 1;
+  const z1 = z0 + d - 1;
+  [[x0, z0], [x1, z0], [x0, z1], [x1, z1]].forEach(([x, z]) => m.fill(x, x, groundY + 1, groundY + 3, z, z, "oak_log"));
+  for (let x = x0 - 1; x <= x1 + 1; x += 1) {
+    const kind = colours[((x - x0 + 1) >> 1) % colours.length]; // stripes two blocks wide
+    m.fill(x, x, groundY + 4, groundY + 4, z0 - 1, z1 + 1, kind);
+    m.fill(x, x, groundY + 5, groundY + 5, z0 + 1, z1 - 1, kind);
+  }
+}
+
+// A small pen with a one block plank fence and a gap for a gate in the middle of one side (gate:
+// "n", "s", "e" or "w"). Its fence runs round x0 to x0 + w - 1 and z0 to z0 + d - 1.
+export function pen(m, { x0, z0, w = 4, d = 4, groundY, gate = "s" }) {
+  const x1 = x0 + w - 1;
+  const z1 = z0 + d - 1;
+  const gx = x0 + Math.floor(w / 2);
+  const gz = z0 + Math.floor(d / 2);
+  const gap = { n: [gx, z0], s: [gx, z1], e: [x1, gz], w: [x0, gz] }[gate];
+  for (let x = x0; x <= x1; x += 1) {
+    for (let z = z0; z <= z1; z += 1) {
+      const edge = x === x0 || x === x1 || z === z0 || z === z1;
+      if (edge && !(x === gap[0] && z === gap[1])) m.set(x, groundY + 1, z, "oak_planks");
+    }
+  }
+}
+
+// A table (or desk) along x: a plank top two blocks up on log legs at each end, so there is an open
+// cell under the middle for something to sit "under the table". Returns that cell.
+export function table(m, { x, z, groundY, length = 3 }) {
+  m.fill(x, x + length - 1, groundY + 2, groundY + 2, z, z, "oak_planks");
+  m.set(x, groundY + 1, z, "oak_log");
+  m.set(x + length - 1, groundY + 1, z, "oak_log");
+  return { x: x + Math.floor(length / 2), y: groundY + 1, z };
+}
+
+// A fallen log lying on the ground along x.
+export function log(m, { x, z, groundY, length = 3 }) {
+  m.fill(x, x + length - 1, groundY + 1, groundY + 1, z, z, "oak_log");
+}
