@@ -137,4 +137,73 @@ window.wiWatchSettings = async (onData) => {
     (snap) => onData(snap.exists() ? snap.data() : {}),
     (err) => console.warn("Word Island: pause switch not loaded.", err));
 };
+// Live word search (spec 0015): the race the teacher started for a class, and this pupil's row in it.
+// The rules only take a pupil's words while the race is on, so a refused join means the race is over.
+window.wiLive = {
+  // Resolves to { race, found, offset } (offset: server clock minus this device's clock), or null.
+  async join(raceId, pupil) {
+    const { authSdk, storeSdk, auth, db } = await loadSdk();
+    await auth.authStateReady();
+    const user = auth.currentUser || (await authSdk.signInAnonymously(auth)).user;
+    const raceRef = storeSdk.doc(db, "wordIslandLive", raceId);
+    const snap = await storeSdk.getDoc(raceRef);
+    if (!snap.exists()) return null;
+    const data = snap.data();
+    const startAt = data.startAt && data.startAt.toMillis ? data.startAt.toMillis() : 0;
+    const duration = Number(data.duration) || 0;
+    // An old race (yesterday's, say) is skipped without asking the server, unless this clock is far out.
+    if (data.stopped || data.cls !== pupil.cls || !startAt || Date.now() > startAt + (duration + 600) * 1000) return null;
+    const me = storeSdk.doc(db, "wordIslandLive", raceId, "players", user.uid);
+    const mine = await storeSdk.getDoc(me);
+    const found = mine.exists() && Array.isArray(mine.get("found")) ? mine.get("found").filter((w) => typeof w === "string") : [];
+    const now = storeSdk.serverTimestamp();
+    const sent = Date.now();
+    try {
+      if (mine.exists()) {
+        await storeSdk.updateDoc(me, { seenAt: now });
+      } else {
+        await storeSdk.setDoc(me, { uid: user.uid, name: pupil.name, cls: pupil.cls, found: [], count: 0, lastAt: now, seenAt: now });
+      }
+    } catch (err) {
+      if (err && err.code === "permission-denied") return null;
+      throw err;
+    }
+    const back = Date.now();
+    // The server stamped seenAt while the write was on its way, so it is about halfway between sent and back.
+    const saved = await storeSdk.getDoc(me);
+    const seenAt = saved.get("seenAt");
+    const offset = seenAt && seenAt.toMillis ? seenAt.toMillis() - (sent + back) / 2 : 0;
+    return {
+      race: {
+        unit: String(data.unit || ""),
+        words: Array.isArray(data.words) ? data.words.map(String) : [],
+        grid: Array.isArray(data.grid) ? data.grid.map(String) : [],
+        duration,
+        startAt,
+        stopped: Boolean(data.stopped)
+      },
+      found,
+      offset
+    };
+  },
+  // Calls onRace({ stopped }) whenever the race changes; resolves to a function that stops listening.
+  async watch(raceId, onRace) {
+    const { storeSdk, db } = await loadSdk();
+    return storeSdk.onSnapshot(storeSdk.doc(db, "wordIslandLive", raceId),
+      (snap) => onRace({ stopped: snap.exists() ? Boolean(snap.get("stopped")) : true }),
+      (err) => console.warn("Word Island: live race not watched.", err));
+  },
+  // The pupil's full list of found words, after each new one. The teacher's ranking updates from it.
+  async found(raceId, list) {
+    const { storeSdk, auth, db } = await loadSdk();
+    if (!auth.currentUser) return;
+    const now = storeSdk.serverTimestamp();
+    try {
+      await storeSdk.updateDoc(storeSdk.doc(db, "wordIslandLive", raceId, "players", auth.currentUser.uid),
+        { found: list, count: list.length, lastAt: now, seenAt: now });
+    } catch (err) {
+      console.warn("Word Island: found word not saved.", err);
+    }
+  }
+};
 window.dispatchEvent(new Event("wi-send-ready"));

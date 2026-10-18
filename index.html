@@ -586,6 +586,62 @@
   .hushbox h2:focus { outline: none; }
   .hushbox p { margin: 0; font-size: clamp(1.1rem, 3.6vw, 1.4rem); font-weight: 600; color: var(--gold); }
   @keyframes hushpulse { 50% { transform: scale(1.08); } }
+  /* Live word search (spec 0015): the teacher's class race covers the page; Pause still goes on top. */
+  .live {
+    position: fixed; inset: 0; z-index: 12;
+    overflow-y: auto; background: var(--paper);
+    padding: 12px 16px calc(18px + env(safe-area-inset-bottom));
+  }
+  .live[hidden] { display: none; }
+  .livebox { display: grid; gap: 12px; justify-items: center; max-width: 640px; margin: 0 auto; text-align: center; }
+  .livebox h2 {
+    margin: 8px 0 0; font-family: Fraunces, Palatino, Georgia, serif; font-weight: 600;
+    font-size: clamp(2rem, 7vw, 3rem); line-height: 1.05;
+  }
+  .livebox h2:focus { outline: none; }
+  .livetop { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: center; width: 100%; }
+  .livetop .pill { margin: 0; }
+  .livetime, .livecount { font-size: 1.25rem; padding: 4px 12px; border-radius: 999px; background: var(--card); border: 2px solid var(--ink); }
+  .livetime { font-variant-numeric: tabular-nums; min-width: 4.2em; }
+  .livetime.low { background: var(--coral-soft); color: var(--coral); }
+  .livecd { margin: 0; font-family: Fraunces, Palatino, Georgia, serif; font-size: clamp(5rem, 24vw, 9rem); line-height: 1; color: var(--sky); }
+  .liveform { display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; width: 100%; }
+  .liveform label { font-weight: 700; }
+  .liveform input {
+    font: inherit; font-size: 1.4rem; font-weight: 700; letter-spacing: .06em;
+    width: min(11em, 52vw); min-height: 48px; padding: 6px 12px;
+    border: 3px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink);
+  }
+  .liveform .btn { min-height: 48px; }
+  .livemsg { margin: 0; min-height: 1.5em; font-weight: 700; }
+  .livemsg.good { color: var(--leaf); }
+  .livemsg.bad { color: var(--coral); }
+  .lgrid {
+    --cell: min(calc((100vw - 40px) / var(--n)), 46px);
+    display: grid; grid-template-columns: repeat(var(--n), var(--cell)); gap: 0;
+    border: 3px solid var(--ink); border-radius: 10px; overflow: hidden; background: #fff;
+    user-select: none;
+  }
+  .lgrid.small { --cell: min(calc((100vw - 40px) / var(--n)), 30px); }
+  .lcell {
+    width: var(--cell); height: var(--cell); display: grid; place-items: center;
+    font-weight: 700; font-size: calc(var(--cell) * .56); border: 1px solid #efe6d6;
+  }
+  .lcell.pop { animation: lpop .5s ease-out; }
+  @keyframes lpop { 40% { transform: scale(1.25); } }
+  .lclues { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .lclue {
+    display: grid; justify-items: center; gap: 2px; min-width: 84px; padding: 6px 8px;
+    border: 2px dashed var(--line); border-radius: 12px; background: var(--card);
+  }
+  .lclue.got { border: 2px solid var(--leaf); background: var(--leaf-soft); }
+  .lclue b { font-size: 1.05rem; }
+  .lclue small { color: #4a5670; }
+  .lblank { font-weight: 700; letter-spacing: .05em; }
+  .lpic { width: 64px; height: 48px; display: grid; place-items: center; overflow: hidden; }
+  .lpic img, .lpic svg { max-width: 64px; max-height: 48px; width: auto; height: auto; }
+  .livescore { margin: 0; font-size: 1.4rem; }
+  .livescore b { font-size: 2rem; color: var(--leaf); }
   .askbox {
     background: #fff;
     border: 3px solid var(--ink);
@@ -668,6 +724,7 @@
     <p id="hushtext">Hands off. Eyes on your teacher. Your game will wait for you.</p>
   </div>
 </div>
+<div id="live" class="live" role="dialog" aria-modal="true" aria-label="Live word search" hidden></div>
 <noscript><p>This page needs JavaScript. Turn it on, then open Word Island again.</p></noscript>
 <script src="shared/bank.js"></script>
 <script src="shared/settings.js"></script>
@@ -721,6 +778,7 @@ const BOARD = { runner: "Top runners", planes: "Top pilots" };
 <script src="units/u9.js"></script>
 <script src="sky.js"></script>
 <script src="run.js"></script>
+<script src="live.js"></script>
 <script>
 const GAME_IDS = ["maze", "moles", "hangman", "runner", "planes"];
 // Run and pick and Listen and shoot both read the word out, then the pupil picks a gate or a plane.
@@ -1063,7 +1121,7 @@ function later(fn, ms) {
 
 // The game waits behind the "Leave this game?" box, so nothing falls, pops up or moves on meanwhile.
 function resumeGame() {
-  if (hushed || !play || !play.paused) return;
+  if (hushed || liveOn() || !play || !play.paused) return;
   play.paused = false;
   if (play.left || play.finished) return;
   const title = document.getElementById("qtitle");
@@ -1125,6 +1183,7 @@ function route() {
   U = null;
   state = load();
   applyHush();
+  checkLive();
   if (!state.name || (classes && !classes[state.cls])) {
     showName();
     return;
@@ -1194,6 +1253,8 @@ function watchHush() {
     .then(() => window.wiWatchSettings((data) => {
       pausedClasses = wiPausedClasses(data);
       applyHush();
+      liveIds = data && data.live && typeof data.live === "object" ? data.live : {};
+      checkLive();
     }))
     .catch((err) => {
       hushWatching = false;
@@ -1207,15 +1268,79 @@ function applyHush() {
   hushed = on;
   const ask = document.getElementById("ask");
   document.getElementById("hush").hidden = !on;
-  document.querySelector(".app").inert = on;
+  document.querySelector(".app").inert = on || liveOn();
   ask.inert = on;
+  document.getElementById("live").inert = on;
   if (on) {
     if (play) play.paused = true;
     if (canSpeak()) window.speechSynthesis.cancel();
     document.getElementById("hushtitle").focus({ preventScroll: true });
+  } else if (liveOn()) {
+    live.ctl.focus();
   } else if (ask.hidden) {
     resumeGame();
   }
+}
+
+// Live word search (spec 0015). The teacher starts a race for a class on the results page, and the settings
+// document Pause already watches names it: live = { "2B": raceId }. Every pupil of that class who has Word Island
+// open (not the teacher explain page) joins, and the race screen covers whatever they were doing until they close it.
+let liveIds = {};
+let liveSeen = "";
+let live = null;
+
+function liveOn() {
+  return Boolean(live && live.ctl && live.ctl.open);
+}
+
+function checkLive() {
+  if (teacherMode || !state.cls || !state.name || !window.wiLive) return;
+  const id = liveIds[state.cls];
+  if (typeof id !== "string" || !id || id === liveSeen) return;
+  liveSeen = id;
+  const pupil = { name: state.name, cls: state.cls };
+  window.wiLive.join(id, pupil)
+    .then((joined) => {
+      if (joined && liveSeen === id) openLive(id, joined);
+    })
+    .catch((err) => console.warn("Word Island: live race not joined.", err));
+}
+
+function openLive(id, joined) {
+  const unit = UNITS[joined.race.unit];
+  // Found words show the unit's own picture for that word, from the spelling game.
+  const pics = {};
+  if (unit) unit.banks.hangman.forEach((item) => { pics[LiveRace.norm(item.word)] = item; });
+  const host = document.getElementById("live");
+  if (play) play.paused = true;
+  if (canSpeak()) window.speechSynthesis.cancel();
+  host.hidden = false;
+  document.querySelector(".app").inert = true;
+  live = { id, stop: null, ctl: null };
+  live.ctl = LiveRace.open(host, { ...joined.race, unitNumber: unit ? unit.number : "" }, {
+    now: () => Date.now() + joined.offset,
+    found: joined.found,
+    clue: (word) => (pics[word] ? picture(pics[word], true) : ""),
+    onFound: (list) => window.wiLive.found(id, list),
+    say: (text) => speak(text, false),
+    esc,
+    onClose: closeLive
+  });
+  window.wiLive.watch(id, (race) => {
+    if (live && live.id === id && live.ctl) live.ctl.update(race);
+  }).then((stop) => {
+    if (live && live.id === id) live.stop = stop;
+    else stop();
+  }).catch((err) => console.warn("Word Island: live race not watched.", err));
+}
+
+function closeLive() {
+  const host = document.getElementById("live");
+  if (live && live.stop) live.stop();
+  live = null;
+  host.hidden = true;
+  document.querySelector(".app").inert = hushed;
+  if (!hushed && document.getElementById("ask").hidden) resumeGame();
 }
 
 function showHub() {
@@ -2444,6 +2569,8 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     return;
   }
+  // The race screen has its own word box; keys must not reach the game paused behind it.
+  if (liveOn()) return;
   const asking = !document.getElementById("ask").hidden;
   if (asking) {
     if (event.key === "Escape") closeAsk();
