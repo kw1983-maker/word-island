@@ -88,3 +88,12 @@ a write after the end, and a pupil reading other players.
   the paused Game 1; a stopped race didn't open for a pupil who arrived later; a new race reached that pupil. No
   console errors.
 - Not yet tried: a natural time up end, real phones, and the real Firebase project.
+
+## All units (2026-10-18)
+The teacher tried Unit 3 on the real site ("It works!") and asked for every unit. `LIVE_WORDS` now covers Units 1 to 9,
+each with its spelling words (17 to 26 words per unit), minus names, two-letter words, "pencil case", and one word
+of each pair where one hides inside the other ("pen"/"pencil", "book"/"notebook", "hot"/"photo"). The Unit box starts
+on the first unit ticked for the chosen class. Checked: every word is a spelling word of its unit (so it has a
+picture), and 200 grids each for 8, 10 and 12 words in every unit came out right (`gridcheck.mjs`). In the browser,
+a race for each of the 9 units reached the pupil with the right unit and size, and a found word showed its picture
+(36 of 36), and the Unit 3 run still passed (27 of 27).
