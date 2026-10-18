@@ -1189,6 +1189,7 @@ function route() {
   state = load();
   applyHush();
   checkLive();
+  checkLobby();
   if (!state.name || (classes && !classes[state.cls])) {
     showName();
     return;
@@ -1260,6 +1261,7 @@ function watchHush() {
       applyHush();
       liveIds = data && data.live && typeof data.live === "object" ? data.live : {};
       checkLive();
+      noteLobby(data && data.lobby && typeof data.lobby === "object" ? data.lobby : {});
     }))
     .catch((err) => {
       hushWatching = false;
@@ -1344,6 +1346,69 @@ function openLive(id, joined) {
     else stop();
   }).catch((err) => console.warn("Word Island: live race not watched.", err));
 }
+
+// Who has Word Island open (spec 0015). While the teacher's live word search panel waits on this pupil's class
+// (settings lobby = { "2B": time }), the pupil checks in every 45 s and checks out on leaving, so the panel can
+// count who is ready before Start. The rest of the time, at home too, nothing is sent.
+const LOBBY_FRESH_MS = 10 * 60000;
+const BEAT_MS = 45000;
+// Per class: the lobby time the teacher's page last sent, and when (on this device's clock) it arrived.
+// The panel sends a new time every 4 minutes, so a value that stops changing goes stale after 10.
+const lobbySeen = {};
+let beatTimer = 0;
+let beatCls = "";
+
+function noteLobby(raw) {
+  const now = Date.now();
+  Object.keys(raw).forEach((cls) => {
+    const at = raw[cls] && raw[cls].toMillis ? raw[cls].toMillis() : 0;
+    const old = lobbySeen[cls];
+    if (old && old.at === at) return;
+    // The first value seen on opening the page may be old (the panel was closed hours ago): only trust it
+    // if this device's clock agrees it is recent. A value that changes later is new whatever the clock says.
+    const got = old ? now : (at && Math.abs(now - at) < LOBBY_FRESH_MS ? Math.min(now, at) : 0);
+    lobbySeen[cls] = { at, got };
+  });
+  checkLobby();
+}
+
+function lobbyOpen(cls) {
+  const seen = lobbySeen[cls];
+  return Boolean(seen && seen.got && Date.now() - seen.got < LOBBY_FRESH_MS);
+}
+
+function checkLobby() {
+  const want = !teacherMode && Boolean(state.name && state.cls && window.wiOnline)
+    && lobbyOpen(state.cls) && document.visibilityState === "visible";
+  if (!want) {
+    if (beatTimer) {
+      clearInterval(beatTimer);
+      beatTimer = 0;
+      beatCls = "";
+      window.wiOnline.leave().catch(() => {});
+    }
+    return;
+  }
+  // A pupil who changes class checks in again at once, under the new class.
+  if (beatTimer && beatCls === state.cls) return;
+  clearInterval(beatTimer);
+  beatCls = state.cls;
+  const beat = () => {
+    if (!lobbyOpen(state.cls)) {
+      checkLobby();
+      return;
+    }
+    window.wiOnline.beat({ name: state.name, cls: state.cls })
+      .catch((err) => console.warn("Word Island: check in not sent.", err));
+  };
+  beat();
+  beatTimer = setInterval(beat, BEAT_MS);
+}
+
+document.addEventListener("visibilitychange", checkLobby);
+window.addEventListener("pagehide", () => {
+  if (beatTimer && window.wiOnline) window.wiOnline.leaveNow();
+});
 
 function closeLive() {
   const host = document.getElementById("live");

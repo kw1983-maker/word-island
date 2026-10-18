@@ -215,4 +215,40 @@ window.wiLive = {
     }
   }
 };
+// Who has Word Island open (spec 0015): one row per pupil device, kept fresh while the teacher's live word search
+// panel waits on the class, and deleted when the pupil leaves. Only the teacher can read them.
+// A closing tab can't wait for the SDK, so leaving then uses a plain keepalive request with the sign-in token kept
+// from the last check in. If even that is lost, the teacher's list drops the row after 100 s.
+const FIRESTORE_REST = "https://firestore.googleapis.com/v1";
+let onlineToken = null;
+
+window.wiOnline = {
+  async beat(pupil) {
+    const { authSdk, storeSdk, auth, db } = await loadSdk();
+    await auth.authStateReady();
+    const user = auth.currentUser || (await authSdk.signInAnonymously(auth)).user;
+    await storeSdk.setDoc(storeSdk.doc(db, "wordIslandOnline", user.uid),
+      { uid: user.uid, name: pupil.name, cls: pupil.cls, seenAt: storeSdk.serverTimestamp() });
+    onlineToken = { uid: user.uid, token: await user.getIdToken() };
+  },
+  async leave() {
+    onlineToken = null;
+    if (!ready) return;
+    const { storeSdk, auth, db } = await loadSdk();
+    if (!auth.currentUser) return;
+    await storeSdk.deleteDoc(storeSdk.doc(db, "wordIslandOnline", auth.currentUser.uid)).catch(() => {});
+  },
+  // For pagehide: sends at once and does not wait.
+  leaveNow() {
+    if (!onlineToken) return;
+    const { uid, token } = onlineToken;
+    onlineToken = null;
+    try {
+      fetch(`${FIRESTORE_REST}/projects/${config.projectId}/databases/(default)/documents/wordIslandOnline/${uid}`,
+        { method: "DELETE", keepalive: true, headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+    } catch (err) {
+      // Nothing more to do while the page closes.
+    }
+  }
+};
 window.dispatchEvent(new Event("wi-send-ready"));

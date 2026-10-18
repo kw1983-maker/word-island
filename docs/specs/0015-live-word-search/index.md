@@ -115,3 +115,20 @@ The teacher asked for diagonal words, and for each pupil to see their place on t
 - Checked: rules 45/45; grids for every unit with and without diagonals (200 each); browser 32/32 (Unit 3, places
   1st/2nd/3rd, a new race over an old end screen) and 44/44 (all units, all 12 words found with diagonals, a race
   with no diagonals, and a 2 minute race that ran out of time, with the place arriving and the race closed).
+
+## Who is ready, and 10 minutes (2026-10-18)
+The teacher asked to see, before Start, how many pupils of the class have Word Island open, plus a 10 minute Time.
+- While the panel shows a class (and the teacher's page is on screen), it sets `settings/wordIsland.lobby` to
+  `{ cls: server time }` (only that class), again every 4 minutes. Pupils of that class with a name and class picked,
+  and the page on screen, keep one row in `wordIslandOnline/{uid}` (`uid`, `name`, `cls`, `seenAt`), written at once
+  and every 45 s, and deleted when they hide or close the page (a keepalive REST delete on pagehide, since the SDK
+  can't finish while a tab closes). A lobby time is stale 10 minutes after it last changed on the pupil's device, and
+  a first one seen on opening the page only counts if this device's clock says it is recent. So pupils at home send
+  nothing.
+- The panel shows "N pupils in 2B have Word Island open." with their names: rows seen in the last 100 s, by the
+  server's time (the panel's offset comes from reading back its own lobby write). Only the teacher can read the rows,
+  and pupils may only write or delete their own.
+- Time now has 2, 3, 5 and 10 minutes (the rules already allowed up to 600 s).
+- Checked: rules (61 checks, all passed); browser 13/13 (no check in before the panel waits; a pupil already open
+  checks in once it does; other classes and the name screen are not counted; closing the tab and a hidden page drop
+  the pupil; switching the panel's class; a race for the ready pupils), and the race tests again (32/32, 44/44).
