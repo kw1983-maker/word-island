@@ -140,7 +140,7 @@ window.wiWatchSettings = async (onData) => {
 // Live word search (spec 0015): the race the teacher started for a class, and this pupil's row in it.
 // The rules only take a pupil's words while the race is on, so a refused join means the race is over.
 window.wiLive = {
-  // Resolves to { race, found, offset } (offset: server clock minus this device's clock), or null.
+  // Resolves to { race, found, offset, uid } (offset: server clock minus this device's clock), or null.
   async join(raceId, pupil) {
     const { authSdk, storeSdk, auth, db } = await loadSdk();
     await auth.authStateReady();
@@ -180,17 +180,26 @@ window.wiLive = {
         grid: Array.isArray(data.grid) ? data.grid.map(String) : [],
         duration,
         startAt,
-        stopped: Boolean(data.stopped)
+        stopped: Boolean(data.stopped),
+        diagonal: data.diagonal === true
       },
       found,
-      offset
+      offset,
+      uid: user.uid
     };
   },
-  // Calls onRace({ stopped }) whenever the race changes; resolves to a function that stops listening.
+  // Calls onRace({ stopped, places }) whenever the race changes; resolves to a function that stops listening.
+  // places (uid → 1, 2, 3 …) arrives from the teacher's page once the race is over.
   async watch(raceId, onRace) {
     const { storeSdk, db } = await loadSdk();
     return storeSdk.onSnapshot(storeSdk.doc(db, "wordIslandLive", raceId),
-      (snap) => onRace({ stopped: snap.exists() ? Boolean(snap.get("stopped")) : true }),
+      (snap) => {
+        const places = snap.exists() ? snap.get("places") : null;
+        onRace({
+          stopped: snap.exists() ? Boolean(snap.get("stopped")) : true,
+          places: places && typeof places === "object" ? places : null
+        });
+      },
       (err) => console.warn("Word Island: live race not watched.", err));
   },
   // The pupil's full list of found words, after each new one. The teacher's ranking updates from it.

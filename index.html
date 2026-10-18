@@ -642,6 +642,11 @@
   .lpic img, .lpic svg { max-width: 64px; max-height: 48px; width: auto; height: auto; }
   .livescore { margin: 0; font-size: 1.4rem; }
   .livescore b { font-size: 2rem; color: var(--leaf); }
+  .liveplace { margin: 0; min-height: 1.5em; font-size: 1.3rem; font-weight: 700; }
+  .liveplace.top {
+    font-family: Fraunces, Palatino, Georgia, serif; font-size: clamp(1.8rem, 6vw, 2.4rem);
+    color: var(--ink); background: var(--gold); border-radius: 16px; padding: 6px 16px;
+  }
   .askbox {
     background: #fff;
     border: 3px solid var(--ink);
@@ -1312,6 +1317,11 @@ function openLive(id, joined) {
   const pics = {};
   if (unit) unit.banks.hangman.forEach((item) => { pics[LiveRace.norm(item.word)] = item; });
   const host = document.getElementById("live");
+  // The teacher started a new race while this pupil was still on the last one (often its end screen).
+  if (live) {
+    if (live.stop) live.stop();
+    if (live.ctl) live.ctl.dispose();
+  }
   if (play) play.paused = true;
   if (canSpeak()) window.speechSynthesis.cancel();
   host.hidden = false;
@@ -1319,6 +1329,7 @@ function openLive(id, joined) {
   live = { id, stop: null, ctl: null };
   live.ctl = LiveRace.open(host, { ...joined.race, unitNumber: unit ? unit.number : "" }, {
     now: () => Date.now() + joined.offset,
+    uid: joined.uid,
     found: joined.found,
     clue: (word) => (pics[word] ? picture(pics[word], true) : ""),
     onFound: (list) => window.wiLive.found(id, list),

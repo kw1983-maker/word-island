@@ -97,3 +97,21 @@ on the first unit ticked for the chosen class. Checked: every word is a spelling
 picture), and 200 grids each for 8, 10 and 12 words in every unit came out right (`gridcheck.mjs`). In the browser,
 a race for each of the 9 units reached the pupil with the right unit and size, and a found word showed its picture
 (36 of 36), and the Unit 3 run still passed (27 of 27).
+
+## Diagonal words and each pupil's place (2026-10-18)
+The teacher asked for diagonal words, and for each pupil to see their place on their own screen at the end.
+- **Diagonal ↘** (top left to bottom right, so every word still reads forwards). A "Diagonal words ↘" tick box on
+  the panel is on by default. With it on, about a third of the words go diagonally. The race saves `diagonal`, and
+  the pupils' instructions say "across →, down ↓ and diagonal ↘". Accidental unit words are checked in all three
+  ways even when it is off.
+- **Place**: pupils can't read each other's rows, so the teacher's page closes a timed race 2 s after the end (it was
+  15 s), then saves `places` (uid → 1, 2, 3 …, in podium order, only for pupils with at least one word) on the race.
+  It saves again if the ranking still changes. Pupils already watch the race, so they see "You won! You came 1st!
+  🏆", "You came 2nd! 🥈", "You came 3rd! 🥉" or "You came 7th out of 25.", read aloud. No words means "Good try!".
+  If no places arrive within 25 s (the teacher's page is closed), the line says to look at the teacher's screen.
+  The rules let only the teacher write `places`, and only on a stopped race.
+- **Fixed**: a new race started while a pupil was still on the last race's screen (often its end screen) used to
+  leave the old screen running underneath. Now it is replaced cleanly (`dispose()`).
+- Checked: rules 45/45; grids for every unit with and without diagonals (200 each); browser 32/32 (Unit 3, places
+  1st/2nd/3rd, a new race over an old end screen) and 44/44 (all units, all 12 words found with diagonals, a race
+  with no diagonals, and a 2 minute race that ran out of time, with the place arriving and the race closed).

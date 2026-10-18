@@ -10,17 +10,19 @@ window.LiveRace = (() => {
     return String(text || "").toLowerCase().replace(/[^a-z]/g, "");
   }
 
-  // Where each word sits in the grid: across (left to right) or down. The teacher's page placed them there.
+  // Where each word sits in the grid: across (left to right), down, or diagonal (top left to bottom right).
+  // The teacher's page placed them there, each one once.
+  const WAYS = [[0, 1], [1, 0], [1, 1]];
   function locate(grid, word) {
     const up = word.toUpperCase();
     for (let r = 0; r < grid.length; r++) {
-      const c = grid[r].indexOf(up);
-      if (c >= 0) return [...up].map((_, i) => [r, c + i]);
-    }
-    for (let c = 0; c < (grid[0] || "").length; c++) {
-      const column = grid.map((row) => row[c]).join("");
-      const r = column.indexOf(up);
-      if (r >= 0) return [...up].map((_, i) => [r + i, c]);
+      for (let c = 0; c < grid[r].length; c++) {
+        for (const [dr, dc] of WAYS) {
+          if ([...up].every((ch, i) => (grid[r + dr * i] || "")[c + dc * i] === ch)) {
+            return [...up].map((_, i) => [r + dr * i, c + dc * i]);
+          }
+        }
+      }
     }
     return [];
   }
@@ -28,6 +30,21 @@ window.LiveRace = (() => {
   function clock(ms) {
     const s = Math.max(0, Math.ceil(ms / 1000));
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  }
+
+  // 1 → "1st", 2 → "2nd", 3 → "3rd", 11 → "11th", 22 → "22nd".
+  function ordinal(n) {
+    const teen = n % 100 >= 11 && n % 100 <= 13;
+    const end = teen ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[n % 10] || "th");
+    return `${n}${end}`;
+  }
+
+  // The pupil's own line at the end, from the places the teacher's page saved.
+  function placeText(place, of) {
+    if (place === 1) return { title: "You won! You came 1st! 🏆", say: "You won! You came first!" };
+    if (place === 2) return { title: "You came 2nd! 🥈", say: "You came second!" };
+    if (place === 3) return { title: "You came 3rd! 🥉", say: "You came third!" };
+    return { title: `You came ${ordinal(place)} out of ${of}.`, say: `You came ${ordinal(place)}.` };
   }
 
   // host: the empty overlay element. race: { id, unit, unitNumber, words, grid, duration, startAt (ms), stopped }.
@@ -42,6 +59,9 @@ window.LiveRace = (() => {
     const spots = {};
     words.forEach((w) => { spots[w] = locate(race.grid, w); });
     let stopped = Boolean(race.stopped);
+    let places = null;
+    let shownPlace = 0;
+    let placeWait = 0;
     let phase = "";
     let tick = 0;
     let closed = false;
@@ -84,7 +104,7 @@ window.LiveRace = (() => {
         ${top(clock(race.duration * 1000))}
         <h2 id="livetitle" tabindex="-1">Live word search!</h2>
         <p class="livecd" id="livecd" aria-live="assertive">${Math.ceil((goAt - hooks.now()) / 1000)}</p>
-        <p class="lede">${words.length} words from Unit ${esc(race.unitNumber)} are hiding in the letters, across → and down ↓. Find a word, type it, press Check.</p>
+        <p class="lede">${words.length} words from Unit ${esc(race.unitNumber)} are hiding in the letters, ${race.diagonal ? "across →, down ↓ and diagonal ↘" : "across → and down ↓"}. Find a word, type it, press Check.</p>
       </div>`;
       host.querySelector("#livetitle").focus({ preventScroll: true });
       hooks.say(`Live word search! Get ready. Find the words and type them.`);
@@ -121,13 +141,37 @@ window.LiveRace = (() => {
         <h2 id="livetitle" tabindex="-1">${early ? "Your teacher stopped the race." : "Time's up!"}</h2>
         <p class="livescore">You found <b>${found.length}</b> of ${words.length} words.</p>
         ${found.length ? `<p class="lede">${found.map((w) => `<b>${esc(w)}</b>`).join(" · ")}</p>` : `<p class="lede">Good try!</p>`}
-        <p class="lede">Look at your teacher's screen for the winners.</p>
+        <p class="liveplace" id="liveplace" role="status">${found.length ? "Working out the winners…" : ""}</p>
         <div class="lgrid small" style="--n:${race.grid[0].length}" aria-hidden="true">${cellsHtml()}</div>
         <button type="button" class="btn gold" data-live="close">Back to Word Island</button>
       </div>`;
       host.querySelector("[data-live=close]").addEventListener("click", close);
       host.querySelector("#livetitle").focus({ preventScroll: true });
-      hooks.say(`${early ? "Your teacher stopped the race." : "Time's up!"} You found ${found.length} words.`);
+      // After a reload the places may be here already: say them with the rest, so one line doesn't cut off the other.
+      const place = showPlace(true);
+      hooks.say(`${early ? "Your teacher stopped the race." : "Time's up!"} You found ${found.length} words.${place ? ` ${place}` : ""}`);
+      // The teacher's page saves the places a few seconds after the end. If it is not open, say where to look.
+      if (found.length && !places) {
+        placeWait = setTimeout(() => {
+          const line = host.querySelector("#liveplace");
+          if (!places && line) line.textContent = "Look at your teacher's screen for the winners.";
+        }, 25000);
+      }
+    }
+
+    // Shows the pupil's place once it has arrived; returns what to say aloud, or "".
+    function showPlace(quiet) {
+      const line = host.querySelector("#liveplace");
+      if (phase !== "end" || !line || !places || !found.length) return "";
+      const place = Number(places[hooks.uid]);
+      if (!place || shownPlace === place) return "";
+      shownPlace = place;
+      clearTimeout(placeWait);
+      const text = placeText(place, Object.keys(places).length);
+      line.textContent = text.title;
+      line.classList.toggle("top", place <= 3);
+      if (!quiet) hooks.say(text.say);
+      return text.say;
     }
 
     function say(text, kind) {
@@ -197,6 +241,7 @@ window.LiveRace = (() => {
       if (closed) return;
       closed = true;
       clearInterval(tick);
+      clearTimeout(placeWait);
       host.innerHTML = "";
       hooks.onClose();
     }
@@ -205,9 +250,14 @@ window.LiveRace = (() => {
     tick = setInterval(step, 200);
 
     return {
-      // The race document changed: the teacher may have pressed Stop.
+      // The race document changed: the teacher may have pressed Stop, or saved the final places.
       update(next) {
-        if (next && next.stopped && !stopped) {
+        if (!next) return;
+        if (next.places) {
+          places = next.places;
+          showPlace();
+        }
+        if (next.stopped && !stopped) {
           stopped = true;
           step();
         }
@@ -218,6 +268,12 @@ window.LiveRace = (() => {
         if (input) input.focus({ preventScroll: true });
       },
       close,
+      // A new race is taking over the screen: stop this one without the close hook, so the game stays paused.
+      dispose() {
+        closed = true;
+        clearInterval(tick);
+        clearTimeout(placeWait);
+      },
       get open() { return !closed; }
     };
   }
