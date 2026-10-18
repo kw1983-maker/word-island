@@ -38,7 +38,6 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 20 | Let's play island (Unit 2) | Release 6 | planned |
 | 21 | Pet show island (Unit 3) | Release 6 | in-progress |
 | 22 | Lunchtime island (Unit 4) | Release 6 | in-progress |
-| 25 | Story Quest RPG (Unit 9) | Story Quest | in-progress |
 
 ## Already built (for context)
 
@@ -264,23 +263,6 @@ A picnic and lunchbox island for food words.
 - [x] Build it: `/develop lunchtime island` (island file, 19 new tiles, map with canteen, kitchen, picnic, garden, coconut palm, apple tree, fruit stall, pizza oven, shop and lunch table, Word Island card)
 - [x] Verify it: all 8 checks passed in a browser on 2026-10-17 (scores reaching the results page waits for feature 10, as on the other islands)
 Spec [0013](../specs/0013-quest-lunchtime-island/index.md) · code in `quest/islands/u4.js`, `quest/islands/u4-map.js`
-
-## Story Quest: 2D pixel story RPG
-
-A second, flat 2D game beside Treasure Quest: pupils walk a top down pixel map, talk to the series cast, answer unit questions, carry things in a bag and finish a mission. One data file per unit (`rpg/missions/uN.js`).
-
-### 25. Story Quest RPG (Unit 9) · in-progress
-"Save the Beach Day": a storm mixed up the beach; help Mei, Jie, Flash, the ice cream seller and Thunder so Robo's party can start.
-**Done when:** a pupil can play the Unit 9 mission end to end on a phone and a laptop, from the Word Island card to the finish panel.
-- [x] Design it (spec): the teacher picked Unit 9, inside Word Island, 2D pixel story RPG, "Save the beach day", the Treasure Quest unlock rule, no scores sent yet
-- [ ] Build it: `/develop story quest rpg`
-  - [ ] Page, screens, engine, pixel art and walking
-  - [ ] Beach map, people and talk box
-  - [ ] Quiz, hearts, coins, bag
-  - [ ] Mission, saving, party and finish
-  - [ ] Word Island card and checker
-- [ ] Verify it: `/check verify story quest rpg`
-Spec [0016](../specs/0016-story-quest-rpg/index.md)
 
 ## Deferred
 Out of scope for the current build pass, kept so the plan stays honest.
