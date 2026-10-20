@@ -184,7 +184,7 @@ Each finished island sends name, class, unit and score to your Teacher results p
 **Done when:** a finished island appears on the results page and leaderboard, the rules refuse a score above the island's maximum, and it is proven on the emulator before the real project.
 - [x] Decided (2026-10-20): a Treasure Quest leaderboard under the other two, coins and stars, updating live; no live tracker during play
 - [x] Build it: `finish.js` sends coins and stars to `wordIslandQuestScores` (debug plays stay off); the quiz rules cap it at 140 coins and 1 to 3 stars; the results page shows the board (emulator: rules 25/25, browser 7/7)
-- [ ] Live: Vercel preview approved and promoted
+- [x] Live (2026-10-20): both repos pushed, production deploy from main
 
 ## Release 4: More puzzles and heroes
 
