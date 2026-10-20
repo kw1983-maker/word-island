@@ -61,15 +61,21 @@ function build() {
   const stars = make("div", "stars");
   stars.setAttribute("role", "img");
   stars.hidden = true;
+  // The class's best scores on the island finish (feature 10): a title and a short ranked list.
+  const board = make("div", "qboard");
+  board.hidden = true;
+  const boardTitle = make("p", "qboard-title");
+  const boardList = make("ol", "qboard-list");
+  board.append(boardTitle, boardList);
   const foot = make("div", "talk-foot");
   const line = make("p", "result");
   line.setAttribute("role", "status");
   const buttons = make("div", "talk-buttons");
   foot.append(line, buttons);
-  panel.append(head, question, text, stars, body, foot);
+  panel.append(head, question, text, stars, board, body, foot);
   root.append(panel);
   document.body.append(root);
-  el = { panel, head, label, hear, question, text, stars, body, pic, choices, line, buttons };
+  el = { panel, head, label, hear, question, text, stars, board, boardTitle, boardList, body, pic, choices, line, buttons };
 
   hear.addEventListener("click", () => {
     if (!current || !current.puzzle) return;
@@ -187,6 +193,7 @@ const panelApi = {
     el.question.textContent = puzzle.show;
     el.text.hidden = true;
     el.stars.hidden = true;
+    el.board.hidden = true;
     el.body.hidden = false;
     el.pic.hidden = !puzzle.pic;
     if (puzzle.pic && typeof picture === "function") el.pic.innerHTML = picture(puzzle.pic, true, "../img/");
@@ -233,7 +240,8 @@ const panelApi = {
   // A plain talk box with buttons, for the island finish and other features.
   // onButton(act) runs when a button is tapped; the caller closes the panel.
   // stars: { got, of } shows a row of `of` stars, `got` of them gold (spec 0008).
-  message({ title = "", text = "", stars = null, buttons = [], onButton } = {}) {
+  // board: a title for the class's best scores, shown as "Loading scores…" until fillBoard.
+  message({ title = "", text = "", stars = null, board = "", buttons = [], onButton } = {}) {
     if (!root) build();
     current = { puzzle: null, onButton };
     el.panel.className = "panel talk message";
@@ -246,6 +254,11 @@ const panelApi = {
       el.stars.innerHTML = Array.from({ length: stars.of }, (_, i) => STAR.replace("<svg", `<svg class="${i < stars.got ? "on" : "off"}"`)).join("");
       el.stars.setAttribute("aria-label", `${stars.got} of ${stars.of} stars`);
     }
+    el.board.hidden = !board;
+    if (board) {
+      el.boardTitle.textContent = board;
+      panelApi.fillBoard("Loading scores…");
+    }
     el.body.hidden = true;
     setLine("", "");
     setButtons(buttons);
@@ -253,6 +266,22 @@ const panelApi = {
     el.panel.setAttribute("aria-describedby", "panelq");
     const first = el.buttons.querySelector("button");
     (first || el.question).focus({ preventScroll: true });
+  },
+
+  // The board's rows ({ name, score, stars, me }), best first, or one line of text instead.
+  fillBoard(rows) {
+    if (!root) return;
+    if (typeof rows === "string") {
+      el.boardList.replaceChildren(make("li", "note", rows));
+      return;
+    }
+    el.boardList.replaceChildren(...rows.map((row, rank) => {
+      const item = make("li", row.me ? "me" : "");
+      const starLine = make("em", "", "★".repeat(row.stars || 0));
+      if (row.stars) starLine.setAttribute("aria-label", `${row.stars} ${row.stars === 1 ? "star" : "stars"}`);
+      item.append(make("i", "", `${rank + 1}.`), make("span", "", row.name), starLine, make("b", "", String(row.score)));
+      return item;
+    }));
   },
 
   close() {

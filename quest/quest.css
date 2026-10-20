@@ -249,6 +249,19 @@ html, body {
 .stars svg { width: 48px; height: 48px; filter: drop-shadow(3px 3px 0 #000); }
 .stars .on { fill: #ffd23f; }
 .stars .off { fill: #5d5d66; }
+/* The class's best scores on the island finish (feature 10), like Word Island's pre-round board. */
+.qboard { width: min(100%, 26rem); margin: 0 auto 6px; }
+.qboard[hidden] { display: none; }
+.qboard-title { margin: 0 0 6px; font-size: 17px; font-weight: bold; text-align: center; color: var(--gold); text-shadow: 2px 2px 0 #000; }
+.qboard-list { margin: 0; padding: 6px 12px; list-style: none; background: #14141a; box-shadow: 0 0 0 2px #55555f inset; font-size: 17px; }
+.qboard-list li { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px dashed #3a3a44; text-align: left; }
+.qboard-list li:last-child { border-bottom: 0; }
+.qboard-list li.note { justify-content: center; opacity: .85; }
+.qboard-list i { font-style: normal; min-width: 1.6em; opacity: .8; }
+.qboard-list span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qboard-list em { font-style: normal; color: var(--gold); letter-spacing: 1px; }
+.qboard-list b { min-width: 2.2em; text-align: right; }
+.qboard-list li.me { color: var(--gold); }
 .talk-body { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 14px; align-items: center; }
 .talk-body.nopic { grid-template-columns: minmax(0, 1fr); }
 .talk-body[hidden], .quest-visual[hidden] { display: none; }
@@ -304,6 +317,14 @@ html, body {
   .quest-visual .photo { max-height: 124px; }
   .answers { gap: 6px; }
   .talk-buttons .btn-big { padding: 11px 14px; }
+  .talk.message .quest-text { font-size: 22px; }
+  .talk.message .stars { margin: 0 0 4px; }
+  .talk.message .stars svg { width: 30px; height: 30px; }
+  .qboard-title { font-size: 15px; margin-bottom: 3px; }
+  .qboard-list { font-size: 15px; padding: 3px 10px; }
+  .qboard-list li { padding: 2px 0; }
+  .talk.message .quest-sub { font-size: 16px; }
+  .talk.message .talk-buttons { flex-direction: row; }
   .screen[data-key="ready"] .panel-title, .screen[data-key="loading"] .panel-title { font-size: 30px; }
   .slot { width: 42px; height: 42px; }
   .slot img { width: 32px; height: 32px; }

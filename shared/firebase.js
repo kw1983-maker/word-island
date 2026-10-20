@@ -80,6 +80,7 @@ window.wiSend = async (run) => {
 
 // Each game keeps its own leaderboard. Listen and shoot had one first, so it keeps the old name.
 function scoreCollection(game) {
+  if (game === "quest") return "wordIslandQuestScores";
   return game === "runner" ? "wordIslandRunScores" : "wordIslandScores";
 }
 
@@ -108,7 +109,7 @@ window.wiQuestScore = async (run) => {
   }
 };
 
-// The class's best scores in one game (Listen and shoot unless named) for a unit, best first.
+// The class's best scores in one game (Listen and shoot unless named; "quest" for Treasure Quest) for a unit, best first.
 window.wiLeaderboard = async (unit, cls, game) => {
   const { authSdk, storeSdk, auth, db } = await loadSdk();
   await auth.authStateReady();
@@ -120,7 +121,7 @@ window.wiLeaderboard = async (unit, cls, game) => {
     storeSdk.orderBy("score", "desc"),
     storeSdk.limit(20)
   ));
-  return snap.docs.map((row) => ({ name: String(row.get("name") || ""), score: Number(row.get("score")) || 0 }));
+  return snap.docs.map((row) => ({ name: String(row.get("name") || ""), score: Number(row.get("score")) || 0, stars: Number(row.get("stars")) || 0 }));
 };
 
 // Teacher explain page: Google sign-in, and the saved results (the rules let only the teacher read them).
