@@ -1,7 +1,8 @@
 // Treasure Quest · the island finish (spec 0008). When the last chest opens (spec 0007's finished
 // hook), 1.5 seconds of play later the island ends: the finishing bonus joins the coins, the fanfare
 // plays, and a talk box says "Island finished!" with the coins and up to 3 stars, read aloud. Play
-// again reloads the island with fresh questions; Back to Word Island goes home. Nothing is saved yet.
+// again reloads the island with fresh questions; Back to Word Island goes home. The coins and stars
+// go to the teacher's Treasure Quest leaderboard (feature 10).
 import { islandMax } from "./puzzles.js";
 import { chests } from "./chests.js";
 import { panel } from "./panel.js";
@@ -14,6 +15,39 @@ const TICK = 100;
 const HOME = "../";
 
 let result = null;
+
+const SEND_TRIES = 3;
+const SEND_GAP = 5000; // ms before the first retry; it doubles after each failed try
+
+function firebaseReady() {
+  return new Promise((resolve) => {
+    if (typeof window.wiQuestScore === "function") resolve();
+    else window.addEventListener("wi-send-ready", resolve, { once: true });
+  });
+}
+
+function newKey() {
+  const bytes = crypto.getRandomValues(new Uint8Array(12));
+  return "q" + Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Sends the finished island in the background; a dropped connection gets two more tries.
+// The debug view is for testing, so its plays stay off the leaderboard.
+async function sendScore(quest) {
+  const pupil = quest.pupil || {};
+  if (quest.debug || !pupil.name || !pupil.cls) return;
+  const run = { key: newKey(), unit: quest.island.unit, cls: pupil.cls, name: pupil.name.slice(0, 39), score: result.coins, stars: result.stars };
+  await firebaseReady();
+  for (let tryNo = 1, gap = SEND_GAP; tryNo <= SEND_TRIES; tryNo += 1, gap *= 2) {
+    try {
+      await window.wiQuestScore(run);
+      return;
+    } catch (err) {
+      console.warn(`Treasure Quest: score not saved (try ${tryNo}).`, err);
+      if (tryNo < SEND_TRIES) await new Promise((resolve) => setTimeout(resolve, gap));
+    }
+  }
+}
 
 // Stars for the coins: 3 at 130/140 of the island maximum or more, 2 at 100/140 or more, else 1.
 export function starsFor(coins, max) {
@@ -54,6 +88,7 @@ export const finish = {
       const bonus = quest.island.bonus;
       const coins = Math.min(chestCoins + bonus, max);
       result = { chestCoins, bonus, coins, max, stars: starsFor(coins, max) };
+      sendScore(quest);
       let waited = 0;
       const timer = setInterval(() => {
         if (engine.stats().running) waited += TICK;

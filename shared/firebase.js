@@ -83,6 +83,31 @@ function scoreCollection(game) {
   return game === "runner" ? "wordIslandRunScores" : "wordIslandScores";
 }
 
+// Treasure Quest: a finished island goes on the teacher's Treasure Quest leaderboard (coins and stars).
+// key is made once per play, so a retry after a slow first try never adds a second row.
+window.wiQuestScore = async (run) => {
+  const { authSdk, storeSdk, auth, db } = await loadSdk();
+  await auth.authStateReady();
+  const user = auth.currentUser || (await authSdk.signInAnonymously(auth)).user;
+  const ref = storeSdk.doc(db, "wordIslandQuestScores", run.key);
+  try {
+    await storeSdk.setDoc(ref, {
+      uid: user.uid,
+      unit: run.unit,
+      cls: run.cls,
+      name: run.name,
+      score: run.score,
+      stars: run.stars,
+      createdAt: storeSdk.serverTimestamp()
+    });
+  } catch (err) {
+    // The rules refuse to overwrite a score, so "permission-denied" may mean a slow first try saved it.
+    if (!err || err.code !== "permission-denied") throw err;
+    const saved = await storeSdk.getDoc(ref).catch(() => null);
+    if (!saved || !saved.exists()) throw err;
+  }
+};
+
 // The class's best scores in one game (Listen and shoot unless named) for a unit, best first.
 window.wiLeaderboard = async (unit, cls, game) => {
   const { authSdk, storeSdk, auth, db } = await loadSdk();

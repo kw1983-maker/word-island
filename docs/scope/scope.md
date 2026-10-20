@@ -25,7 +25,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 9 | Island finish & score | Release 1 | done |
 | 23 | Mining | Release 2 | in-progress |
 | 24 | Crafting unit things | Release 2 | planned |
-| 10 | Scores to your results page | Release 3 | planned |
+| 10 | Scores to your results page | Release 3 | in-progress |
 | 11 | Riddle characters | Release 4 | planned |
 | 12 | Listen and find | Release 4 | planned |
 | 13 | Word blocks | Release 4 | planned |
@@ -179,10 +179,12 @@ Make things from the unit's words out of collected blocks (on the beach: a bucke
 
 ## Release 3: Scores reach you
 
-### 10. Scores to your results page · needs a decision
+### 10. Scores to your results page · in-progress
 Each finished island sends name, class, unit and score to your Teacher results page, with a per class, per unit leaderboard; impossible scores are rejected.
 **Done when:** a finished island appears on the results page and leaderboard, the rules refuse a score above the island's maximum, and it is proven on the emulator before the real project.
-- [ ] Design it (spec): `/architect scores to your results page`
+- [x] Decided (2026-10-20): a Treasure Quest leaderboard under the other two, coins and stars, updating live; no live tracker during play
+- [x] Build it: `finish.js` sends coins and stars to `wordIslandQuestScores` (debug plays stay off); the quiz rules cap it at 140 coins and 1 to 3 stars; the results page shows the board (emulator: rules 25/25, browser 7/7)
+- [ ] Live: Vercel preview approved and promoted
 
 ## Release 4: More puzzles and heroes
 
