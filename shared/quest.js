@@ -11,12 +11,11 @@ function wiQuestHasIsland(unitId) {
   return wiQuestIslands.includes(unitId);
 }
 
-// True when the unit has an island and either the address opens everything (the teacher's
-// ?open=all link) or all five of the unit's games are done in Word Island's record on this device.
-// The record is only read, never written; a missing or broken record counts as not finished.
-function wiQuestOpen(unitId, search) {
+// True when the unit has an island and all five of the unit's games are done in Word Island's
+// record on this device. The address cannot open it. The record is only read, never written;
+// a missing or broken record counts as not finished.
+function wiQuestOpen(unitId) {
   if (!wiQuestHasIsland(unitId)) return false;
-  if (new URLSearchParams(search || "").get("open") === "all") return true;
   let done = {};
   try {
     const saved = JSON.parse(localStorage.getItem(`word-island-${unitId}-v2`) || "null");

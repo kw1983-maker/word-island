@@ -182,9 +182,9 @@ async function boot() {
     screens.setBase(access);
     return;
   }
-  // The island opens once the pupil has finished the unit's five Word Island games on this device;
-  // the teacher's ?open=all link opens it anyway (spec 0009, shared/quest.js).
-  if (!wiQuestOpen(unitId, location.search)) {
+  // The island opens once the pupil has finished the unit's five Word Island games on this device
+  // (spec 0009, shared/quest.js). The address cannot skip that.
+  if (!wiQuestOpen(unitId)) {
     screens.setUnit(unit.number);
     screens.setBase("finishGames");
     return;

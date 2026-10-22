@@ -801,8 +801,6 @@ const PUPIL_KEY = "word-island-pupil";
 const OUTBOX = "word-island-u1-v2-outbox";
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const params = new URLSearchParams(location.search);
-const openAll = params.get("open") === "all";
-const forcedGame = GAME_IDS.includes(params.get("game")) ? params.get("game") : null;
 const teacherMode = params.has("teacher");
 
 let U = null;
@@ -908,7 +906,7 @@ function totalStars() {
 }
 
 function unlocked(id) {
-  if (openAll || id === "maze" || id === forcedGame) return true;
+  if (id === "maze") return true;
   if (id === "moles") return !!state.done.maze;
   if (id === "hangman") return !!state.done.moles;
   if (id === "runner") return !!state.done.hangman;
@@ -1202,8 +1200,7 @@ function route() {
 
 function openUnit(id) {
   useUnit(id);
-  if (forcedGame) start(forcedGame, "full");
-  else showHub();
+  showHub();
 }
 
 function showClosed() {
@@ -1457,10 +1454,10 @@ function showHub() {
   `;
 }
 
-// Locked like the game cards until the five games are done on this device (or ?open=all).
+// Locked like the game cards until the five games are done on this device.
 function questCard() {
   const gate = QUEST_GATE;
-  const open = wiQuestOpen(U.id, location.search);
+  const open = wiQuestOpen(U.id);
   return `
     <button type="button" class="gate" data-act="${open ? "quest" : "soon"}" data-gate="${gate.id}" data-need="${esc(gate.need)}" ${open ? "" : 'aria-disabled="true"'}>
       <span class="scene scene-quest" aria-hidden="true"></span>
@@ -2401,9 +2398,7 @@ function renderExplain() {
       ${item ? explainCard(unit, list, item) : explainEmpty()}
       <details class="links">
         <summary>Links for pupils</summary>
-        <p>Every class: <code>${esc(base)}</code> (choose each class's unit on the quiz Teacher results page)</p>
-        ${GATES.map((gate) => `<p>${esc(gate.title)} only: <code>${esc(base)}?game=${gate.id}</code></p>`).join("")}
-        <p>All games open: <code>${esc(base)}?open=all</code></p>
+        <p>Every class: <code>${esc(base)}</code> (choose each class's unit on the quiz Teacher results page). Pupils start on Word maze. The next game opens when that one is finished.</p>
       </details>
     </div>
   `;
@@ -2597,7 +2592,7 @@ document.body.addEventListener("click", (event) => {
   }
   if (!document.getElementById("ask").hidden) return;
   if (act === "play") start(el.dataset.gate, "full");
-  else if (act === "quest") location.assign(`quest/?unit=${U.id}${openAll ? "&open=all" : ""}`);
+  else if (act === "quest") location.assign(`quest/?unit=${U.id}`);
   else if (act === "soon") {
     setFeedback(el.dataset.need, "tip");
     setCaption(el.dataset.need);
